@@ -28,33 +28,44 @@ fun LoginGreeting() {
 
 @Serializable
 data class Info(
-    val email: String,
+    val username: String,
     val password: String
 )
 
 data class User(
-    val first_name: String?,
-    val last_name: String?,
-    val token: String?,
-    val error: String?,
+    val _id: String?,
+    val hkid: String?,
+    val firstName: String?, //200 success
+    val lastName: String?,
+    val gender: String?,
+    val age: Int?,
+    val dob: String?,
+    val email: String?,
+    var username: String?,
+    var password: String?,
+    var isPatient: Boolean?,
+    var resultCode: String?
+
+//    val token: String?,
+//    val error: String?,
 )
 
 @Composable
 fun Login(snackbarHostState: SnackbarHostState) {
     val padding = 16.dp
-    var emailLocal by remember { mutableStateOf("") } //data class
+    var usernameLocal by remember { mutableStateOf("") } //data class
     var pwdLocal by remember { mutableStateOf("") }
     val coroutineScope = rememberCoroutineScope()
 //    val navController = rememberNavController()
 
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
         Row(verticalAlignment = Alignment.CenterVertically) {
-            Text(text = "Email: ", fontSize = 16.sp,
+            Text(text = "Username: ", fontSize = 16.sp,
                 modifier = Modifier.padding(18.dp))
             TextField(
                 maxLines = 1,
-                value = emailLocal,
-                onValueChange = { emailLocal = it }
+                value = usernameLocal,
+                onValueChange = { usernameLocal = it }
             )
         }
         Spacer(Modifier.size(padding))
@@ -72,30 +83,23 @@ fun Login(snackbarHostState: SnackbarHostState) {
         Button(onClick = {
             coroutineScope.launch {
 
-                val info = Info(emailLocal, pwdLocal) //create an object based on Info data class
-//              Log.d("indi", loginSuccess)
+                val info = Info(usernameLocal, pwdLocal) //create an object based on Info data class
 
-//                val loginSuccess: User = KtorClient.postLogin(info) //not String message only, but User data class
-//                Log.d("after", loginSuccess.toString())
-//                var message = ""
-//                if (loginSuccess.token != null) {           //success
-////                    loginSuccess.last_name?.let {}
-//                    message =
-//                        "Login Success. Welcome ${loginSuccess.last_name ?: ""} ${loginSuccess.first_name ?: ""}." //null safety
-//                    globalLoginStatus = true
-//                    globalLoginInfo = User(loginSuccess.first_name, loginSuccess.last_name, loginSuccess.token, loginSuccess.error)
-////                    HomeNav(navController, snackbarHostState, loginSuccess) //call home page --> make in homeView
-//
-//                } else if (loginSuccess.error != null)     //error
-//                    message =
-//                        "Login Failed. The email or password is incorrect, please input again."
+                val loginResult: User = KtorClient.postLogin(info) //not String message only, but User data class
+                var message = ""
+                if (loginResult.resultCode == "200") {           //success
+                    message =
+                        "Login Success. Welcome ${loginResult.lastName ?: ""} ${loginResult.firstName ?: ""}." //null safety
 
-                var message = "first"
-                if (info.password.length > 0)  {
-                    var message = "second"
-                    Log.d("+++++++++++++++", "Login: " + message)
+                    globalLoginStatus = true
+                    globalLoginInfo = User(loginResult._id, loginResult.hkid, loginResult.firstName, loginResult.lastName, loginResult.gender, loginResult.age, loginResult.dob, loginResult.email, loginResult.username, loginResult.password, loginResult.isPatient, loginResult.resultCode);
+//                    HomeNav(navController, snackbarHostState, loginResult) //call home page --> make in homeView
 
-                }
+                } else if (loginResult.resultCode == "400")     //error
+                    message =
+                        "Login Failed. The email or password is incorrect, please input again."
+
+                Log.d("loginView userProfile", message)
                 snackbarHostState.showSnackbar(message)
 
             }
