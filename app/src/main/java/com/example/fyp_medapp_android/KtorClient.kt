@@ -28,25 +28,24 @@ data class HttpBinResponse( //Item
 
 @Serializable
 data class HttpLogResponse( //Login
-    val _id: String?,
-    val hkid: String?,
+//    val _id: String?,
+    val userID: String?,
     val firstName: String?, //200 success
     val lastName: String?,
     val gender: String?,
     val age: Int?,
     val dob: String?,
-    val email: String?,
     var username: String?,
+    val email: String?,
     var password: String?,
-    var isPatient: Boolean?,
+    var userRole: String?,
+    var patientConnection: Array<String>?,
     var resultCode: String?
-//    val token: String? ,
-//    val error: String? //400 invalid //TODO: add error code
 )
 object KtorClient {
     private var token: String = ""
 
-    var apiDomain =  " https://rnsfp-158-182-201-87.a.free.pinggy.online";
+    var apiDomain =  "https://rnlss-158-182-199-233.a.free.pinggy.online";
     val httpClient = HttpClient {
         install(ContentNegotiation) {
             json(Json {
@@ -84,7 +83,7 @@ object KtorClient {
 
 //        token = response.token ?: "" //TODO: add error code
 
-        var user = User(response._id, response.hkid, response.firstName, response.lastName, response.gender, response.age, response.dob, response.email, response.username, response.password, response.isPatient, response.resultCode )
+        var user = User(response.userID, response.firstName, response.lastName, response.gender, response.age, response.dob, response.username, response.email, response.password, response.userRole, response.patientConnection, response.resultCode )
         return user
     }
 }

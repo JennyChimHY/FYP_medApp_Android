@@ -9,6 +9,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.navigation.compose.rememberNavController
 import com.example.fyp_medapp_android.ui.theme.FYP_medApp_AndroidTheme
 
 class MainActivity : ComponentActivity() {
@@ -18,7 +19,9 @@ class MainActivity : ComponentActivity() {
     @Composable
     fun BasicSetting() {
         val snackbarHostState = remember { SnackbarHostState() }
-        LoginScreen(snackbarHostState)
+        val navController = rememberNavController()
+//        LoginScreen(navController, snackbarHostState)
+        HomeNav(navController = navController, snackbarHostState = snackbarHostState)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
