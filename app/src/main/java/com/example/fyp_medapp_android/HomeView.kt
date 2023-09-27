@@ -9,7 +9,9 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.runtime.collection.mutableVectorOf
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
@@ -30,6 +32,19 @@ fun HomeNav(navController: NavHostController, snackbarHostState: SnackbarHostSta
             composable("login") {
                 LoginScreen(navController, snackbarHostState)
             }
+
+            composable("medicine") {
+                medicineSceen(navController)
+            }
+
+            composable("appointment") {
+                appointmentScreen(navController)
+            }
+
+//            composable("healthData") {
+//                healthDataScreen(navController)
+//            }
+
 //            composable("event/{deptId}") { backStackEntry -> //FROM  navController.navigate("details/123")
 //                EventScreen(snackbarHostState, backStackEntry.arguments?.getString("deptId"))
 //            }
@@ -51,7 +66,7 @@ fun InitialScreen(navController: NavHostController, snackbarHostState: SnackbarH
                 navController.navigate("login") }
             ) {
                 Text(text = "Login")
-                HomeScreen(navController, snackbarHostState)
+//                HomeScreen(navController, snackbarHostState)
             }
 
 //        Button(onClick = { SignUpScreen(navController, snackbarHostState) }) {
@@ -60,7 +75,7 @@ fun InitialScreen(navController: NavHostController, snackbarHostState: SnackbarH
 
         }
     } else {
-        Text(text = "Welcome" + globalLoginInfo.lastName + " " + globalLoginInfo.firstName + "!")
+        Text(text = "Welcome ${globalLoginInfo.lastName} ${globalLoginInfo.firstName} !")
         //TODO: add logout button, add navigation to other functions
 
 
@@ -73,9 +88,24 @@ fun InitialScreen(navController: NavHostController, snackbarHostState: SnackbarH
 fun HomeScreen(navController: NavHostController, snackbarHostState: SnackbarHostState) {
     //Home Page to choose and navigate the functions, also show the user's name
     //it allows logout here? or upper
-    Column() {
 
+    var functionImageVectorList = mutableVectorOf<ImageVector>(Icons.Default.Face, Icons.Default.Call, Icons.Default.Person)
+    var functionContentDescriptionList = mutableListOf<String>("medicine", "appointment", "healthData")
+    if (globalLoginStatus) {
+        Column() {
 
+            for(i in functionImageVectorList.indices) {
+                IconButton(onClick = {
+                    navController.navigate(functionContentDescriptionList[i])
+                }) {
+                    Icon(
+                        imageVector = functionImageVectorList[i],
+                        contentDescription = functionContentDescriptionList[i]
+                    )
+                }
+
+            }
+        }
     }
 
 }

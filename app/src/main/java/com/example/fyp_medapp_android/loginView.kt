@@ -19,23 +19,15 @@ import kotlin.math.log
 var globalLoginStatus: Boolean = false
 lateinit var globalLoginInfo: User
 
-@Composable
-fun LoginGreeting() {
-    val padding = 3.dp
-    Column(horizontalAlignment = Alignment.CenterHorizontally) {
-        Spacer(Modifier.size(padding))
-        Text(text = "Login", fontSize = 24.sp, modifier = Modifier.padding(16.dp))
-    }
-}
-
 @Serializable
 data class Info(
     val username: String,
     val password: String
 )
 
+@Serializable
 data class User(
-    //    val _id: String?,
+    val _id: String?,
     val userID: String?,
     val firstName: String?, //200 success
     val lastName: String?,
@@ -93,22 +85,6 @@ fun Login(navController: NavHostController, snackbarHostState: SnackbarHostState
                     message =
                         "Login Success. Welcome ${loginResult.lastName ?: ""} ${loginResult.firstName ?: ""}." //null safety
 
-                    globalLoginStatus = true
-                    globalLoginInfo = User(
-                        loginResult.userID,
-                        loginResult.firstName,
-                        loginResult.lastName,
-                        loginResult.gender,
-                        loginResult.age,
-                        loginResult.dob,
-                        loginResult.username,
-                        loginResult.email,
-                        loginResult.password,
-                        loginResult.userRole,
-                        loginResult.patientConnection,
-                        loginResult.resultCode
-                    );
-
                     globalLoginStatus = true; //redirected in HomeNav
                     globalLoginInfo = loginResult;
 
@@ -133,10 +109,17 @@ fun Login(navController: NavHostController, snackbarHostState: SnackbarHostState
     }
 }
 
+//@Composable
+//fun logout() {
+//    // TODO
+//    //  clearCache() //clear all stored data including medicine, appoint, health data
+//    globalLoginInfo = User(null, null, null, null, null, null, null, null, null, null, null, null)
+//    globalLoginStatus = false
+//}
+
 @Composable
 fun LoginScreen(navController: NavHostController, snackbarHostState: SnackbarHostState) {
     Column(horizontalAlignment = Alignment.Start) {
-        LoginGreeting()
         Login(navController, snackbarHostState)
     }
 }
