@@ -27,7 +27,7 @@ data class HttpBinResponse(
     val url: String,
 )
 
-var apiDomain = "http://rnves-158-182-199-249.a.free.pinggy.online"
+var apiDomain = "https://rnpjw-158-182-199-249.a.free.pinggy.online"
 object KtorClient {
     private var token: String = ""
 
@@ -81,7 +81,7 @@ object KtorClient {
             Log.d("KtorClient getMedicine", medicine.toString())
 
             return medicine
-        } catch (e: Exception) {
+        } catch (e: Exception) {  //catch 404 error from backend
             Log.d("KtorClient getMedicine", e.toString())
 
             //TODO check not null

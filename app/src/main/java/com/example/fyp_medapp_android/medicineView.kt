@@ -25,6 +25,17 @@ import kotlinx.coroutines.launch
 import kotlinx.serialization.Serializable
 import java.util.*
 
+
+@Serializable
+data class MedicineInfo(
+    val _id: String?,
+    val medicineId: String?,
+    val medicineName: String?,
+    val medicineClass: String?,
+    val medicineImageName: String?,
+    val specialRemark: String?
+)
+
 @Serializable
 data class Medicine(
     val _id: String?,
@@ -40,7 +51,8 @@ data class Medicine(
     val issueDate: String?,
     val specialRemark_patient: String?,
     val reminderTime: Array<String> = arrayOf(),
-    val selfNote: String?
+    val selfNote: String?,
+    val medicineInfo: MedicineInfo?
 )
 
 @Composable
@@ -75,11 +87,17 @@ fun medicineSceen(navController: NavHostController) {
             ) {
                 AsyncImage(
                     //fetch the backend directly, apiDomain is a global var from KtorClient
-                    model = apiDomain + "/images/MedApp_medicineImage/" + medicineItem.medicineImageName,
+                    model = apiDomain + "/images/MedApp_medicinePicture/" + medicineItem.medicineInfo?.medicineImageName + ".jpg",
                     contentDescription = null,
                 )
                 Text(
                     text = medicineItem.medicineId.toString(),
+                    modifier = Modifier
+                        .padding(16.dp),
+                    textAlign = TextAlign.Center,
+                )
+                Text(
+                    text = medicineItem.medicineInfo?.medicineName.toString(),
                     modifier = Modifier
                         .padding(16.dp),
                     textAlign = TextAlign.Center,
