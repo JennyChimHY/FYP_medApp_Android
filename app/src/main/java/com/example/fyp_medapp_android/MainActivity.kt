@@ -3,26 +3,25 @@ package com.example.fyp_medapp_android
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Face
+import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material.icons.filled.Home
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.*
 import androidx.navigation.compose.rememberNavController
 import com.example.fyp_medapp_android.ui.theme.FYP_medApp_AndroidTheme
 
 class MainActivity : ComponentActivity() {
 
-    @OptIn(ExperimentalMaterial3Api::class)
-    @Preview(showBackground = true)
-    @Composable
-    fun BasicSetting() {
-        val snackbarHostState = remember { SnackbarHostState() }
-        val navController = rememberNavController()
-//        LoginScreen(navController, snackbarHostState)
-        HomeNav(navController = navController, snackbarHostState = snackbarHostState)
-    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -39,6 +38,49 @@ class MainActivity : ComponentActivity() {
             }
         }
     }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Preview(showBackground = true)
+@Composable
+fun BasicSetting() {
+    val snackbarHostState = remember { SnackbarHostState() }
+    val navController = rememberNavController()
+
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                title = { Text(text = "MedApp", color = Color(0xFFFFFFFF)) },
+                colors = TopAppBarDefaults.smallTopAppBarColors(containerColor = Color(0xFF03756B))
+            )
+        },
+        bottomBar = {
+            if (navController.currentDestination?.route != "home") { //home page no bottom bar
+                NavigationBar {
+                    NavigationBarItem(
+                        icon = {
+                            Icon(
+                                Icons.Default.Home,
+                                contentDescription = "Back to Home Page"
+                            )
+                        },
+                        label = { Text("home") },
+                        selected = true,
+                        onClick = { navController.navigate("home") }
+                    )
+                }
+            }
+        },
+        snackbarHost = { SnackbarHost(snackbarHostState) },  //lab11
+        content = { innerPadding ->
+            Column(modifier = Modifier.padding(innerPadding),) {
+                HomeNav(navController = navController, snackbarHostState = snackbarHostState)
+            }
+        },
+    )
+
+
+//    Text("MedApp")
 }
 
 @Composable

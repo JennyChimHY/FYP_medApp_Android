@@ -20,6 +20,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
+import coil.compose.AsyncImage
 import kotlinx.coroutines.launch
 import kotlinx.serialization.Serializable
 import java.util.*
@@ -27,14 +28,19 @@ import java.util.*
 @Serializable
 data class Medicine(
     val _id: String?,
+    val issueMedID: String?,
     val userID: String?,
     val medicineId: String?,
+    val medicineName: String?,
+    val medicineClass: String?,
+    val medicineImageName: String?, //DB: Name, Backend: return corr. Image
     val dailyIntake: Int?,
     val eachIntakeAmount: Int?,
     val issueQuantity: Int?,
     val issueDate: String?,
     val specialRemark_patient: String?,
     val reminderTime: Array<String> = arrayOf(),
+    val selfNote: String?
 )
 
 @Composable
@@ -67,6 +73,11 @@ fun medicineSceen(navController: NavHostController) {
                     .size(width = 300.dp, height = 200.dp)
                     .padding(8.dp)
             ) {
+                AsyncImage(
+                    //fetch the backend directly, apiDomain is a global var from KtorClient
+                    model = apiDomain + "/images/MedApp_medicineImage/" + medicineItem.medicineImageName,
+                    contentDescription = null,
+                )
                 Text(
                     text = medicineItem.medicineId.toString(),
                     modifier = Modifier

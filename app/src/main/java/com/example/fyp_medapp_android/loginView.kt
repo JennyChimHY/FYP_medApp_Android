@@ -8,6 +8,8 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
@@ -49,13 +51,22 @@ fun Login(navController: NavHostController, snackbarHostState: SnackbarHostState
     var pwdLocal by remember { mutableStateOf("") }
     val coroutineScope = rememberCoroutineScope()
 
-    Column(horizontalAlignment = Alignment.CenterHorizontally) {
-        Row(verticalAlignment = Alignment.CenterVertically) {
+    Column(Modifier.padding(16.dp),
+        horizontalAlignment = Alignment.CenterHorizontally) {
+        Row(
+            horizontalArrangement = Arrangement.Center,
+            verticalAlignment = Alignment.CenterVertically) {
             Text(
-                text = "Username: ", fontSize = 16.sp,
-                modifier = Modifier.padding(18.dp)
+                text = "Username or User ID: ", fontSize = 30.sp,
+                modifier = Modifier.padding(16.dp)
             )
+
+        }
+        Row(Modifier.padding(16.dp),
+            horizontalArrangement = Arrangement.Center,
+            verticalAlignment = Alignment.CenterVertically) {
             TextField(
+                textStyle = TextStyle.Default.copy(fontSize = 28.sp),
                 maxLines = 1,
                 value = usernameLocal,
                 onValueChange = { usernameLocal = it }
@@ -64,8 +75,14 @@ fun Login(navController: NavHostController, snackbarHostState: SnackbarHostState
         Spacer(Modifier.size(padding))
 
         Row(verticalAlignment = Alignment.CenterVertically) {
-            Text(text = "Password: ", fontSize = 16.sp)
+            Text(text = "Password: ", fontSize = 30.sp)
+        }
+        Row(
+            Modifier.padding(16.dp),
+            horizontalArrangement = Arrangement.Center,
+            verticalAlignment = Alignment.CenterVertically) {
             TextField(
+                textStyle = TextStyle.Default.copy(fontSize = 28.sp),
                 maxLines = 1,
                 value = pwdLocal,
                 onValueChange = { pwdLocal = it }
@@ -104,18 +121,26 @@ fun Login(navController: NavHostController, snackbarHostState: SnackbarHostState
                 snackbarHostState.showSnackbar(message)
             }
         }) {
-            Text(text = "Login")
+            Text(text = "Login",
+                modifier = Modifier.padding(16.dp),
+                textAlign = TextAlign.Center,
+                fontSize = 38.sp)
         }
     }
 }
 
-//@Composable
-//fun logout() {
-//    // TODO
-//    //  clearCache() //clear all stored data including medicine, appoint, health data
-//    globalLoginInfo = User(null, null, null, null, null, null, null, null, null, null, null, null)
-//    globalLoginStatus = false
-//}
+@Composable
+fun Logout(navController: NavHostController, snackbarHostState: SnackbarHostState) {
+    // TODO
+    //  clearCache() //clear all stored data including medicine, appoint, health data
+    globalLoginInfo = User(null, null, null, null, null, null, null, null, null, null, null, null, null)
+    globalLoginStatus = false
+
+//    snackbarHostState = remember { SnackbarHostState() } //TODO: clean after logout
+//    snackbarHostState.showSnackbar("Logout Success. See you next time!")
+    Log.d("after logout", " Logout Success. See you next time!")
+    navController.navigate("home") //pass to home page
+}
 
 @Composable
 fun LoginScreen(navController: NavHostController, snackbarHostState: SnackbarHostState) {

@@ -2,7 +2,7 @@ package com.example.fyp_medapp_android
 
 import android.util.Log
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
@@ -10,9 +10,15 @@ import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.collection.mutableVectorOf
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.modifier.modifierLocalConsumer
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.em
+import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -31,6 +37,10 @@ fun HomeNav(navController: NavHostController, snackbarHostState: SnackbarHostSta
 
             composable("login") {
                 LoginScreen(navController, snackbarHostState)
+            }
+
+            composable("logout") {
+                Logout(navController, snackbarHostState)
             }
 
             composable("medicine") {
@@ -56,17 +66,22 @@ fun HomeNav(navController: NavHostController, snackbarHostState: SnackbarHostSta
 fun InitialScreen(navController: NavHostController, snackbarHostState: SnackbarHostState) {
     if(!globalLoginStatus) {
 
-
-        Column {
-            Text(text = "Welcome to MedApp!")
-
+        Column(Modifier.padding(16.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center) {
+            Text(text = "Welcome to MedApp!",
+                modifier = Modifier.padding(24.dp),
+                fontSize = 40.sp,
+                lineHeight = 2.em,
+                )
             Button(onClick = {
-                Log.d("nav in home screen", navController.toString())
-
                 navController.navigate("login") }
             ) {
-                Text(text = "Login")
-//                HomeScreen(navController, snackbarHostState)
+                Text(text = "Login",
+                    modifier = Modifier.padding(16.dp),
+                    textAlign = TextAlign.Center,
+                    fontSize = 38.sp
+                    )
             }
 
 //        Button(onClick = { SignUpScreen(navController, snackbarHostState) }) {
@@ -92,8 +107,15 @@ fun HomeScreen(navController: NavHostController, snackbarHostState: SnackbarHost
     var functionImageVectorList = mutableVectorOf<ImageVector>(Icons.Default.Face, Icons.Default.Call, Icons.Default.Person)
     var functionContentDescriptionList = mutableListOf<String>("medicine", "appointment", "healthData")
     if (globalLoginStatus) {
-        Column() {
 
+        Row() {
+            Text(text = "Welcome ${globalLoginInfo.lastName} ${globalLoginInfo.firstName} !")
+            Button(onClick = { navController.navigate("logout") }) {
+                Text(text = "Logout")
+            }
+        }
+
+        Column() {
             for(i in functionImageVectorList.indices) {
                 IconButton(onClick = {
                     navController.navigate(functionContentDescriptionList[i])
