@@ -77,15 +77,4 @@ fun appointmentScreen(navController: NavHostController) {
             }
         }
     }
-
-    Row() {
-        IconButton(onClick = {
-            navController.navigate("home")
-        }) {
-            Icon(
-                imageVector = Icons.Default.Home,
-                contentDescription = "Home Icon"
-            )
-        }
-    }
 }

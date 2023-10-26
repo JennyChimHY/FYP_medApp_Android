@@ -15,6 +15,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.*
 import androidx.navigation.compose.rememberNavController
@@ -48,13 +49,29 @@ fun BasicSetting() {
     val navController = rememberNavController()
 
     Scaffold(
-        topBar = {
-            TopAppBar(
-                title = { Text(text = "MedApp", color = Color(0xFFFFFFFF)) },
-                colors = TopAppBarDefaults.smallTopAppBarColors(containerColor = Color(0xFF03756B))
-            )
-        },
+//        topBar = {
+//            TopAppBar(
+//                title = { Text(text = "MedApp", color = Color.White, fontSize = 35.sp, fontWeight = FontWeight.Bold) },
+//                colors = TopAppBarDefaults.smallTopAppBarColors(containerColor = MaterialTheme.colorScheme.primary)
+//            )
+//
+//            //add logout button the the bar
+//            if (globalLoginStatus) {
+//
+//                Row() {
+//                    Button(onClick = { navController.navigate("logout") },
+//                            colors = ButtonDefaults.buttonColors(
+//                            containerColor = MaterialTheme.colorScheme.tertiary,
+//                            contentColor = Color.White
+//                        )
+//                    ) {
+//                        Text(text = "Logout")
+//                    }
+//                }
+//            }
+//        },
         bottomBar = {
+            //ToDO: colour (Green40)
             if (navController.currentDestination?.route != "home") { //home page no bottom bar
                 NavigationBar {
                     NavigationBarItem(
@@ -64,7 +81,7 @@ fun BasicSetting() {
                                 contentDescription = "Back to Home Page"
                             )
                         },
-                        label = { Text("home") },
+                        label = { Text("Home") },
                         selected = true,
                         onClick = { navController.navigate("home") }
                     )
@@ -73,14 +90,12 @@ fun BasicSetting() {
         },
         snackbarHost = { SnackbarHost(snackbarHostState) },  //lab11
         content = { innerPadding ->
-            Column(modifier = Modifier.padding(innerPadding),) {
+            Column(modifier = Modifier.padding(innerPadding)) {
                 HomeNav(navController = navController, snackbarHostState = snackbarHostState)
             }
         },
     )
 
-
-//    Text("MedApp")
 }
 
 @Composable

@@ -18,9 +18,11 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import coil.compose.AsyncImage
+import com.example.fyp_medapp_android.ui.theme.FYP_medApp_AndroidTheme
 import kotlinx.coroutines.launch
 import kotlinx.serialization.Serializable
 import java.util.*
@@ -82,7 +84,7 @@ fun medicineSceen(navController: NavHostController) {
                     containerColor = MaterialTheme.colorScheme.primary,
                 ),
                 modifier = Modifier
-                    .size(width = 300.dp, height = 200.dp)
+                    .size(width = 300.dp, height = 500.dp)
                     .padding(8.dp)
             ) {
                 AsyncImage(
@@ -110,18 +112,5 @@ fun medicineSceen(navController: NavHostController) {
                 )
             }
         }
-    }
-
-    Row() {
-        IconButton(onClick = {
-            navController.navigate("home")
-        }) {
-            Icon(
-                imageVector = Icons.Default.Home,
-                contentDescription = "Home Icon"
-            )
-        }
-
-
     }
 }
