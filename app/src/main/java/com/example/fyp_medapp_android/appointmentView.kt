@@ -14,9 +14,13 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.produceState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
+import coil.compose.AsyncImage
 import kotlinx.serialization.Serializable
 
 
@@ -34,47 +38,68 @@ data class Appointment(
     val appointRemark: String?
 )
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun appointmentScreen(navController: NavHostController) {
+    Scaffold(
+        //diaplay the header of each page
+        topBar = {
+            TopAppBar(
+                title = { Text(text = "Appointment", color = Color.White, fontSize = 35.sp, fontWeight = FontWeight.Bold) },
+                colors = TopAppBarDefaults.smallTopAppBarColors(containerColor = MaterialTheme.colorScheme.primary)
+            )
 
-    val appointmentResult = produceState(
-        initialValue = listOf<Appointment>(),
-        producer = {
-            value = KtorClient.getAppointment(globalLoginInfo.userID) //not String message only, but User data class
-        })
-    Log.d("appointScreen after calling API", "appointmentResult: $appointmentResult")
+            //add logout button the the bar
+            logoutButton(navController)
+        },
+        snackbarHost = {  },  //lab11
+        content = { innerPadding ->
+            //display the content of the page
+            Column(modifier = Modifier.padding(innerPadding)) {
+                val appointmentResult = produceState(
+                    initialValue = listOf<Appointment>(),
+                    producer = {
+                        value =
+                            KtorClient.getAppointment(globalLoginInfo.userID) //not String message only, but User data class
+                    })
+                Log.d("appointScreen after calling API", "appointmentResult: $appointmentResult")
 
-    Row() {
-        Text(text = "View Appointment Record")
-    }
-    //Display records card-by card
-    LazyColumn(
-        horizontalAlignment = Alignment.CenterHorizontally,
-        modifier = Modifier.padding(16.dp)) {
-        //TODO scrollable Modifier.verticalScroll(rememberScrollState())
+                Row() {
+                    Text(text = "View Appointment Record")
+                }
+                //Display records card-by card
+                LazyColumn(
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    modifier = Modifier.padding(16.dp)
+                ) {
+                    //TODO scrollable Modifier.verticalScroll(rememberScrollState())
 
-        items(appointmentResult.value) { appointItem ->
-            Card(
-                colors = CardDefaults.cardColors(
-                    containerColor = MaterialTheme.colorScheme.primary,
-                ),
-                modifier = Modifier
-                    .size(width = 300.dp, height = 200.dp)
-                    .padding(8.dp)
-            ) {
-                Text(
-                    text = "Patient's Name:" + globalLoginInfo.lastName + " " + globalLoginInfo.firstName,
-                    modifier = Modifier
-                        .padding(16.dp),
-                    textAlign = TextAlign.Center,
-                )
-                Text(
-                    text = appointItem.appointPlace.toString(),
-                    modifier = Modifier
-                        .padding(16.dp),
-                    textAlign = TextAlign.Center,
-                )
+                    items(appointmentResult.value) { appointItem ->
+                        Card(
+                            colors = CardDefaults.cardColors(
+                                containerColor = MaterialTheme.colorScheme.primary,
+                            ),
+                            modifier = Modifier
+                                .size(width = 300.dp, height = 200.dp)
+                                .padding(8.dp)
+                        ) {
+                            Text(
+                                text = "Patient's Name:" + globalLoginInfo.lastName + " " + globalLoginInfo.firstName,
+                                modifier = Modifier
+                                    .padding(16.dp),
+                                textAlign = TextAlign.Center,
+                            )
+                            Text(
+                                text = appointItem.appointPlace.toString(),
+                                modifier = Modifier
+                                    .padding(16.dp),
+                                textAlign = TextAlign.Center,
+                            )
+                        }
+                    }
+                }
             }
         }
-    }
+    )
+
 }

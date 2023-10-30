@@ -17,9 +17,12 @@ import androidx.compose.runtime.produceState
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import coil.compose.AsyncImage
 import com.example.fyp_medapp_android.ui.theme.FYP_medApp_AndroidTheme
@@ -57,60 +60,80 @@ data class Medicine(
     val medicineInfo: MedicineInfo?
 )
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun medicineSceen(navController: NavHostController) {
     //ref: ItemView in InventoryApp
+    Scaffold(
+        //diaplay the header of each page
+        topBar = {
+            TopAppBar(
+                title = { Text(text = "Medicine", color = Color.White, fontSize = 35.sp, fontWeight = FontWeight.Bold) },
+                colors = TopAppBarDefaults.smallTopAppBarColors(containerColor = MaterialTheme.colorScheme.primary)
+            )
 
-    val medicineResult = produceState(
-        initialValue = listOf<Medicine>(),
-        producer = {
-            value = KtorClient.getMedicine(globalLoginInfo.userID) //not String message only, but User data class
-        })
-    Log.d("medicineScreen after calling API", "medicineResult: $medicineResult")
+            //add logout button the the bar
+            logoutButton(navController)
+        },
+        snackbarHost = {  },  //lab11
+        content = { innerPadding ->
+            //display the content of the page
+            Column(modifier = Modifier.padding(innerPadding)) {
+                val medicineResult = produceState(
+                    initialValue = listOf<Medicine>(),
+                    producer = {
+                        value = KtorClient.getMedicine(globalLoginInfo.userID) //not String message only, but User data class
+                    })
+                Log.d("medicineScreen after calling API", "medicineResult: $medicineResult")
 
-    Row() {
-        Text(text = "View In-taking Medicine Record", modifier = Modifier.padding(16.dp))
-    }
-    //Display records card-by card
-    LazyColumn(
-        horizontalAlignment = Alignment.CenterHorizontally,
-        modifier = Modifier.padding(16.dp)) {
-        //TODO scrollable Modifier.verticalScroll(rememberScrollState())
+                Row() {
+                    Text(text = "View In-taking Medicine Record", modifier = Modifier.padding(16.dp))
+                }
+                //Display records card-by card
+                LazyColumn(
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    modifier = Modifier.padding(16.dp)) {
 
-        items(medicineResult.value) { medicineItem ->
-            Log.d("medicineScreen", "enter each item")
-            Card(
-                colors = CardDefaults.cardColors(
-                    containerColor = MaterialTheme.colorScheme.primary,
-                ),
-                modifier = Modifier
-                    .size(width = 300.dp, height = 500.dp)
-                    .padding(8.dp)
-            ) {
-                AsyncImage(
-                    //fetch the backend directly, apiDomain is a global var from KtorClient
-                    model = apiDomain + "/images/MedApp_medicinePicture/" + medicineItem.medicineInfo?.medicineImageName + ".jpg",
-                    contentDescription = null,
-                )
-                Text(
-                    text = medicineItem.medicineId.toString(),
-                    modifier = Modifier
-                        .padding(16.dp),
-                    textAlign = TextAlign.Center,
-                )
-                Text(
-                    text = medicineItem.medicineInfo?.medicineName.toString(),
-                    modifier = Modifier
-                        .padding(16.dp),
-                    textAlign = TextAlign.Center,
-                )
-                Text(
-                    text = medicineItem.issueDate.toString(),
-                    modifier = Modifier
-                        .padding(16.dp),
-                    textAlign = TextAlign.Center,
-                )
+                    //TODO scrollable Modifier.verticalScroll(rememberScrollState())
+
+                    items(medicineResult.value) { medicineItem ->
+                        Log.d("medicineScreen", "enter each item")
+                        Card(
+                            colors = CardDefaults.cardColors(
+                                containerColor = MaterialTheme.colorScheme.primary,
+                            ),
+                            modifier = Modifier
+                                .size(width = 300.dp, height = 500.dp)
+                                .padding(8.dp)
+                        ) {
+                            AsyncImage(
+                                //fetch the backend directly, apiDomain is a global var from KtorClient
+                                model = apiDomain + "/images/MedApp_medicinePicture/" + medicineItem.medicineInfo?.medicineImageName + ".jpg",
+                                contentDescription = null,
+                            )
+                            Text(
+                                text = medicineItem.medicineId.toString(),
+                                modifier = Modifier
+                                    .padding(16.dp),
+                                textAlign = TextAlign.Center,
+                            )
+                            Text(
+                                text = medicineItem.medicineInfo?.medicineName.toString(),
+                                modifier = Modifier
+                                    .padding(16.dp),
+                                textAlign = TextAlign.Center,
+                            )
+                            Text(
+                                text = medicineItem.issueDate.toString(),
+                                modifier = Modifier
+                                    .padding(16.dp),
+                                textAlign = TextAlign.Center,
+                            )
+                        }
+                    }
+                }
             }
         }
-    }
+    )
+
 }

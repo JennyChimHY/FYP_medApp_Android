@@ -84,7 +84,7 @@ fun HomeNav(navController: NavHostController, snackbarHostState: SnackbarHostSta
 //Functions Explain:
 //1. InitialScreen: .....
 
-//TODO: Scaffold in each screen
+//Page before login
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun InitialScreen(navController: NavHostController, snackbarHostState: SnackbarHostState) {
@@ -96,20 +96,8 @@ fun InitialScreen(navController: NavHostController, snackbarHostState: SnackbarH
                 colors = TopAppBarDefaults.smallTopAppBarColors(containerColor = MaterialTheme.colorScheme.primary)
             )
 
-            //add logout button the the bar
-            if (globalLoginStatus) {
+            //not necessary to add logout button the the bar
 
-                Row() {
-                    Button(onClick = { navController.navigate("logout") },
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = MaterialTheme.colorScheme.tertiary,
-                            contentColor = Color.White
-                        )
-                    ) {
-                        Text(text = "Logout")
-                    }
-                }
-            }
         },
         snackbarHost = { SnackbarHost(snackbarHostState) },  //lab11
         content = { innerPadding ->
@@ -167,6 +155,27 @@ fun InitialScreen(navController: NavHostController, snackbarHostState: SnackbarH
 }
 
 @Composable
+fun logoutButton(navController: NavHostController) {
+    if (globalLoginStatus) {
+        Row(  modifier = Modifier
+                .fillMaxWidth()
+                .padding(end = 20.dp),
+                horizontalArrangement = Arrangement.End) {
+            Button(
+                onClick = { navController.navigate("logout") },
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = MaterialTheme.colorScheme.tertiary,
+                    contentColor = Color.White
+                )
+            ) {
+                Text(text = "Logout")
+            }
+        }
+    }
+}
+
+//after login home page, 1st section: Welcome and able to choose user profile page
+@Composable
 fun welcomeSection() {
     Row() {
         Text(
@@ -211,6 +220,7 @@ fun welcomeSection() {
     }
 }
 
+//after login home page, 2nd section: select functions
 @Composable
 fun selectFunctionSection(navController: NavHostController) {
     var functionImageVectorList = mutableVectorOf<ImageVector>(Icons.Default.Face, Icons.Default.Call, Icons.Default.Person)
@@ -251,6 +261,8 @@ fun selectFunctionSection(navController: NavHostController) {
     }
 
 }
+
+//after login home page, 3rd section: navigate to news feeds
 @Composable
 fun newsFeedCardSection() {
 
@@ -278,9 +290,10 @@ fun newsFeedCardSection() {
 @Composable
 fun HomeScreen(navController: NavHostController, snackbarHostState: SnackbarHostState) {
     //Home Page to choose and navigate the functions, also show the user's name
-    //it allows logout here? or upper
+    //it allows logout
 
     Scaffold(
+        //diaplay the header of each page
         topBar = {
             TopAppBar(
                 title = { Text(text = "Home", color = Color.White, fontSize = 35.sp, fontWeight = FontWeight.Bold) },
@@ -288,22 +301,11 @@ fun HomeScreen(navController: NavHostController, snackbarHostState: SnackbarHost
             )
 
             //add logout button the the bar
-            if (globalLoginStatus) {
-
-                Row() {
-                    Button(onClick = { navController.navigate("logout") },
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = MaterialTheme.colorScheme.tertiary,
-                            contentColor = Color.White
-                        )
-                    ) {
-                        Text(text = "Logout")
-                    }
-                }
-            }
+            logoutButton(navController)
         },
         snackbarHost = { SnackbarHost(snackbarHostState) },  //lab11
         content = { innerPadding ->
+            //display the content of the page
             Column(modifier = Modifier.padding(innerPadding)) {
 
 //        ========= Section 1 ===========

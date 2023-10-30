@@ -49,27 +49,7 @@ fun BasicSetting() {
     val navController = rememberNavController()
 
     Scaffold(
-//        topBar = {
-//            TopAppBar(
-//                title = { Text(text = "MedApp", color = Color.White, fontSize = 35.sp, fontWeight = FontWeight.Bold) },
-//                colors = TopAppBarDefaults.smallTopAppBarColors(containerColor = MaterialTheme.colorScheme.primary)
-//            )
-//
-//            //add logout button the the bar
-//            if (globalLoginStatus) {
-//
-//                Row() {
-//                    Button(onClick = { navController.navigate("logout") },
-//                            colors = ButtonDefaults.buttonColors(
-//                            containerColor = MaterialTheme.colorScheme.tertiary,
-//                            contentColor = Color.White
-//                        )
-//                    ) {
-//                        Text(text = "Logout")
-//                    }
-//                }
-//            }
-//        },
+        //only bottom bar is fixed in all pages
         bottomBar = {
             //ToDO: colour (Green40)
             if (navController.currentDestination?.route != "home") { //home page no bottom bar

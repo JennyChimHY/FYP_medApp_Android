@@ -27,7 +27,7 @@ data class HttpBinResponse(
     val url: String,
 )
 
-var apiDomain = "https://rnuuz-158-182-201-67.a.free.pinggy.online"
+var apiDomain = "https://rnjzl-158-182-188-100.a.free.pinggy.online"
 object KtorClient {
     private var token: String = ""
 
