@@ -176,7 +176,7 @@ fun logoutButton(navController: NavHostController) {
 
 //after login home page, 1st section: Welcome and able to choose user profile page
 @Composable
-fun welcomeSection() {
+fun welcomeSection(navController: NavHostController) {
     Row() {
         Text(
             text = "Welcome\n${globalLoginInfo.lastName} ${globalLoginInfo.firstName} !",
@@ -208,7 +208,7 @@ fun welcomeSection() {
 
         Column() {
             IconButton(onClick = {
-//                navController.navigate("profile")
+                navController.navigate("profile")
             }) {
                 Icon(
                     imageVector = Icons.Default.Person,
@@ -310,7 +310,7 @@ fun HomeScreen(navController: NavHostController, snackbarHostState: SnackbarHost
 
 //        ========= Section 1 ===========
 
-                welcomeSection()
+                welcomeSection(navController)
 
                 HorizontalDivider(
                     thickness = 2.dp,

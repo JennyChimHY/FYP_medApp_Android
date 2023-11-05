@@ -26,7 +26,7 @@ var globalLoginStatus: Boolean = false
 lateinit var globalLoginInfo: User
 
 @Serializable
-data class Info(
+data class Info(  //for frontend input and send to backend
     val username: String,
     val password: String
 )
