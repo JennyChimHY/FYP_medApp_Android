@@ -27,11 +27,10 @@ data class HttpBinResponse(
     val url: String,
 )
 
-var apiDomain = "https://rnygu-219-77-4-247.a.free.pinggy.online"
+var apiDomain = "https://rnzor-158-182-193-1.a.free.pinggy.link"
 object KtorClient {
     private var token: String = ""
 
-//    var apiDomain = "http://rnves-158-182-199-249.a.free.pinggy.online";
     val httpClient = HttpClient {
         install(ContentNegotiation) {
             json(Json {
@@ -101,7 +100,23 @@ object KtorClient {
         } catch (e: Exception) {
             Log.d("KtorClient getAppointment", e.toString())
 
-            //TODO check not null
+            //null or errors
+            return emptyList()
+        }
+    }
+
+    suspend fun getHealthData(userID: String?): List<HealthData> { //Login function, post the info to backend to authorize
+
+        try {
+            val healthdata: List<HealthData> =
+                httpClient.get(apiDomain + "/healthDataRecord/$userID")
+                    .body()
+
+            return healthdata
+        } catch (e: Exception) {
+            Log.d("KtorClient getHealthData", e.toString())
+
+            //null or errors
             return emptyList()
         }
     }

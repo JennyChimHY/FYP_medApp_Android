@@ -69,17 +69,24 @@ fun Login(navController: NavHostController, snackbarHostState: SnackbarHostState
 
             //Login UI
 
-            Column(Modifier.padding(16.dp),
+            Column(Modifier.padding(
+                //different padding for 4 sides
+                top = 50.dp,
+                bottom = 16.dp,
+                start = 16.dp,
+                end = 16.dp
+            ),
                 horizontalAlignment = Alignment.CenterHorizontally) {
                 Row(Modifier.padding(16.dp),
                     horizontalArrangement = Arrangement.Center,
                     verticalAlignment = Alignment.CenterVertically) {
                     Text(
                         text = "Username or User ID: ", fontSize = 30.sp,
-                        modifier = Modifier.padding(16.dp)
+                        modifier = Modifier.padding(16.dp)  //TODO: change to textpadding var
                     )
 
                 }
+
                 Row(Modifier.padding(16.dp),
                     horizontalArrangement = Arrangement.Center,
                     verticalAlignment = Alignment.CenterVertically) {

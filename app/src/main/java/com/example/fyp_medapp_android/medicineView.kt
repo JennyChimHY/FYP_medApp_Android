@@ -1,10 +1,8 @@
 package com.example.fyp_medapp_android
 
 import android.util.Log
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
@@ -26,6 +24,7 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import coil.compose.AsyncImage
 import com.example.fyp_medapp_android.ui.theme.FYP_medApp_AndroidTheme
+import com.example.fyp_medapp_android.ui.theme.Green20
 import kotlinx.coroutines.launch
 import kotlinx.serialization.Serializable
 import java.util.*
@@ -60,6 +59,7 @@ data class Medicine(
     val medicineInfo: MedicineInfo?
 )
 
+var textPadding = 10.dp
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun medicineSceen(navController: NavHostController) {
@@ -68,31 +68,43 @@ fun medicineSceen(navController: NavHostController) {
         //diaplay the header of each page
         topBar = {
             TopAppBar(
-                title = { Text(text = "Medicine", color = Color.White, fontSize = 35.sp, fontWeight = FontWeight.Bold) },
+                title = {
+                    Text(
+                        text = "Medicine",
+                        color = Color.White,
+                        fontSize = 35.sp,
+                        fontWeight = FontWeight.Bold
+                    )
+                },
                 colors = TopAppBarDefaults.smallTopAppBarColors(containerColor = MaterialTheme.colorScheme.primary)
             )
 
             //add logout button the the bar
             logoutButton(navController)
         },
-        snackbarHost = {  },  //lab11
+        snackbarHost = { },  //lab11
         content = { innerPadding ->
             //display the content of the page
             Column(modifier = Modifier.padding(innerPadding)) {
                 val medicineResult = produceState(
                     initialValue = listOf<Medicine>(),
                     producer = {
-                        value = KtorClient.getMedicine(globalLoginInfo.userID) //not String message only, but User data class
+                        value =
+                            KtorClient.getMedicine(globalLoginInfo.userID) //not String message only, but User data class
                     })
                 Log.d("medicineScreen after calling API", "medicineResult: $medicineResult")
 
                 Row() {
-                    Text(text = "View In-taking Medicine Record", modifier = Modifier.padding(16.dp))
+                    Text(
+                        text = "View In-taking Medicine Record",
+                        modifier = Modifier.padding(textPadding)
+                    )
                 }
                 //Display records card-by card
                 LazyColumn(
                     horizontalAlignment = Alignment.CenterHorizontally,
-                    modifier = Modifier.padding(16.dp)) {
+                    modifier = Modifier.padding(16.dp)
+                ) {
 
                     //TODO scrollable Modifier.verticalScroll(rememberScrollState())
 
@@ -103,32 +115,63 @@ fun medicineSceen(navController: NavHostController) {
                                 containerColor = MaterialTheme.colorScheme.primary,
                             ),
                             modifier = Modifier
-                                .size(width = 300.dp, height = 500.dp)
+                                .size(width = 300.dp, height = 300.dp)
                                 .padding(8.dp)
                         ) {
-                            AsyncImage(
-                                //fetch the backend directly, apiDomain is a global var from KtorClient
-                                model = apiDomain + "/images/MedApp_medicinePicture/" + medicineItem.medicineInfo?.medicineImageName + ".jpg",
-                                contentDescription = null,
-                            )
-                            Text(
-                                text = medicineItem.medicineId.toString(),
-                                modifier = Modifier
-                                    .padding(16.dp),
-                                textAlign = TextAlign.Center,
-                            )
-                            Text(
-                                text = medicineItem.medicineInfo?.medicineName.toString(),
-                                modifier = Modifier
-                                    .padding(16.dp),
-                                textAlign = TextAlign.Center,
-                            )
-                            Text(
-                                text = medicineItem.issueDate.toString(),
-                                modifier = Modifier
-                                    .padding(16.dp),
-                                textAlign = TextAlign.Center,
-                            )
+                            Row() {
+                                Column() {
+                                    Text(
+                                        text = medicineItem.medicineId.toString(),
+                                        modifier = Modifier
+                                            .padding(textPadding),
+                                        textAlign = TextAlign.Start,
+                                    )
+                                    Text(
+                                        text = medicineItem.medicineInfo?.medicineName.toString(),
+                                        modifier = Modifier
+                                            .padding(textPadding),
+                                        textAlign = TextAlign.Start,
+                                    )
+                                    Text(
+                                        text = medicineItem.issueDate.toString(),
+                                        modifier = Modifier
+                                            .padding(textPadding),
+                                        textAlign = TextAlign.Start,
+                                    )
+                                }
+
+                                Column() {
+                                    Row(
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .padding(end = 5.dp),
+                                        horizontalArrangement = Arrangement.End
+                                    ) {
+
+//                                        Box(  //labeling the class
+//                                            modifier = Modifier
+//                                                .size(120.dp)
+//                                                .background(Green20)
+//                                        ) {
+//                                            Text(medicineItem.medicineInfo?.medicineClass!!,
+//                                                modifier = Modifier
+//                                                    .padding(textPadding),
+//                                                color = (Color.Black),
+//                                                textAlign = TextAlign.End,
+//                                            )
+//                                        }
+
+                                        AsyncImage(
+                                            //fetch the backend directly, apiDomain is a global var from KtorClient
+                                            model = apiDomain + "/images/MedApp_medicinePicture/" + medicineItem.medicineInfo?.medicineImageName + ".jpg",
+                                            contentDescription = null,
+                                            modifier = Modifier
+                                                .size(120.dp)
+                                                .padding(textPadding)
+                                        )
+                                    }
+                                }
+                            }
                         }
                     }
                 }

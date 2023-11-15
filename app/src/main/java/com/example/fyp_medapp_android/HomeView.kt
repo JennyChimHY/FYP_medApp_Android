@@ -69,9 +69,9 @@ fun HomeNav(navController: NavHostController, snackbarHostState: SnackbarHostSta
                 appointmentScreen(navController)
             }
 
-//            composable("healthData") {
-//                healthDataScreen(navController)
-//            }
+            composable("healthData") {
+                healthDataScreen(navController)
+            }
 
 //            composable("event/{deptId}") { backStackEntry -> //FROM  navController.navigate("details/123")
 //                EventScreen(snackbarHostState, backStackEntry.arguments?.getString("deptId"))
@@ -223,7 +223,7 @@ fun welcomeSection(navController: NavHostController) {
 //after login home page, 2nd section: select functions
 @Composable
 fun selectFunctionSection(navController: NavHostController) {
-    var functionImageVectorList = mutableVectorOf<ImageVector>(Icons.Default.Face, Icons.Default.Call, Icons.Default.Person)
+    var functionImageVectorList = mutableVectorOf<ImageVector>(Icons.Default.Face, Icons.Default.Call, Icons.Default.Favorite)
     var functionContentDescriptionList = mutableListOf<String>("medicine", "appointment", "healthData")
 
     Row(modifier = Modifier.padding(modifierPadding)) {
