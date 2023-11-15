@@ -8,6 +8,8 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -19,6 +21,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
+import com.example.fyp_medapp_android.ui.theme.Green20
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
@@ -61,14 +64,14 @@ var waistWidthList = mutableListOf<HealthData>()
 
 var sortDataFlag = false
 
-fun showTable_filterDataByDate_Type(healthdataResultValue: List<HealthData>) {
+
+@Composable
+fun filterDataByDate_Type(healthdataResultValue: List<HealthData>) {
 //Sort the data by health data type and date
 
-    println("enter filtering")
 //    healthdataResultValue.sortedBy { it.recordDateTime }  //convert string to date first?
 
     for (item in healthdataResultValue) {
-//        println("item: ${item.recordType}")
         when (item.recordType) {
             "bloodPressure" -> bloodPressureList.add(item)
             "bloodSugar" -> bloodSugarList.add(item)
@@ -79,11 +82,6 @@ fun showTable_filterDataByDate_Type(healthdataResultValue: List<HealthData>) {
         }
     }
 
-    //call to show the table
-
-
-//    println(sortedDataList)
-    println("exit filtering")
     sortDataFlag = true
 }
 
@@ -91,6 +89,14 @@ fun showTable_filterDataByDate_Type(healthdataResultValue: List<HealthData>) {
 @Composable
 fun healthDataScreen(navController: NavHostController) {
     sortDataFlag = false
+
+    bloodPressureList.clear()
+    bloodSugarList.clear()
+    heartRateList.clear()
+    temperatureList.clear()
+    bloodOxygenLevelList.clear()
+    waistWidthList.clear()
+
     Scaffold(
         //diaplay the header of each page
         topBar = {
@@ -121,7 +127,7 @@ fun healthDataScreen(navController: NavHostController) {
                     })
 
                 println("before filtering, $sortDataFlag")
-                showTable_filterDataByDate_Type(healthdataResult.value)
+                filterDataByDate_Type(healthdataResult.value)
                 println("after filtering, $sortDataFlag")
 
 //                Log.d("healthdata screen after calling API", "healthdataResult: $healthdataResult")
@@ -130,80 +136,90 @@ fun healthDataScreen(navController: NavHostController) {
 //                    Text(text = "View Health Data Record")
 //                }
 
-//                Row() {
-//                    //dropdown menu to filter the health data type
-//                    val context = LocalContext.current
-//                    val healthData = arrayOf(
-//                        "Blood Pressure",  //bloodPressure
-//                        "Blood Sugar",  //bloodSugar
-//                        "Heart Rate",  //pulse
-//                        "Temperature",  //temperature
-//                        "Blood Oxygen Level",  //bloodOxygenLevel
-//                        "Waist Width"  //waistWidth
-//                    )
-//                    var expanded by remember { mutableStateOf(false) }
-//                    var selectedText by remember { mutableStateOf(healthData[0]) }
-//
-//                    Box(
-//                        modifier = Modifier
-//                            .fillMaxWidth()
-//                            .padding(32.dp)
-//                    ) {
-//                        ExposedDropdownMenuBox(
-//                            expanded = expanded,
-//                            onExpandedChange = {
-//                                expanded = !expanded
-//                            }
-//                        ) {
-//                            TextField(
-//                                value = selectedText,
-//                                onValueChange = {},
-//                                readOnly = true,
-//                                trailingIcon = {
-//                                    ExposedDropdownMenuDefaults.TrailingIcon(
-//                                        expanded = expanded
-//                                    )
-//                                },
-//                                modifier = Modifier.menuAnchor()
-//                            )
-//
-//                            ExposedDropdownMenu(
-//                                expanded = expanded,
-//                                onDismissRequest = {
-//                                    expanded = false
-//                                    //TODO: call api / filter below(as we fetched all data already)
-//                                }
-//                            ) {
-//                                healthData.forEach { item ->
-//                                    DropdownMenuItem(
-//                                        text = { Text(text = item) },
-//                                        onClick = {
-//                                            selectedText = item
-//                                            expanded = false
-//                                            Toast.makeText(context, item, Toast.LENGTH_SHORT)
-//                                                .show()
-//                                        }
-//                                    )
-//                                }
-//                            }
-//                        }
-//                    }
-//                }
+                Row() {
+                    //dropdown menu to filter the health data type
+                    val context = LocalContext.current
+                    val healthData = arrayOf(
+                        "Blood Pressure",  //bloodPressure
+                        "Blood Sugar",  //bloodSugar
+                        "Heart Rate",  //pulse
+                        "Temperature",  //temperature
+                        "Blood Oxygen Level",  //bloodOxygenLevel
+                        "Waist Width"  //waistWidth
+                    )
+                    var expanded by remember { mutableStateOf(false) }
+                    var selectedText by remember { mutableStateOf(healthData[0]) }
 
-                //TODO: Table to display the sorted data
-//timer to extend the waiting time
-//                Thread.sleep(5_000)
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(32.dp)
+                    ) {
+                        ExposedDropdownMenuBox(
+                            expanded = expanded,
+                            onExpandedChange = {
+                                expanded = !expanded
+                            }
+                        ) {
+                            TextField(
+                                value = selectedText,
+                                onValueChange = {},
+                                readOnly = true,
+                                trailingIcon = {
+                                    ExposedDropdownMenuDefaults.TrailingIcon(
+                                        expanded = expanded
+                                    )
+                                },
+                                modifier = Modifier.menuAnchor()
+                            )
 
-//                Row() {
+                            ExposedDropdownMenu(
+                                expanded = expanded,
+                                onDismissRequest = {
+                                    expanded = false
+                                    //TODO: call api / filter below(as we fetched all data already)
+                                }
+                            ) {
+                                healthData.forEach { item ->
+                                    DropdownMenuItem(
+                                        text = { Text(text = item) },
+                                        onClick = {
+                                            selectedText = item
+                                            expanded = false
+                                            Toast.makeText(context, item, Toast.LENGTH_SHORT)
+                                                .show()
+                                        }
+                                    )
+                                }
+                            }
+                        }
+                    }
+                }
+
+                //Table to display the sorted data
 
 
                 if (sortDataFlag) {
-                    println("sortDataFlag is true, enter table")
 
-                    showDataInTable_byType()
+                    //call to show the table, TODO: advance
+                    //1. add into a list of list
+                    //2. call functions
+                    //3. do filtering?
+
+                    Column(
+                        modifier = Modifier
+                            .verticalScroll(rememberScrollState())
+                    ) {
+                        showDataInTable_byType(bloodPressureList)
+                        showDataInTable_byType(bloodSugarList)
+                        showDataInTable_byType(heartRateList)
+                        showDataInTable_byType(temperatureList)
+                        showDataInTable_byType(bloodOxygenLevelList)
+                        showDataInTable_byType(waistWidthList)
+                    }
                 }
-//                }
             }
+            //}
         }
     )
 }
@@ -226,97 +242,58 @@ fun RowScope.TableCell(
 @Composable
 fun showDataInTable_byType(targetList: List<HealthData>) {
 
-//    // Just a fake data... a Pair of Int and String
-//    val tableData = (1..100).mapIndexed { index, item ->
-//        index to "Item $index"
-//    }
     // Each cell of a column must have the same weight.
     val column1Weight = .5f // 50%
     val column2Weight = .5f // 50%
 
-    println("enter table vaildation")
+    println("enter showDataInTable_byType")
     if (!targetList.isEmpty()) { //sortDataFlag &&
-        //for loop here
-        Row() {
-            for (targetList in sortedDataList) {
-
-                if (!targetList.isEmpty()) {
-                    println("enter targetList loop: ${targetList[0].recordType}")
-
-                    // The LazyColumn will be our table. Notice the use of the weights below
-                    LazyColumn(
-                        Modifier
-                            .fillMaxSize()
-                            .padding(16.dp)
-                    ) {
-
-                    //header for each table
-//                    Text(
-//                        text = targetList[0].recordType.toString(),
-//                        fontSize = 20.sp,
-//                        fontWeight = FontWeight.Bold
-//                    )
-
-                        // Here is the header setting
-                        item {
-                            Row(Modifier.background(Color.Gray)) {
-                                TableCell(text = "Date", weight = column1Weight)
-                                TableCell(text = "Data", weight = column2Weight)
-                            }
-                        }
-                        // Here are all the lines of your table.
-                        items(targetList) { item ->
-                            Row(Modifier.fillMaxWidth()) {
-                                println(item.recordDateTime.toString())
-                                TableCell(
-                                    text = item.recordDateTime.toString(),
-                                    weight = column1Weight
-                                )
-                                TableCell(
-                                    text = item.recordValue1_defaultUnit.toString(),  //80"/"100 for blood pressure
-                                    weight = column2Weight
-                                )
-                            }
-                        }
-                    }
 
 
-//
-//                    //table
-//                    LazyColumn(
-//                        horizontalAlignment = Alignment.CenterHorizontally,
-//                        modifier = Modifier.padding(16.dp)
-//                    ) {
-//                        //TODO? scrollable Modifier.verticalScroll(rememberScrollState())
-//
-//                        items(targetList) { healthdataItem ->
-//                            Card(
-//                                colors = CardDefaults.cardColors(
-//                                    containerColor = MaterialTheme.colorScheme.primary,
-//                                ),
-//                                modifier = Modifier
-//                                    .size(width = 300.dp, height = 200.dp)
-//                                    .padding(8.dp)
-//                            ) {
-//                                Text(
-//                                    text = "Patient's Name:" + globalLoginInfo.lastName + " " + globalLoginInfo.firstName,
-//                                    modifier = Modifier
-//                                        .padding(16.dp),
-//                                    textAlign = TextAlign.Center,
-//                                )
-//                                Text(
-//                                    text = healthdataItem.recordType.toString(),
-//                                    modifier = Modifier
-//                                        .padding(16.dp),
-//                                    textAlign = TextAlign.Center,
-//                                )
-//                            }
-//                        }
-//                    }
-//                    println("Table Shown")
-//                }
+        println("enter targetList: ${targetList[0].recordType}")
+
+        //Table, not using LazyColumn as it is used in the outter structure
+        Column(
+            Modifier
+//                    .fillMaxSize()
+                .padding(16.dp)
+        ) {
+
+            //header for each table
+            Text(
+                text = targetList[0].recordType.toString(),
+                fontSize = 20.sp,
+                fontWeight = FontWeight.Bold
+            )
+
+            // Here is the header setting
+            Row(Modifier.background(Green20)) {
+                TableCell(text = "Date", weight = column1Weight)
+                TableCell(text = "Data", weight = column2Weight)
+            }
+            // Here are all the lines of your table.
+            for (item in targetList) {
+                Row(Modifier.fillMaxWidth()) {
+                    TableCell(
+                        text = item.recordDateTime.toString(),
+                        weight = column1Weight
+                    )
+                    TableCell(
+                        text = valueStringConvertor(item),
+                        weight = column2Weight
+                    )
                 }
             }
         }
     }
+
+    println("Table Shown")
+}
+
+fun valueStringConvertor(item: HealthData) : String {
+    if (item.recordType == "bloodPressure") {
+        return " ${item.recordValue1_defaultUnit.toString()} / ${item.recordValue2_defaultUnit.toString()} ${item.recordUnit_Patient.toString()}"
+
+    } else return " ${item.recordValue1_defaultUnit.toString()} ${item.recordUnit_Patient.toString()}"
+
 }
