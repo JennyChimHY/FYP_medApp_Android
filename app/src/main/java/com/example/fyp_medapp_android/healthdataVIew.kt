@@ -291,9 +291,19 @@ fun showDataInTable_byType(targetList: List<HealthData>) {
 }
 
 fun valueStringConvertor(item: HealthData) : String {
-    if (item.recordType == "bloodPressure") {
-        return " ${item.recordValue1_defaultUnit.toString()} / ${item.recordValue2_defaultUnit.toString()} ${item.recordUnit_Patient.toString()}"
 
-    } else return " ${item.recordValue1_defaultUnit.toString()} ${item.recordUnit_Patient.toString()}"
+    when(item.recordType) {
+        "bloodPressure" -> return " ${item.recordValue1_defaultUnit.toString()} / ${item.recordValue2_defaultUnit.toString()} ${item.recordUnit_Patient.toString()}"
+        "temperature" -> {
+            if (item.recordUnit_Patient.toString() == "dF") {
+                var dFvalue = item.recordValue1_defaultUnit!!.toDouble() * 9/5 + 32
+                return " ${dFvalue.toString()} \u2109"
+            }
+            else {
+                return " ${item.recordValue1_defaultUnit.toString()} \u2103"
+            }
+        }
+        else -> return " ${item.recordValue1_defaultUnit.toString()} ${item.recordUnit_Patient.toString()}"
+    }
 
 }
