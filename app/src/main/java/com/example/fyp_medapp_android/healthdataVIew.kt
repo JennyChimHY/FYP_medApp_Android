@@ -246,11 +246,11 @@ fun showDataInTable_byType(targetList: List<HealthData>) {
     val column1Weight = .5f // 50%
     val column2Weight = .5f // 50%
 
-    println("enter showDataInTable_byType")
+//    println("enter showDataInTable_byType")
     if (!targetList.isEmpty()) { //sortDataFlag &&
 
 
-        println("enter targetList: ${targetList[0].recordType}")
+//        println("enter targetList: ${targetList[0].recordType}")
 
         //Table, not using LazyColumn as it is used in the outter structure
         Column(
@@ -261,7 +261,14 @@ fun showDataInTable_byType(targetList: List<HealthData>) {
 
             //header for each table
             Text(
-                text = targetList[0].recordType.toString(),
+                text = when(targetList[0].recordType.toString()) {
+                    "bloodPressure" -> "Blood Pressure"
+                    "bloodSugar" -> "Blood Sugar"
+                    "pulse" -> "Heart Rate"
+                    "temperature" -> "Temperature"
+                    "bloodOxygenLevel" -> "Blood Oxygen Level"
+                    "waistWidth" -> "Waist Width"
+                    else -> "Unknown" },
                 fontSize = 20.sp,
                 fontWeight = FontWeight.Bold
             )
@@ -287,7 +294,7 @@ fun showDataInTable_byType(targetList: List<HealthData>) {
         }
     }
 
-    println("Table Shown")
+//    println("Table Shown")
 }
 
 fun valueStringConvertor(item: HealthData) : String {
