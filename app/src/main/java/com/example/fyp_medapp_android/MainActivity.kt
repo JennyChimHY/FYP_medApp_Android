@@ -49,7 +49,7 @@ fun BasicSetting() {
     val navController = rememberNavController()
 
     Scaffold(
-        //only bottom bar is fixed in all pages
+        //only the location of bottom bar is fixed in all pages
         bottomBar = {
             //ToDO: colour (Green40)
             if (navController.currentDestination?.route != "home") { //home page no bottom bar
@@ -58,7 +58,8 @@ fun BasicSetting() {
                         icon = {
                             Icon(
                                 Icons.Default.Home,
-                                contentDescription = "Back to Home Page"
+                                contentDescription = "Back to Home Page",
+//                                tint = Color.Transparent //failed
                             )
                         },
                         label = { Text("Home") },

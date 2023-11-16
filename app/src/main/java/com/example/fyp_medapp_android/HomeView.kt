@@ -2,6 +2,7 @@ package com.example.fyp_medapp_android
 
 import android.util.Log
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -15,9 +16,11 @@ import androidx.compose.runtime.collection.mutableVectorOf
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.modifier.modifierLocalConsumer
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -57,7 +60,7 @@ fun HomeNav(navController: NavHostController, snackbarHostState: SnackbarHostSta
                 Logout(navController, snackbarHostState)
             }
 
-            composable("profile") {
+            composable("profile") { //user profile
                 profileScreen(navController)
             }
 
@@ -158,8 +161,8 @@ fun InitialScreen(navController: NavHostController, snackbarHostState: SnackbarH
 fun logoutButton(navController: NavHostController) {
     if (globalLoginStatus) {
         Row(  modifier = Modifier
-                .fillMaxWidth()
-                .padding(end = 20.dp),
+            .fillMaxWidth()
+            .padding(end = 20.dp),
                 horizontalArrangement = Arrangement.End) {
             Button(
                 onClick = { navController.navigate("logout") },
@@ -220,10 +223,19 @@ fun welcomeSection(navController: NavHostController) {
     }
 }
 
+@Composable
+fun Icon(
+    painter: Painter,
+    contentDescription: String?,
+    modifier: Modifier = Modifier,
+    tint: Color = LocalContentColor.current
+) {
+}
+
 //after login home page, 2nd section: select functions
 @Composable
 fun selectFunctionSection(navController: NavHostController) {
-    var functionImageVectorList = mutableVectorOf<ImageVector>(Icons.Default.Face, Icons.Default.Call, Icons.Default.Favorite)
+    var functionIconList = mutableVectorOf(R.drawable.medicine, R.drawable.calendar, R.drawable.health)
     var functionContentDescriptionList = mutableListOf<String>("medicine", "appointment", "healthData")
 
     Row(modifier = Modifier.padding(modifierPadding)) {
@@ -244,19 +256,19 @@ fun selectFunctionSection(navController: NavHostController) {
     Row(modifier = Modifier.padding(modifierPadding),
         verticalAlignment = Alignment.CenterVertically) {
 
-        for (i in functionImageVectorList.indices) {
-            IconButton(onClick = {
-                navController.navigate(functionContentDescriptionList[i])
-            }) {
-                Icon(
-                    imageVector = functionImageVectorList[i],
+        for (i in functionIconList.indices) {
+            Button(
+            colors = ButtonDefaults.buttonColors(
+                containerColor = Color.Transparent,
+            ),
+            onClick = {  navController.navigate(functionContentDescriptionList[i]) }) {
+                //IconButton failed to load paintResource
+                Image(
+                    painter = painterResource(id = functionIconList[i]),
                     contentDescription = functionContentDescriptionList[i],
-                    modifier = Modifier.size(100.dp)
+                    modifier = Modifier.size(40.dp)
                 )
             }
-
-            Spacer(Modifier.size(modifierPadding))
-
         }
     }
 
@@ -266,7 +278,7 @@ fun selectFunctionSection(navController: NavHostController) {
 @Composable
 fun newsFeedCardSection() {
 
-    Row() {
+    Row(modifier = Modifier.padding(modifierPadding)) {
         Card(
             shape = RoundedCornerShape(5.dp),
             modifier = Modifier.size(width = 350.dp, height = 150.dp),
