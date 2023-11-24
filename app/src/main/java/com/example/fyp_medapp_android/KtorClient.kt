@@ -1,6 +1,7 @@
 package com.example.fyp_medapp_android
 
 import android.util.Log
+import com.auth0.android.jwt.JWT
 import io.ktor.client.*
 import io.ktor.client.call.*
 import io.ktor.client.plugins.*
@@ -9,10 +10,9 @@ import io.ktor.client.plugins.logging.*
 import io.ktor.client.request.*
 import io.ktor.http.*
 import io.ktor.serialization.kotlinx.json.*
-import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
-import java.util.Date
+
 
 @Serializable
 data class HttpBinResponse(
@@ -27,7 +27,14 @@ data class HttpBinResponse(
     val url: String,
 )
 
-var apiDomain = "https://rnmcd-158-182-110-146.a.free.pinggy.link"
+@Serializable
+data class LoginResult(
+    val resultCode: String,
+    val token: String
+)
+
+var apiDomain = "https://rneoe-158-182-199-240.a.free.pinggy.link"
+var globalToken: JWT? = null
 object KtorClient {
     private var token: String = ""
 
@@ -61,12 +68,45 @@ object KtorClient {
 
     suspend fun postLogin(login: Info): User { //Login function, post the info to backend to authorize
         Log.d("Enter postLogin", login.toString())
-        val user: User =
+        val response: LoginResult =
             httpClient.post(apiDomain + "/login") {
                 setBody(login) //data class is fine in converting to json
             }.body()
 
-        return user
+        if(response.resultCode == "200") {
+
+            val jwt = JWT(response.token)
+            globalToken = jwt
+
+            val issuer = jwt.issuer //get registered claims
+            val isExpired = jwt.isExpired(10) // Do time validation with 10 seconds leeway
+
+
+            //bug: null jor...
+            Log.d("JWT token getClaim", "id: ${jwt.getClaim("_id").asString()}")
+            Log.d("JWT token", "id: ${jwt.getClaim("_id").asString()}")
+            val _id = jwt.getClaim("_id").asString() //get custom claims
+            val userID = jwt.getClaim("userID").asString()
+            val firstName = jwt.getClaim("firstName").asString()
+            val lastName = jwt.getClaim("lastName").asString()
+            val gender = jwt.getClaim("gender").asString()
+            val age = jwt.getClaim("age").asInt()
+            val dob = jwt.getClaim("dob").asString()
+            val username = jwt.getClaim("username").asString()
+            val email = jwt.getClaim("email").asString()
+            val password = jwt.getClaim("password").asString()
+            val userRole = jwt.getClaim("userRole").asString()
+            val patientConnection = jwt.getClaim("patientConnection").asArray(String::class.java)
+
+            val user = User(jwt, _id, userID, firstName, lastName, gender, age, dob, username, email,
+                password, userRole, patientConnection)
+            println("return user")
+            return user
+        } else {
+            println("return null user")
+            return User(null, null, null, null, null, null, null, null, null,
+                null, null, null, null)
+        }
     }
 
     suspend fun getMedicine(userID: String?): List<Medicine> { //Login function, post the info to backend to authorize

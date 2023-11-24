@@ -60,6 +60,7 @@ data class Medicine(
 )
 
 var textPadding = 10.dp
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun medicineSceen(navController: NavHostController) {
@@ -85,10 +86,15 @@ fun medicineSceen(navController: NavHostController) {
         snackbarHost = { },  //lab11
         content = { innerPadding ->
             //display the content of the page
+
+            var convertedDate =
+                mutableListOf<String>()  //TODO: difference between listOf and mutableListOf and List<String>?
             Column(modifier = Modifier.padding(innerPadding)) {
                 val medicineResult = produceState(
                     initialValue = listOf<Medicine>(),
                     producer = {
+
+                        //TODO: put globalToken into header instead of passing id into get path
                         value =
                             KtorClient.getMedicine(globalLoginInfo.userID) //not String message only, but User data class
                     })
@@ -110,6 +116,9 @@ fun medicineSceen(navController: NavHostController) {
 
                     items(medicineResult.value) { medicineItem ->
                         Log.d("medicineScreen", "enter each item")
+
+                        convertedDate = dateConversion(medicineItem.issueDate!!)
+
                         Card(
                             colors = CardDefaults.cardColors(
                                 containerColor = MaterialTheme.colorScheme.primary,
@@ -119,34 +128,48 @@ fun medicineSceen(navController: NavHostController) {
                                 .padding(8.dp)
                         ) {
                             Row() {
-                                Column() {
+                                Column(Modifier.padding(textPadding)) {
                                     Text(
-                                        text = medicineItem.medicineId.toString(),
+                                        text = "Medicine Name: ${medicineItem.medicineInfo?.medicineName.toString()}",
                                         modifier = Modifier
                                             .padding(textPadding),
                                         textAlign = TextAlign.Start,
                                     )
                                     Text(
-                                        text = medicineItem.medicineInfo?.medicineName.toString(),
+                                        text = "Daily Intake: ${medicineItem.dailyIntake.toString()}",
                                         modifier = Modifier
                                             .padding(textPadding),
                                         textAlign = TextAlign.Start,
                                     )
                                     Text(
-                                        text = medicineItem.issueDate.toString(),
+                                        text = "Each Intake: ${medicineItem.eachIntakeAmount.toString()}",
                                         modifier = Modifier
                                             .padding(textPadding),
                                         textAlign = TextAlign.Start,
                                     )
-                                }
 
-                                Column() {
-                                    Row(
-                                        modifier = Modifier
-                                            .fillMaxWidth()
-                                            .padding(end = 5.dp),
-                                        horizontalArrangement = Arrangement.End
-                                    ) {
+                                    if (medicineItem.selfNote != null) {
+                                        Text(
+                                            text = "Self note: ${medicineItem.selfNote}",
+                                            modifier = Modifier
+                                                .padding(textPadding),
+                                            textAlign = TextAlign.Start,
+                                        )
+                                    }
+//                                    Text(
+//                                        text = "Time: ${convertedDate[1]}" ,
+//                                        modifier = Modifier
+//                                            .padding(textPadding),
+//                                        textAlign = TextAlign.Start,
+//                                    )
+                                }
+//!st TODO: 2 column
+                                Column(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(end = 5.dp),
+                                    verticalArrangement = Arrangement.Bottom,
+                                ) {
 
 //                                        Box(  //labeling the class
 //                                            modifier = Modifier
@@ -161,15 +184,22 @@ fun medicineSceen(navController: NavHostController) {
 //                                            )
 //                                        }
 
-                                        AsyncImage(
-                                            //fetch the backend directly, apiDomain is a global var from KtorClient
-                                            model = apiDomain + "/images/MedApp_medicinePicture/" + medicineItem.medicineInfo?.medicineImageName + ".jpg",
-                                            contentDescription = null,
-                                            modifier = Modifier
-                                                .size(120.dp)
-                                                .padding(textPadding)
-                                        )
-                                    }
+                                    AsyncImage(
+                                        //fetch the backend directly, apiDomain is a global var from KtorClient
+                                        model = apiDomain + "/images/MedApp_medicinePicture/" + medicineItem.medicineInfo?.medicineImageName + ".jpg",
+                                        contentDescription = null,
+                                        modifier = Modifier
+                                            .size(120.dp)
+                                            .padding(textPadding)
+                                    )
+
+                                    Spacer(modifier = Modifier.width(10.dp))
+                                    Text(
+                                        text = "Issue Date: ${convertedDate[0]}",
+                                        modifier = Modifier
+                                            .padding(textPadding),
+                                        textAlign = TextAlign.Start,
+                                    )
                                 }
                             }
                         }
@@ -178,5 +208,20 @@ fun medicineSceen(navController: NavHostController) {
             }
         }
     )
+
+}
+
+//dateConversion: for all date conversion in medicine, appointment, healthData
+fun dateConversion(dateString: String): MutableList<String> {
+    //convert the date format from "2021-08-01T00:00:00.000Z" to "2021-08-01" and time to "00:00:00"
+    //Remarks: Return String only, Split is okay rather than Date.now() blah blah blah
+
+    var convertedDate =
+        dateString.split("T").toMutableList()  //convertedDate[0]: Date; convertedDate[1]: Time
+    convertedDate[1] = convertedDate[1].substring(0, 8)  //remove the .000Z
+
+    return convertedDate
+
+    //https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.js/-date/-init-.html Real Date data type
 
 }

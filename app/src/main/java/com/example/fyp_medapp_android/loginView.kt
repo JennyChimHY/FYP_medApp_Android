@@ -18,6 +18,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
+import com.auth0.android.jwt.JWT
 import kotlinx.coroutines.launch
 import kotlinx.serialization.Serializable
 import kotlin.math.log
@@ -31,8 +32,8 @@ data class Info(  //for frontend input and send to backend
     val password: String
 )
 
-@Serializable
 data class User(
+    val jwtToken: JWT?,
     val _id: String?,
     val userID: String?,
     val firstName: String?, //200 success
@@ -44,8 +45,7 @@ data class User(
     val email: String?,
     var password: String?,
     var userRole: String?,
-    var patientConnection: Array<String>?,
-    var resultCode: String?
+    var patientConnection: Array<String>?
 )
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -123,7 +123,8 @@ fun Login(navController: NavHostController, snackbarHostState: SnackbarHostState
                         val loginResult: User =
                             KtorClient.postLogin(info) //not String message only, but User data class
                         var message = ""
-                        if (loginResult.resultCode == "200") {           //success
+                        if (loginResult.userID != null) {           //success
+                            println("login true")
                             message =
                                 "Login Success. Welcome ${loginResult.lastName ?: ""} ${loginResult.firstName ?: ""}." //null safety
 
@@ -137,7 +138,9 @@ fun Login(navController: NavHostController, snackbarHostState: SnackbarHostState
                             navController.navigate("home") //pass to home page
 
 
-                        } else if (loginResult.resultCode == "400") {     //error
+                        } else {     //error
+                            println("login false")
+                            println(loginResult)
                             message =
                                 "Login Failed. The email or password is incorrect, please input again."
 
