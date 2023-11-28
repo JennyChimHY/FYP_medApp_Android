@@ -33,10 +33,10 @@ data class LoginResult(
     val token: String
 )
 
-var apiDomain = "https://rneoe-158-182-199-240.a.free.pinggy.link"
-var globalToken: JWT? = null
+var apiDomain = "https://rnxud-158-182-195-141.a.free.pinggy.link"
+
 object KtorClient {
-    private var token: String = ""
+    var token: String = ""
 
     val httpClient = HttpClient {
         install(ContentNegotiation) {
@@ -52,7 +52,7 @@ object KtorClient {
         defaultRequest {
             contentType(ContentType.Application.Json)
             accept(ContentType.Application.Json)
-            header("Authorization", token)
+            header("Authorization", "Bearer ${token}")
         }
         expectSuccess = true
     }
@@ -75,14 +75,11 @@ object KtorClient {
 
         if(response.resultCode == "200") {
 
+            token = response.token //for header in other api
             val jwt = JWT(response.token)
-            globalToken = jwt
+//            val issuer = jwt.issuer //get registered claims
+//            val isExpired = jwt.isExpired(10) // Do time validation with 10 seconds leeway
 
-            val issuer = jwt.issuer //get registered claims
-            val isExpired = jwt.isExpired(10) // Do time validation with 10 seconds leeway
-
-
-            //bug: null jor...
             Log.d("JWT token getClaim", "id: ${jwt.getClaim("_id").asString()}")
             Log.d("JWT token", "id: ${jwt.getClaim("_id").asString()}")
             val _id = jwt.getClaim("_id").asString() //get custom claims
