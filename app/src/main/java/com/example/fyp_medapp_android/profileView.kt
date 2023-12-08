@@ -1,16 +1,124 @@
 package com.example.fyp_medapp_android
 
-import androidx.compose.foundation.layout.Column
-import androidx.compose.material3.Text
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun profileScreen(navController: NavHostController) {
 
-
     //use of globalLoginInfo
-   Column() {
-       Text(text = globalLoginInfo.dob!!)
-   }
+    Scaffold(
+        //diaplay the header of each page
+        topBar = {
+            TopAppBar(
+                title = {
+                    Text(
+                        text = "User", //Profile?
+                        color = Color.White,
+                        fontSize = 35.sp,
+                        fontWeight = FontWeight.Bold
+                    )
+                },
+                colors = TopAppBarDefaults.smallTopAppBarColors(containerColor = MaterialTheme.colorScheme.primary)
+            )
+
+            //add logout button the the bar
+            logoutButton(navController)
+        },
+        snackbarHost = { },  //lab11
+        content = { innerPadding ->
+
+            Column(
+                Modifier.padding(innerPadding)
+            ) {
+                Row() {
+                    Column() {
+                        Text(
+                            text = "Name: ${globalLoginInfo.username}",
+                            modifier = Modifier
+                                .padding(textPadding),
+                            textAlign = TextAlign.Start,
+                        )
+                        Text(
+                            text = "Gender: ${globalLoginInfo.gender}",
+                            modifier = Modifier
+                                .padding(textPadding),
+                            textAlign = TextAlign.Start,
+                        )
+                        Text(
+                            text = "Age: ${globalLoginInfo.age.toString()}",
+                            modifier = Modifier
+                                .padding(textPadding),
+                            textAlign = TextAlign.Start,
+                        )
+                        Text(
+                            text = "Date of Birth: ${globalLoginInfo.dob.toString()}",
+                            modifier = Modifier
+                                .padding(textPadding),
+                            textAlign = TextAlign.Start,
+                        )
+                        Text(
+                            text = "Email: ${globalLoginInfo.email}",
+                            modifier = Modifier
+                                .padding(textPadding),
+                            textAlign = TextAlign.Start,
+                        )
+                    }
+                }
+
+                Row(
+                    modifier = Modifier.padding(8.dp)
+                ) {
+                    Text(
+                        text = "Patient Connection:",
+                        modifier = Modifier
+                            .padding(textPadding),
+                        textAlign = TextAlign.Start,
+                    )
+                }
+
+                LazyColumn(
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    modifier = Modifier.padding(8.dp)
+                ) {
+
+                    items(globalLoginInfo.patientConnection) { patient ->
+                        Card( //TODO: select the card and call api to get connected patient info through ID
+                            colors = CardDefaults.cardColors(
+                                containerColor = MaterialTheme.colorScheme.secondary,
+                            ),
+                            modifier = Modifier
+                                .size(width = 400.dp, height = 100.dp)
+                                .padding(8.dp)
+                        ) {
+                            Text(
+                                text = "Name: ${patient.patientName}",
+                                modifier = Modifier
+                                    .padding(8.dp),
+                                textAlign = TextAlign.Center,
+                            )
+                            Text(
+                                text = "HKID: ${patient.patientID}",
+                                modifier = Modifier
+                                    .padding(8.dp),
+                                textAlign = TextAlign.Center,
+                            )
+                        }
+                    }
+                }
+            }
+        }
+    )
 }

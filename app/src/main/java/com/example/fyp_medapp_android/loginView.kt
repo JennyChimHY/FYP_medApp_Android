@@ -35,8 +35,12 @@ data class Info(  //for frontend input and send to backend
     val password: String
 )
 
+data class PatientConnection(
+    val patientID: String,
+    val patientName: String
+)
 data class User(
-    val jwtToken: JWT?,
+    val token: String?,
     val _id: String?,
     val userID: String?,
     val firstName: String?, //200 success
@@ -48,7 +52,7 @@ data class User(
     val email: String?,
     var password: String?,
     var userRole: String?,
-    var patientConnection: Array<String>?
+    var patientConnection: Array<PatientConnection> = arrayOf<PatientConnection>()
 )
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -77,13 +81,13 @@ fun Login(navController: NavHostController, snackbarHostState: SnackbarHostState
 //            }
 
             Column(
-            Modifier.padding(
-                //different padding for 4 sides
-                top = 60.dp,
-                bottom = 30.dp,
-                start = 16.dp,
-                end = 16.dp
-            ),
+            Modifier.padding(innerPadding),
+//                //different padding for 4 sides
+//                top = 60.dp,
+//                bottom = 30.dp,
+//                start = 16.dp,
+//                end = 16.dp
+//            ),
                 verticalArrangement = Arrangement.Center,
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
@@ -164,7 +168,7 @@ fun Login(navController: NavHostController, snackbarHostState: SnackbarHostState
 fun Logout(navController: NavHostController, snackbarHostState: SnackbarHostState) {
     // TODO
     //  clearCache() //clear all stored data including medicine, appoint, health data
-    globalLoginInfo = User(null, null, null, null, null, null, null, null, null, null, null, null, null)
+    globalLoginInfo = User(null, null, null, null, null, null, null, null, null, null, null, null)
     globalLoginStatus = false
 
 //    snackbarHostState = remember { SnackbarHostState() } //TODO: clean after logout
