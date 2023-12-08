@@ -2,20 +2,18 @@ package com.example.fyp_medapp_android
 
 import android.util.Log
 import android.widget.Toast
-import androidx.compose.foundation.background
-import androidx.compose.foundation.border
+import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -131,70 +129,71 @@ fun healthDataScreen(navController: NavHostController) {
                 println("after filtering, $sortDataFlag")
 
 //                Log.d("healthdata screen after calling API", "healthdataResult: $healthdataResult")
-//
-//                Row() {
-//                    Text(text = "View Health Data Record")
-//                }
+
 
                 Row() {
-                    //dropdown menu to filter the health data type
-                    val context = LocalContext.current
-                    val healthData = arrayOf(
-                        "Blood Pressure",  //bloodPressure
-                        "Blood Sugar",  //bloodSugar
-                        "Heart Rate",  //pulse
-                        "Temperature",  //temperature
-                        "Blood Oxygen Level",  //bloodOxygenLevel
-                        "Waist Width"  //waistWidth
-                    )
-                    var expanded by remember { mutableStateOf(false) }
-                    var selectedText by remember { mutableStateOf(healthData[0]) }
-
-                    Box(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(32.dp)
-                    ) {
-                        ExposedDropdownMenuBox(
-                            expanded = expanded,
-                            onExpandedChange = {
-                                expanded = !expanded
-                            }
-                        ) {
-                            TextField(
-                                value = selectedText,
-                                onValueChange = {},
-                                readOnly = true,
-                                trailingIcon = {
-                                    ExposedDropdownMenuDefaults.TrailingIcon(
-                                        expanded = expanded
-                                    )
-                                },
-                                modifier = Modifier.menuAnchor()
-                            )
-
-                            ExposedDropdownMenu(
-                                expanded = expanded,
-                                onDismissRequest = {
-                                    expanded = false
-                                    //TODO: call api / filter below(as we fetched all data already)
-                                }
-                            ) {
-                                healthData.forEach { item ->
-                                    DropdownMenuItem(
-                                        text = { Text(text = item) },
-                                        onClick = {
-                                            selectedText = item
-                                            expanded = false
-                                            Toast.makeText(context, item, Toast.LENGTH_SHORT)
-                                                .show()
-                                        }
-                                    )
-                                }
-                            }
-                        }
-                    }
+                    Text(text = "View Health Data Record")
                 }
+
+//                //dropdown menu to filter the health data type
+//                Row() {
+//                    val context = LocalContext.current
+//                    val healthData = arrayOf(
+//                        "Blood Pressure",  //bloodPressure
+//                        "Blood Sugar",  //bloodSugar
+//                        "Heart Rate",  //pulse
+//                        "Temperature",  //temperature
+//                        "Blood Oxygen Level",  //bloodOxygenLevel
+//                        "Waist Width"  //waistWidth
+//                    )
+//                    var expanded by remember { mutableStateOf(false) }
+//                    var selectedText by remember { mutableStateOf(healthData[0]) }
+//
+//                    Box(
+//                        modifier = Modifier
+//                            .fillMaxWidth()
+//                            .padding(32.dp)
+//                    ) {
+//                        ExposedDropdownMenuBox(
+//                            expanded = expanded,
+//                            onExpandedChange = {
+//                                expanded = !expanded
+//                            }
+//                        ) {
+//                            TextField(
+//                                value = selectedText,
+//                                onValueChange = {},
+//                                readOnly = true,
+//                                trailingIcon = {
+//                                    ExposedDropdownMenuDefaults.TrailingIcon(
+//                                        expanded = expanded
+//                                    )
+//                                },
+//                                modifier = Modifier.menuAnchor()
+//                            )
+//
+//                            ExposedDropdownMenu(
+//                                expanded = expanded,
+//                                onDismissRequest = {
+//                                    expanded = false
+//                                    //TODO: call api / filter below(as we fetched all data already)
+//                                }
+//                            ) {
+//                                healthData.forEach { item ->
+//                                    DropdownMenuItem(
+//                                        text = { Text(text = item) },
+//                                        onClick = {
+//                                            selectedText = item
+//                                            expanded = false
+//                                            Toast.makeText(context, item, Toast.LENGTH_SHORT)
+//                                                .show()
+//                                        }
+//                                    )
+//                                }
+//                            }
+//                        }
+//                    }
+//                }
 
                 //Table to display the sorted data
 
@@ -246,7 +245,6 @@ fun showDataInTable_byType(targetList: List<HealthData>) {
     val column1Weight = .5f // 50%
     val column2Weight = .5f // 50%
 
-//    println("enter showDataInTable_byType")
     if (!targetList.isEmpty()) { //sortDataFlag &&
 
 
@@ -260,18 +258,38 @@ fun showDataInTable_byType(targetList: List<HealthData>) {
         ) {
 
             //header for each table
-            Text(
-                text = when(targetList[0].recordType.toString()) {
-                    "bloodPressure" -> "Blood Pressure"
-                    "bloodSugar" -> "Blood Sugar"
-                    "pulse" -> "Heart Rate"
-                    "temperature" -> "Temperature"
-                    "bloodOxygenLevel" -> "Blood Oxygen Level"
-                    "waistWidth" -> "Waist Width"
-                    else -> "Unknown" },
-                fontSize = 20.sp,
-                fontWeight = FontWeight.Bold
-            )
+            Row(
+                horizontalArrangement = Arrangement.SpaceBetween,
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text(
+                    text = when (targetList[0].recordType.toString()) {
+                        "bloodPressure" -> "Blood Pressure"
+                        "bloodSugar" -> "Blood Sugar"
+                        "pulse" -> "Heart Rate"
+                        "temperature" -> "Temperature"
+                        "bloodOxygenLevel" -> "Blood Oxygen Level"
+                        "waistWidth" -> "Waist Width"
+                        else -> "Unknown"
+                    },
+                    fontSize = 20.sp,
+                    fontWeight = FontWeight.Bold
+                )
+
+                Spacer(modifier = Modifier.width(10.dp))
+
+                Button(
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = Color.Transparent,
+                    ),
+                    onClick = { /*TODO*/ }) {//call function to pop up add record
+                    Image(
+                        painter = painterResource(id = R.drawable.add),
+                        contentDescription = "Add Record",
+                        modifier = Modifier.size(30.dp)
+                    )
+                }
+            }
 
             // Here is the header setting
             Row(Modifier.background(Green20)) {
@@ -293,8 +311,6 @@ fun showDataInTable_byType(targetList: List<HealthData>) {
             }
         }
     }
-
-//    println("Table Shown")
 }
 
 fun valueStringConvertor(item: HealthData) : String {
