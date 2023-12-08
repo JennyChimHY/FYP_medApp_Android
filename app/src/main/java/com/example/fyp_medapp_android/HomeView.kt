@@ -15,6 +15,7 @@ import androidx.compose.runtime.*
 import androidx.compose.runtime.collection.mutableVectorOf
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -122,6 +123,7 @@ fun InitialScreen(navController: NavHostController, snackbarHostState: SnackbarH
                                     end = 5.dp,
                                     bottom = 20.dp
                                 ),
+                                textAlign = TextAlign.Center,
                                 fontSize = 35.sp,
                                 fontWeight = FontWeight.Bold,
                                 lineHeight = 1.5.em,
@@ -283,16 +285,22 @@ fun newsFeedCardSection() {
             shape = RoundedCornerShape(5.dp),
             modifier = Modifier.size(width = 350.dp, height = 150.dp),
             border = BorderStroke(2.dp, MaterialTheme.colorScheme.secondary),
-            colors = CardDefaults.cardColors(containerColor = Color.White)
+            colors = CardDefaults.cardColors(containerColor = Color.White),
         ) {
-            AsyncImage(
-                //fetch the backend directly, apiDomain is a global var from KtorClient
-                model = apiDomain + "/images/MedApp_utilities/healthNews.jpg",
-                contentDescription = null,
-                //TODO: fill height
-                contentScale = ContentScale.FillHeight,
-
-                )
+            Box(
+                modifier = Modifier
+                    .height(200.dp)
+                    .clip(RoundedCornerShape(5.dp))
+            ) {
+                AsyncImage(
+                    //fetch the backend directly, apiDomain is a global var from KtorClient
+                    model = apiDomain + "/images/MedApp_utilities/healthNews.jpg",
+                    contentDescription = null,
+                    contentScale = ContentScale.Crop,
+                    modifier = Modifier
+                        .fillMaxSize()
+                    )
+            }
         }
     }
 

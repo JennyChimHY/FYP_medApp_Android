@@ -93,8 +93,6 @@ fun medicineSceen(navController: NavHostController) {
                 val medicineResult = produceState(
                     initialValue = listOf<Medicine>(),
                     producer = {
-
-                        //TODO: put globalToken into header instead of passing id into get path
                         value =
                             KtorClient.getMedicine(globalLoginInfo.userID) //not String message only, but User data class
                     })

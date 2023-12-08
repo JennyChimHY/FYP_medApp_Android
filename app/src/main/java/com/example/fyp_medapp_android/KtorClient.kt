@@ -33,7 +33,7 @@ data class LoginResult(
     val token: String
 )
 
-var apiDomain = "https://rnxud-158-182-195-141.a.free.pinggy.link"
+var apiDomain = "https://rnzcw-158-182-196-20.a.free.pinggy.link"
 
 object KtorClient {
     var token: String = ""
@@ -52,7 +52,7 @@ object KtorClient {
         defaultRequest {
             contentType(ContentType.Application.Json)
             accept(ContentType.Application.Json)
-            header("Authorization", "Bearer ${token}")
+            header("Authorization", "Bearer ${token}")  //token for authorization in fetching api
         }
         expectSuccess = true
     }

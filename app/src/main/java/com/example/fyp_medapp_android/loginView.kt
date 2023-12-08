@@ -4,6 +4,7 @@ import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material3.*
@@ -13,6 +14,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -68,49 +71,47 @@ fun Login(navController: NavHostController, snackbarHostState: SnackbarHostState
         content = { innerPadding ->
 
             //Login UI
+//            Column() {
+//                //fill the TopAppBar space
+//                Spacer(Modifier.size(60.dp)) //failed
+//            }
 
-            Column(Modifier.padding(
+            Column(
+            Modifier.padding(
                 //different padding for 4 sides
-                top = 50.dp,
-                bottom = 16.dp,
+                top = 60.dp,
+                bottom = 30.dp,
                 start = 16.dp,
                 end = 16.dp
             ),
-                horizontalAlignment = Alignment.CenterHorizontally) {
-                Row(Modifier.padding(16.dp),
-                    horizontalArrangement = Arrangement.Center,
-                    verticalAlignment = Alignment.CenterVertically) {
-                    Text(
-                        text = "Username or User ID: ", fontSize = 30.sp,
-                        modifier = Modifier.padding(16.dp)  //TODO: change to textpadding var
-                    )
-
-                }
+                verticalArrangement = Arrangement.Center,
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
 
                 Row(Modifier.padding(16.dp),
-                    horizontalArrangement = Arrangement.Center,
-                    verticalAlignment = Alignment.CenterVertically) {
-                    TextField(
+                    ) { //verticalAlignment = Alignment.CenterVertically
+                    OutlinedTextField(
+                        label = { Text("Username or User ID:") },
                         textStyle = TextStyle.Default.copy(fontSize = 28.sp),
-                        maxLines = 1,
+                        singleLine = true,
                         value = usernameLocal,
                         onValueChange = { usernameLocal = it }
                     )
                 }
+
                 Spacer(Modifier.size(padding))
 
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Text(text = "Password: ", fontSize = 30.sp)
-                }
                 Row(
                     Modifier.padding(16.dp),
-                    horizontalArrangement = Arrangement.Center,
-                    verticalAlignment = Alignment.CenterVertically) {
-                    TextField(
+                    ) { //verticalAlignment = Alignment.CenterVertically
+                    OutlinedTextField(
+                        label = { Text("Password") },
                         textStyle = TextStyle.Default.copy(fontSize = 28.sp),
-                        maxLines = 1,
+                        singleLine = true,
                         value = pwdLocal,
-                        onValueChange = { pwdLocal = it }
+                        onValueChange = { pwdLocal = it },
+                        visualTransformation =  PasswordVisualTransformation(),
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password)
                     )
                 }
                 Spacer(Modifier.size(padding))
