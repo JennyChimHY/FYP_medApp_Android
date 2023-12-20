@@ -7,6 +7,8 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -28,6 +30,7 @@ import kotlinx.serialization.descriptors.PrimitiveSerialDescriptor
 import kotlinx.serialization.encoding.Decoder
 import kotlinx.serialization.encoding.Encoder
 import java.util.*
+import kotlin.math.round
 
 @Serializable
 data class HealthData(
@@ -50,15 +53,6 @@ var heartRateList = mutableListOf<HealthData>()
 var temperatureList = mutableListOf<HealthData>()
 var bloodOxygenLevelList = mutableListOf<HealthData>()
 var waistWidthList = mutableListOf<HealthData>()
-
-//var sortedDataList = mutableListOf(  //take the list out and call table function one by one
-//    bloodPressureList,
-//    bloodSugarList, //cannot update inside list of list
-//    heartRateList,
-//    temperatureList,
-//    bloodOxygenLevelList,
-//    waistWidthList
-//)
 
 var sortDataFlag = false
 
@@ -112,14 +106,12 @@ fun healthDataScreen(navController: NavHostController) {
 
             //add logout button the the bar
             logoutButton(navController)
-        },
-        snackbarHost = { },  //lab11
+        }, snackbarHost = { },  //lab11
         content = { innerPadding ->
             //display the content of the page
             Column(modifier = Modifier.padding(innerPadding)) {
-                val healthdataResult = produceState(
-                    initialValue = listOf<HealthData>(),
-                    producer = {
+                val healthdataResult =
+                    produceState(initialValue = listOf<HealthData>(), producer = {
                         value =
                             KtorClient.getHealthData(globalLoginInfo.userID) //not String message only, but User data class
                     })
@@ -196,8 +188,6 @@ fun healthDataScreen(navController: NavHostController) {
 //                }
 
                 //Table to display the sorted data
-
-
                 if (sortDataFlag) {
 
                     //call to show the table, TODO: advance
@@ -205,36 +195,75 @@ fun healthDataScreen(navController: NavHostController) {
                     //2. call functions
                     //3. do filtering?
 
+                    var sortedDataList =
+                        mutableListOf(  //take the list out and call table function one by one
+                            bloodPressureList,
+                            bloodSugarList, //cannot update inside list of list
+                            heartRateList,
+                            temperatureList,
+                            bloodOxygenLevelList,
+                            waistWidthList
+                        )
+
                     Column(
-                        modifier = Modifier
-                            .verticalScroll(rememberScrollState())
+                        modifier = Modifier.verticalScroll(rememberScrollState())
                     ) {
-                        showDataInTable_byType(bloodPressureList)
-                        showDataInTable_byType(bloodSugarList)
-                        showDataInTable_byType(heartRateList)
-                        showDataInTable_byType(temperatureList)
-                        showDataInTable_byType(bloodOxygenLevelList)
-                        showDataInTable_byType(waistWidthList)
+                        for (item in sortedDataList) {
+                            if (item.size > 0) {
+                                println("item: $item")
+                                showDataInTable_byType(item)
+                            }
+                        }
                     }
                 }
             }
             //}
-        }
-    )
+        })
 }
 
 //Table setting for displaying record
-@Composable
+@Composable  //normal table cell
 fun RowScope.TableCell(
     text: String,
-    weight: Float
+    weight: Float,
+    alignment: TextAlign = TextAlign.Center,
+    title: Boolean = false
 ) {
     Text(
         text = text,
         Modifier
-            .border(1.dp, Color.Black)
             .weight(weight)
-            .padding(8.dp)
+            .padding(10.dp),
+        fontWeight = if (title) FontWeight.Bold else FontWeight.Normal,
+        textAlign = alignment,
+    )
+}
+@Composable //status cell which will change label colour according to the data
+fun RowScope.StatusCell(
+    text: String,
+    weight: Float,
+    alignment: TextAlign = TextAlign.Center,
+) {
+
+    val color = when (text) {
+        "healthy" -> Color(0xffadf7a4)
+        "risk" -> Color(0xfff8deb5)
+        else -> Color(0xffffcccf)  //danger
+    }
+    val textColor = when (text) {
+        "healthy" -> Color(0xff00ad0e)
+        "risk" -> Color(0xffde7a1d)
+        else -> Color(0xffca1e17)
+    }
+
+    Text(
+        text = text,
+        Modifier
+            .weight(weight)
+            .padding(12.dp)
+            .background(color, shape = RoundedCornerShape(50.dp)),
+        textAlign = alignment,
+        color = textColor
     )
 }
 
@@ -242,25 +271,22 @@ fun RowScope.TableCell(
 fun showDataInTable_byType(targetList: List<HealthData>) {
 
     // Each cell of a column must have the same weight.
-    val column1Weight = .5f // 50%
-    val column2Weight = .5f // 50%
+    val column1Weight = .35f // 40%
+    val column2Weight = .35f // 40%
+    val column3Weight = .3f // 20%
 
     if (!targetList.isEmpty()) { //sortDataFlag &&
 
-
-//        println("enter targetList: ${targetList[0].recordType}")
-
-        //Table, not using LazyColumn as it is used in the outter structure
+        //cannot use lazyColumn (infinite scroll), each table a table column on the same screen
         Column(
             Modifier
 //                    .fillMaxSize()
                 .padding(16.dp)
         ) {
 
-            //header for each table
+            //Table Title
             Row(
-                horizontalArrangement = Arrangement.SpaceBetween,
-                modifier = Modifier.fillMaxWidth()
+                horizontalArrangement = Arrangement.SpaceBetween, modifier = Modifier.fillMaxWidth()
             ) {
                 Text(
                     text = when (targetList[0].recordType.toString()) {
@@ -271,18 +297,14 @@ fun showDataInTable_byType(targetList: List<HealthData>) {
                         "bloodOxygenLevel" -> "Blood Oxygen Level"
                         "waistWidth" -> "Waist Width"
                         else -> "Unknown"
-                    },
-                    fontSize = 20.sp,
-                    fontWeight = FontWeight.Bold
+                    }, fontSize = 20.sp, fontWeight = FontWeight.Bold
                 )
 
                 Spacer(modifier = Modifier.width(10.dp))
 
-                Button(
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = Color.Transparent,
-                    ),
-                    onClick = { /*TODO*/ }) {//call function to pop up add record
+                Button(colors = ButtonDefaults.buttonColors(
+                    containerColor = Color.Transparent,
+                ), onClick = { /*TODO*/ }) {//call function to pop up add record
                     Image(
                         painter = painterResource(id = R.drawable.add),
                         contentDescription = "Add Record",
@@ -291,42 +313,70 @@ fun showDataInTable_byType(targetList: List<HealthData>) {
                 }
             }
 
-            // Here is the header setting
+
+            //Table
+            //define table field header
             Row(Modifier.background(Green20)) {
                 TableCell(text = "Date", weight = column1Weight)
                 TableCell(text = "Data", weight = column2Weight)
+                TableCell(text = "Status", weight = column3Weight)
             }
-            // Here are all the lines of your table.
-            for (item in targetList) {
-                Row(Modifier.fillMaxWidth()) {
-                    TableCell(
-                        text = item.recordDateTime.toString(),
-                        weight = column1Weight
-                    )
-                    TableCell(
-                        text = valueStringConvertor(item),
-                        weight = column2Weight
-                    )
+
+            //table content
+            for (content in targetList) {
+
+                val dateTime = content.recordDateTime.toString().split("T")
+                val date = dateTime[0]
+
+                // Time conversion lambda function
+                val convertTo12HourFormat: (String) -> String = { time24hr ->
+                    val hour = time24hr.substring(0, 2).toInt()
+                    val minute = time24hr.substring(3, 5)
+                    val period = if (hour < 12) "AM" else "PM"
+
+                    val hour12hr = when {
+                        hour == 0 -> 12
+                        hour > 12 -> hour - 12
+                        else -> hour
+                    }
+
+                    String.format("%02d:%s %s", hour12hr, minute, period)
                 }
+
+                val convertedTime = dateTime[1].let(convertTo12HourFormat) // Using the lambda function
+
+                Row(Modifier.fillMaxWidth()) {
+                    TableCell(text = "$date $convertedTime", weight = column1Weight)
+                    TableCell(text = valueStringConvertor(content), weight = column2Weight)
+                    StatusCell(text = content.healthStatus.toString(), weight = column3Weight)
+                }
+
+                Divider(
+                            color = Color.LightGray,
+                            modifier = Modifier
+                                .height(1.dp)
+                                .fillMaxHeight()
+                                .fillMaxWidth()
+                )
+
             }
         }
     }
 }
 
-fun valueStringConvertor(item: HealthData) : String {
+fun valueStringConvertor(item: HealthData): String {
 
-    when(item.recordType) {
-        "bloodPressure" -> return " ${item.recordValue1_defaultUnit.toString()} / ${item.recordValue2_defaultUnit.toString()} ${item.recordUnit_Patient.toString()}"
+    when (item.recordType) {
+        "bloodPressure" -> return "${round(item.recordValue1_defaultUnit!!).toInt()} / ${round(item.recordValue2_defaultUnit!!).toInt()} ${item.recordUnit_Patient.toString()}"
         "temperature" -> {
             if (item.recordUnit_Patient.toString() == "dF") {
-                var dFvalue = item.recordValue1_defaultUnit!!.toDouble() * 9/5 + 32
-                return " ${dFvalue.toString()} \u2109"
-            }
-            else {
-                return " ${item.recordValue1_defaultUnit.toString()} \u2103"
+                var dFvalue = item.recordValue1_defaultUnit!!.toDouble() * 9 / 5 + 32
+                return "$dFvalue \u2109"
+            } else {
+                return "${item.recordValue1_defaultUnit.toString()} \u2103"
             }
         }
-        else -> return " ${item.recordValue1_defaultUnit.toString()} ${item.recordUnit_Patient.toString()}"
+        else -> return "${item.recordValue1_defaultUnit.toString()} ${item.recordUnit_Patient.toString()}"
     }
 
 }

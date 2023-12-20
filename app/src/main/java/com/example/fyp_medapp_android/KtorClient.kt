@@ -33,7 +33,7 @@ data class LoginResult(
     val token: String
 )
 
-var apiDomain = "https://rnrkp-158-182-196-20.a.free.pinggy.link"
+var apiDomain = "https://rnvun-158-182-113-73.a.free.pinggy.link"
 
 object KtorClient {
     var token: String = ""
