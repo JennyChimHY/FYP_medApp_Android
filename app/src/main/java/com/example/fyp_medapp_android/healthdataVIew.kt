@@ -46,7 +46,7 @@ data class HealthData(
     val selfNote: String?
 )
 
-//global veriables, (or make function filterDataByDate_Type() return list of list?)
+//global variables, (or make function filterDataByDate_Type() return list of list?)
 var bloodPressureList = mutableListOf<HealthData>()
 var bloodSugarList = mutableListOf<HealthData>()
 var heartRateList = mutableListOf<HealthData>()
@@ -55,13 +55,19 @@ var bloodOxygenLevelList = mutableListOf<HealthData>()
 var waistWidthList = mutableListOf<HealthData>()
 
 var sortDataFlag = false
+var updateDataBlock: MutableMap<String, Boolean> = mutableMapOf(
+    "bloodPressure" to false,
+    "bloodSugar" to false,
+    "heartRate" to false,
+    "temperature" to false,
+    "bloodOxygenLevel" to false,
+    "waistWidth" to false
+)
+
 
 
 @Composable
 fun filterDataByDate_Type(healthdataResultValue: List<HealthData>) {
-//Sort the data by health data type and date
-
-//    healthdataResultValue.sortedBy { it.recordDateTime }  //convert string to date first?
 
     for (item in healthdataResultValue) {
         when (item.recordType) {
@@ -190,10 +196,9 @@ fun healthDataScreen(navController: NavHostController) {
                 //Table to display the sorted data
                 if (sortDataFlag) {
 
-                    //call to show the table, TODO: advance
+                    //call to show the table
                     //1. add into a list of list
                     //2. call functions
-                    //3. do filtering?
 
                     var sortedDataList =
                         mutableListOf(  //take the list out and call table function one by one
@@ -211,7 +216,7 @@ fun healthDataScreen(navController: NavHostController) {
                         for (item in sortedDataList) {
                             if (item.size > 0) {
                                 println("item: $item")
-                                showDataInTable_byType(item)
+                                showDataInGraphTable_byType(item)
                             }
                         }
                     }
@@ -268,12 +273,14 @@ fun RowScope.StatusCell(
 }
 
 @Composable
-fun showDataInTable_byType(targetList: List<HealthData>) {
+fun showDataInGraphTable_byType(targetList: List<HealthData>) {
 
     // Each cell of a column must have the same weight.
     val column1Weight = .35f // 40%
     val column2Weight = .35f // 40%
     val column3Weight = .3f // 20%
+
+    var type = targetList[0].recordType.toString() //for update record block
 
     if (!targetList.isEmpty()) { //sortDataFlag &&
 
@@ -284,12 +291,15 @@ fun showDataInTable_byType(targetList: List<HealthData>) {
                 .padding(16.dp)
         ) {
 
+            //TODO: gen graph
+
             //Table Title
             Row(
                 horizontalArrangement = Arrangement.SpaceBetween, modifier = Modifier.fillMaxWidth()
             ) {
+
                 Text(
-                    text = when (targetList[0].recordType.toString()) {
+                    text = when (type) {
                         "bloodPressure" -> "Blood Pressure"
                         "bloodSugar" -> "Blood Sugar"
                         "pulse" -> "Heart Rate"
@@ -304,7 +314,10 @@ fun showDataInTable_byType(targetList: List<HealthData>) {
 
                 Button(colors = ButtonDefaults.buttonColors(
                     containerColor = Color.Transparent,
-                ), onClick = { /*TODO*/ }) {//call function to pop up add record
+                ), onClick = {
+                    updateDataBlock[type] = true
+                    Log.d("updateDataBlock", "updateDataBlock: ${updateDataBlock[type]}")
+                /*TODO make appear*/ }) {//call function to pop up add record (overlay)
                     Image(
                         painter = painterResource(id = R.drawable.add),
                         contentDescription = "Add Record",
@@ -313,6 +326,8 @@ fun showDataInTable_byType(targetList: List<HealthData>) {
                 }
             }
 
+            //update record block
+            updateDataBlockDialog(type)
 
             //Table
             //define table field header
@@ -379,4 +394,59 @@ fun valueStringConvertor(item: HealthData): String {
         else -> return "${item.recordValue1_defaultUnit.toString()} ${item.recordUnit_Patient.toString()}"
     }
 
+}
+
+@Composable
+fun updateDataBlockDialog(type: String) {
+
+//    if (updateDataBlock[type] == true) {
+
+    //Method 1: Simple hidden Row
+    Row(
+        horizontalArrangement = Arrangement.SpaceBetween, modifier = Modifier.fillMaxWidth()
+    ) {
+//            Log.d("inside Block", "updateDataBlock: ${updateDataBlock[type]}")
+
+
+        Text(text = "Update Health Data Record")
+        Column() {
+        //TODO HERE!
+
+//            Button(colors = ButtonDefaults.buttonColors(
+//                containerColor = Color.Transparent,
+//            ), onClick = {
+//                updateDataBlock[type] = false
+//                Log.d("updateDataBlock", "updateDataBlock: $updateDataBlock")
+//            }) {//call function to pop up add record (overlay)
+//                Image(
+//                    painter = painterResource(id = R.drawable.add),
+//                    contentDescription = "Submit Record",
+//                    modifier = Modifier.size(30.dp)
+//                )
+        }
+
+
+        //Method 2: Dialog
+//            AlertDialog(
+//                onDismissRequest = {
+//                    updateDataBlock = false
+//                },
+//                title = {
+//                    Text(text = "Update Health Data Record")
+//                },
+//                text = {
+//                    Text(text = "Please select the health data type you want to update.")
+//                },
+//                confirmButton = {
+//                    Button(
+//                        onClick = {
+//                            updateDataBlock = false
+//                        }
+//                    ) {
+//                        Text(text = "OK")
+//                    }
+//                }
+//            )
+    }
+    // }
 }
