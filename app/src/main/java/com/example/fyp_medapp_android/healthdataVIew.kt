@@ -64,6 +64,7 @@ var updateDataBlock: MutableMap<String, Boolean> = mutableMapOf(
     "waistWidth" to false
 )
 
+var modifierForForm = 5.dp
 
 
 @Composable
@@ -110,8 +111,8 @@ fun healthDataScreen(navController: NavHostController) {
                 colors = TopAppBarDefaults.smallTopAppBarColors(containerColor = MaterialTheme.colorScheme.primary)
             )
 
-            //add logout button the the bar
-            logoutButton(navController)
+//            //add logout button the the bar
+//            logoutButton(navController)
         }, snackbarHost = { },  //lab11
         content = { innerPadding ->
             //display the content of the page
@@ -291,7 +292,7 @@ fun showDataInGraphTable_byType(targetList: List<HealthData>) {
                 .padding(16.dp)
         ) {
 
-            //TODO: gen graph
+            //TODO: gen graph!!!!
 
             //Table Title
             Row(
@@ -361,7 +362,7 @@ fun showDataInGraphTable_byType(targetList: List<HealthData>) {
                 val convertedTime = dateTime[1].let(convertTo12HourFormat) // Using the lambda function
 
                 Row(Modifier.fillMaxWidth()) {
-                    TableCell(text = "$date $convertedTime", weight = column1Weight)
+                    TableCell(text = "$date $convertedTime \n ${content.recordTimeslot}", weight = column1Weight)
                     TableCell(text = valueStringConvertor(content), weight = column2Weight)
                     StatusCell(text = content.healthStatus.toString(), weight = column3Weight)
                 }
@@ -401,32 +402,130 @@ fun updateDataBlockDialog(type: String) {
 
 //    if (updateDataBlock[type] == true) {
 
+//    var date: String by remember { mutableStateOf("") }
+    var newDate: Date = Date(2021, 9, 1)
+    var newTime12Hr: Date = Date(12, 0, 5)
+    var newTime24Hr: Date = Date(12, 0, 5)
+    var newAMPM: String = "AM"
+    var newRecordTimeslot: String = "abc"
+    var newData1: Double = 1.0
+    var newData2: Double? = null
+    var newUnit: String = "abc"
+    var newSelfNotes: String? = null
+
     //Method 1: Simple hidden Row
     Row(
         horizontalArrangement = Arrangement.SpaceBetween, modifier = Modifier.fillMaxWidth()
     ) {
-//            Log.d("inside Block", "updateDataBlock: ${updateDataBlock[type]}")
+
+        Column {
+
+            Text(
+                text = "Update " + when (type) {
+                    "bloodPressure" -> "Blood Pressure"
+                    "bloodSugar" -> "Blood Sugar"
+                    "pulse" -> "Heart Rate"
+                    "temperature" -> "Temperature"
+                    "bloodOxygenLevel" -> "Blood Oxygen Level"
+                    "waistWidth" -> "Waist Width"
+                    else -> "Unknown"
+                }
+            )
+
+            Spacer(modifier = Modifier.height(modifierForForm))
+
+            Row() {
+                Text(text = "Date: ")
+                Text(text = "2021-09-01") //date picker
+                newDate = Date(2021, 9, 1)
+            }
+
+            Spacer(modifier = Modifier.height(modifierForForm))
+
+            Row() {
+                Text(text = "Time: ")
+                Text(text = "12:00") //time picker
+                Text(text = "AM/PM") //drop down list/option?
+                newTime24Hr = Date(12, 0, 5) //lambda function to convert to 24hr format
+
+            }
+
+            Spacer(modifier = Modifier.height(modifierForForm))
+
+            Row() {
+                Text(text = "Record Timeslot: ")
+                newRecordTimeslot = "abc" //dropdown list
+            }
+
+            Spacer(modifier = Modifier.height(modifierForForm))
+
+            Row() {
+                Text(text = "Data: ")
+                Text(text = "120") //num field, number pad only
+                newData1 = 120.0
+
+                if (type == "bloodPressure") {
+                    newData2 = 120.0
+                }
+
+                Text("Unit: ")
+
+                newUnit =
+                    when (type) {
+                        "bloodPressure" -> "mmHg"
+                        "bloodSugar" -> "mg/dL"
+                        "pulse" -> "bpm"
+                        "temperature" -> "dC"  //default
+                        "bloodOxygenLevel" -> "%"
+                        //"waistWidth" -> "Waist Width" //to be developed
+                        else -> "Unknown"
+                    }
+
+                if (type == "temperature") {
+                    //drop down list to choose
+                    newUnit = "dF"
+                    //if dF -> convert the data to dC for DB default
+                    Text(text = when(newUnit) {
+                        "dC" -> "\u2103"
+                        "dF" -> "\u2109"
+                        else -> "Unknown"
+                    })
+                } else {
+                    Text( text = newUnit )
+                }
+
+            }
+
+            Spacer(modifier = Modifier.height(modifierForForm))
+
+            Row() {
+                Text(text = "Self Notes: ")
+                newSelfNotes = "abc" //text field
+            }
+
+            Spacer(modifier = Modifier.height(modifierForForm))
+
+            Row() {
+
+                Button(colors = ButtonDefaults.buttonColors(
+                    containerColor = Color.Transparent,
+                ), onClick = {
+                    updateDataBlock[type] = false
+                    Log.d("updateDataBlock", "updateDataBlock: $updateDataBlock")
+
+                    validationCheck(newDate, newTime24Hr, newRecordTimeslot, type, newUnit, newData1, newData2, newSelfNotes)
+
+                }) {//call function to pop up add record (overlay)
+                    Image(
+                        painter = painterResource(id = R.drawable.add),
+                        contentDescription = "Submit Record",
+                        modifier = Modifier.size(30.dp)
+                    )
+                }
+            }
 
 
-        Text(text = "Update Health Data Record")
-        Column() {
-        //TODO HERE!
-
-//            Button(colors = ButtonDefaults.buttonColors(
-//                containerColor = Color.Transparent,
-//            ), onClick = {
-//                updateDataBlock[type] = false
-//                Log.d("updateDataBlock", "updateDataBlock: $updateDataBlock")
-//            }) {//call function to pop up add record (overlay)
-//                Image(
-//                    painter = painterResource(id = R.drawable.add),
-//                    contentDescription = "Submit Record",
-//                    modifier = Modifier.size(30.dp)
-//                )
-        }
-
-
-        //Method 2: Dialog
+            //Method 2: Dialog
 //            AlertDialog(
 //                onDismissRequest = {
 //                    updateDataBlock = false
@@ -447,6 +546,31 @@ fun updateDataBlockDialog(type: String) {
 //                    }
 //                }
 //            )
+        }
+        // }
     }
-    // }
+}
+
+fun validationCheck(newDate: Date, newTime24Hr: Date, newRecordTimeslot: String, type: String, newUnit: String, newData1: Double, newData2: Double?, newSelfNote: String?) {
+
+    //validation
+
+
+    //invalid -> error message
+    //pack the data with HealthData class
+    var updateHealthdata = HealthData(
+        _id = null,
+        userId = globalLoginInfo.userID,
+        recordDateTime = "${newDate.toString()}T${newTime24Hr.toString()}.000Z", //2021-09-01T12:00:00.000Z
+        recordTimeslot = newRecordTimeslot,
+        recordType = type,
+        recordUnit_Patient = newUnit,
+        recordValue1_defaultUnit = newData1,
+        recordValue2_defaultUnit = newData2, //if hv then input, otherwise null
+        healthStatus = "healthy", //call calculate status function? or call above right after onclick?
+        selfNote = "test"
+    )
+
+    //call KtorClient to update the data by api
+
 }

@@ -310,7 +310,7 @@ fun newsFeedCardSection() {
 @Composable
 fun HomeScreen(navController: NavHostController, snackbarHostState: SnackbarHostState) {
     //Home Page to choose and navigate the functions, also show the user's name
-    //it allows logout
+    //it allows logout (update: NOT allow for preventing unexpected manually log out and single device login security)
 
     Scaffold(
         //diaplay the header of each page
@@ -320,8 +320,8 @@ fun HomeScreen(navController: NavHostController, snackbarHostState: SnackbarHost
                 colors = TopAppBarDefaults.smallTopAppBarColors(containerColor = MaterialTheme.colorScheme.primary)
             )
 
-            //add logout button the the bar
-            logoutButton(navController)
+//            //add logout button the the bar
+//            logoutButton(navController)
         },
         snackbarHost = { SnackbarHost(snackbarHostState) },  //lab11
         content = { innerPadding ->

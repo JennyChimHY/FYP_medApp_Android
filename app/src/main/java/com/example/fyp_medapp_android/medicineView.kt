@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Home
@@ -15,6 +16,7 @@ import androidx.compose.runtime.produceState
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -25,6 +27,7 @@ import androidx.navigation.NavHostController
 import coil.compose.AsyncImage
 import com.example.fyp_medapp_android.ui.theme.FYP_medApp_AndroidTheme
 import com.example.fyp_medapp_android.ui.theme.Green20
+import com.example.fyp_medapp_android.ui.theme.Green50
 import kotlinx.coroutines.launch
 import kotlinx.serialization.Serializable
 import java.util.*
@@ -80,8 +83,8 @@ fun medicineSceen(navController: NavHostController) {
                 colors = TopAppBarDefaults.smallTopAppBarColors(containerColor = MaterialTheme.colorScheme.primary)
             )
 
-            //add logout button the the bar
-            logoutButton(navController)
+//            //add logout button the the bar
+//            logoutButton(navController)
         },
         snackbarHost = { },  //lab11
         content = { innerPadding ->
@@ -119,83 +122,94 @@ fun medicineSceen(navController: NavHostController) {
 
                         Card(
                             colors = CardDefaults.cardColors(
-                                containerColor = MaterialTheme.colorScheme.primary,
+                                containerColor = Green50,
                             ),
                             modifier = Modifier
-                                .size(width = 300.dp, height = 300.dp)
+                                .fillMaxWidth()
                                 .padding(8.dp)
                         ) {
-                            Row() {
-                                Column(Modifier.padding(textPadding)) {
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(10.dp)
+                            ) {
+
+                                //one column store all info
+                                Column(
+                                    modifier = Modifier
+                                        .weight(7f) // Take 50% of the available width
+                                        .fillMaxHeight()
+                                ) {
                                     Text(
-                                        text = "Medicine Name: ${medicineItem.medicineInfo?.medicineName.toString()}",
-                                        modifier = Modifier
-                                            .padding(textPadding),
+                                        text = "${medicineItem.medicineInfo?.medicineName.toString()}",
                                         textAlign = TextAlign.Start,
+                                        fontSize = 25.sp,
+                                        fontWeight = FontWeight.Bold
                                     )
                                     Text(
                                         text = "Daily Intake: ${medicineItem.dailyIntake.toString()}",
-                                        modifier = Modifier
-                                            .padding(textPadding),
                                         textAlign = TextAlign.Start,
+                                        fontSize = 20.sp
                                     )
                                     Text(
                                         text = "Each Intake: ${medicineItem.eachIntakeAmount.toString()}",
-                                        modifier = Modifier
-                                            .padding(textPadding),
                                         textAlign = TextAlign.Start,
+                                        fontSize = 20.sp
                                     )
 
                                     if (medicineItem.selfNote != null) {
                                         Text(
                                             text = "Self note: ${medicineItem.selfNote}",
-                                            modifier = Modifier
-                                                .padding(textPadding),
                                             textAlign = TextAlign.Start,
+                                            fontSize = 20.sp
                                         )
                                     }
-//                                    Text(
-//                                        text = "Time: ${convertedDate[1]}" ,
+//                                    Text( //not neccessary in medicine
+//                                        text = "Time: ${convertedDate[1]}",
 //                                        modifier = Modifier
 //                                            .padding(textPadding),
 //                                        textAlign = TextAlign.Start,
 //                                    )
                                 }
-//!st TODO: 2 column
+
                                 Column(
+//                                    modifier = Modifier
+//                                        .fillMaxWidth()
+//                                        .padding(end = 5.dp),
+//                                    verticalArrangement = Arrangement.Bottom,
                                     modifier = Modifier
-                                        .fillMaxWidth()
-                                        .padding(end = 5.dp),
-                                    verticalArrangement = Arrangement.Bottom,
+                                        .weight(3f) // Take 50% of the available width
+                                        .fillMaxHeight()
                                 ) {
 
-//                                        Box(  //labeling the class
-//                                            modifier = Modifier
-//                                                .size(120.dp)
-//                                                .background(Green20)
-//                                        ) {
-//                                            Text(medicineItem.medicineInfo?.medicineClass!!,
-//                                                modifier = Modifier
-//                                                    .padding(textPadding),
-//                                                color = (Color.Black),
-//                                                textAlign = TextAlign.End,
-//                                            )
-//                                        }
+                                    Box(  //labeling the class
+                                        modifier = Modifier
+                                            .size(100.dp, 40.dp)
+                                            .background(Green20)
+                                            .clip(RoundedCornerShape(25))
+                                    ) {
+                                        Text(
+                                            medicineItem.medicineInfo?.medicineClass!!,
+                                            fontSize = 12.sp,
+                                            color = (Color.Black),
+                                            textAlign = TextAlign.Center
+                                        )
+                                    }
 
                                     AsyncImage(
                                         //fetch the backend directly, apiDomain is a global var from KtorClient
                                         model = apiDomain + "/images/MedApp_medicinePicture/" + medicineItem.medicineInfo?.medicineImageName + ".jpg",
                                         contentDescription = null,
                                         modifier = Modifier
-                                            .size(120.dp)
-                                            .padding(textPadding)
+                                            .size(100.dp)
+                                            .clip(RoundedCornerShape(8))
+//                                            .padding(textPadding)
                                     )
 
-                                    Spacer(modifier = Modifier.width(10.dp))
+                                    Spacer(modifier = Modifier.width(5.dp))
                                     Text(
                                         text = "Issue Date: ${convertedDate[0]}",
-                                        modifier = Modifier
-                                            .padding(textPadding),
+                                        fontSize = 15.sp,
                                         textAlign = TextAlign.Start,
                                     )
                                 }
@@ -206,7 +220,6 @@ fun medicineSceen(navController: NavHostController) {
             }
         }
     )
-
 }
 
 //dateConversion: for all date conversion in medicine, appointment, healthData

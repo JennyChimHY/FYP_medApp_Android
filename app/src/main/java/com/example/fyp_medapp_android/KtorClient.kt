@@ -33,7 +33,7 @@ data class LoginResult(
     val token: String
 )
 
-var apiDomain = "https://rnprp-219-77-4-247.a.free.pinggy.link"
+var apiDomain = "https://medappserver.f0226942.hkbu.app"
 
 object KtorClient {
     var token: String = ""
@@ -149,15 +149,28 @@ object KtorClient {
             val healthdata: List<HealthData> =
                 httpClient.get(apiDomain + "/healthDataRecord/$userID")
                     .body()
-
             return healthdata
         } catch (e: Exception) {
-            Log.d("KtorClient getHealthData", e.toString())
-
-            //null or errors
+            Log.d("KtorClient getHealthData", e.toString()) //null or errors
             return emptyList()
         }
     }
+
+//    suspend fun patchHealthData(healthData: HealthData): HealthData {
+//        Log.d("Enter patchHealthData", "patchHealthData:$healthData ")
+//
+//        try {
+//            val healthdata: HealthData =
+//                httpClient.patch(apiDomain + "/healthDataRecord") {
+//                    setBody(healthData)
+//                }.body()
+//
+//            return healthdata
+//        } catch (e: Exception) {
+//            Log.d("KtorClient patchHealthData", e.toString()) //null or errors
+//            return HealthData(null, null, null, null, null, null, null, null, null, null, null, null, null, null)
+//        }
+//    }
 }
 
 

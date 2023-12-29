@@ -35,7 +35,7 @@ fun profileScreen(navController: NavHostController) {
             )
 
             //add logout button the the bar
-            logoutButton(navController)
+//            logoutButton(navController)  //allow in user profile view?
         },
         snackbarHost = { },  //lab11
         content = { innerPadding ->
@@ -108,12 +108,14 @@ fun profileScreen(navController: NavHostController) {
                                 modifier = Modifier
                                     .padding(8.dp),
                                 textAlign = TextAlign.Center,
+                                color = (Color.Black)
                             )
                             Text(
                                 text = "HKID: ${patient.patientID}",
                                 modifier = Modifier
                                     .padding(8.dp),
                                 textAlign = TextAlign.Center,
+                                color = (Color.Black)
                             )
                         }
                     }

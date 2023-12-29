@@ -49,8 +49,8 @@ fun appointmentScreen(navController: NavHostController) {
                 colors = TopAppBarDefaults.smallTopAppBarColors(containerColor = MaterialTheme.colorScheme.primary)
             )
 
-            //add logout button the the bar
-            logoutButton(navController)
+//            //add logout button the the bar
+//            logoutButton(navController)
         },
         snackbarHost = {  },  //lab11
         content = { innerPadding ->
