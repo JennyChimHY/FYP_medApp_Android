@@ -14,13 +14,16 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
+import co.yml.charts.axis.AxisData
+import co.yml.charts.common.model.Point
+import co.yml.charts.ui.linechart.LineChart
+import co.yml.charts.ui.linechart.model.*
 import com.example.fyp_medapp_android.ui.theme.Green20
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.SerialName
@@ -292,8 +295,6 @@ fun showDataInGraphTable_byType(targetList: List<HealthData>) {
                 .padding(16.dp)
         ) {
 
-            //TODO: gen graph!!!!
-
             //Table Title
             Row(
                 horizontalArrangement = Arrangement.SpaceBetween, modifier = Modifier.fillMaxWidth()
@@ -328,7 +329,10 @@ fun showDataInGraphTable_byType(targetList: List<HealthData>) {
             }
 
             //update record block
-            updateDataBlockDialog(type)
+//            addDataBlockDialog(type)
+
+            //Graph presentation, pass targetList
+            displayLineChart(targetList)
 
             //Table
             //define table field header
@@ -398,7 +402,7 @@ fun valueStringConvertor(item: HealthData): String {
 }
 
 @Composable
-fun updateDataBlockDialog(type: String) {
+fun addDataBlockDialog(type: String) {
 
 //    if (updateDataBlock[type] == true) {
 
@@ -572,5 +576,122 @@ fun validationCheck(newDate: Date, newTime24Hr: Date, newRecordTimeslot: String,
     )
 
     //call KtorClient to update the data by api
+
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun displayLineChart(targetList: List<HealthData>) {
+
+    var type = targetList[0].recordType.toString()
+    var value1 = mutableListOf<Float>()
+    var value2 = mutableListOf<Float>()
+    var date = mutableListOf<String>()
+
+    var maxVal = 100
+    var division = 4
+
+    when (type) {
+        "bloodPressure" -> {
+            maxVal = 180
+            division = 9
+        }
+        "bloodSugar" -> {
+            maxVal = 15
+            division = 15
+        }
+        "pulse" -> {
+            maxVal = 150
+            division = 15
+        }
+        "temperature" -> {
+            maxVal = 45
+            division = 5
+        }
+        "bloodOxygenLevel" -> {
+            maxVal = 100
+            division = 4
+        }
+        "waistWidth" -> {
+            maxVal = 70
+            division = 7
+        }
+        else -> {
+            maxVal = 100
+            division = 4
+        }
+    }
+
+    for(item in targetList) {
+        date.add(item.recordDateTime.toString().split("T")[0])
+        value1.add(item.recordValue1_defaultUnit!!.toFloat())
+        if(item.recordValue2_defaultUnit != null) {
+            value2.add(item.recordValue2_defaultUnit!!.toFloat())
+        }
+    }
+
+//    var pointTMP = 52.22
+//    var pointsData = mutableListOf(Point(0f, pointTMP.toFloat()), Point(1f, 55.56f), Point(2f, 54.44f), Point(3f, 65.56f), Point(4f, 10f))
+//    Log.d("pointsData", "pointsData: $pointsData")
+
+//    var pointTMP = 20f
+//    var pointsData = mutableListOf(Point(0f, pointTMP.toFloat()), Point(1f, 40f), Point(2f, 60f), Point(3f, 80f), Point(4f, 100f))
+//    Log.d("pointsData", "pointsData: $pointsData")
+
+    var pointsData = mutableListOf<Point>()
+    pointsData.add(Point(0f, 0f))       //add the min. value
+    for (i in 0..value1.size-1) {
+        var pointY = value1[i]
+        var pointX = i + 1
+        pointsData.add(Point(pointX.toFloat(), pointY))
+        Log.d("pointsData", "pointsData: $pointsData")
+    }
+    pointsData.add(Point((value1.size+1).toFloat(), maxVal.toFloat()))  //add the max. value
+
+
+    val xAxisData = AxisData.Builder()
+        .axisStepSize(100.dp)
+        .backgroundColor(Color.Transparent)
+        .steps(pointsData.size - 1)
+        .labelData { i ->
+            i.toString() }  //date[i] label diaply date
+        .labelAndAxisLinePadding(15.dp)
+        .build()
+
+    val yAxisData = AxisData.Builder()
+        .steps(division)
+        .backgroundColor(Color.Transparent)
+        .labelAndAxisLinePadding(20.dp)
+        .labelData { i ->
+            val yScale = maxVal / division
+            (i * yScale).toString()
+        }.build()
+
+    val lineChartData = LineChartData(
+        linePlotData = LinePlotData(
+            lines = listOf(
+                Line(
+                    dataPoints = pointsData,
+                    LineStyle(),
+                    IntersectionPoint(),
+                    SelectionHighlightPoint(),
+                    ShadowUnderLine(),
+                    SelectionHighlightPopUp()
+                )
+            ),
+        ),
+        xAxisData = xAxisData,
+        yAxisData = yAxisData,
+        gridLines = GridLines(),
+        backgroundColor = Color.Transparent
+    )
+
+
+    LineChart(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(300.dp),
+        lineChartData = lineChartData
+    )
 
 }
