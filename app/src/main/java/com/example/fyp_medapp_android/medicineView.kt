@@ -134,85 +134,227 @@ fun medicineSceen(navController: NavHostController) {
                                     .padding(10.dp)
                             ) {
 
-                                //one column store all info
+                                //a column with photo, name, box and a row (consisting of 2 column storing heading and info)
                                 Column(
                                     modifier = Modifier
-                                        .weight(7f) // Take 50% of the available width
                                         .fillMaxHeight()
+                                        .padding(10.dp)
                                 ) {
+                                    AsyncImage(
+                                        //fetch the backend directly, apiDomain is a global var from KtorClient
+                                        model = apiDomain + "/images/MedApp_medicinePicture/" + medicineItem.medicineInfo?.medicineImageName + ".jpg",
+                                        contentDescription = null,
+                                        modifier = Modifier
+                                            .size(150.dp)
+//                                            .clip(RoundedCornerShape(8))
+                                            .align(Alignment.CenterHorizontally)
+                                    )
+
+                                    Spacer(modifier = Modifier.size(10.dp))
+
                                     Text(
                                         text = "${medicineItem.medicineInfo?.medicineName.toString()}",
                                         textAlign = TextAlign.Start,
                                         fontSize = 25.sp,
                                         fontWeight = FontWeight.Bold
                                     )
-                                    Text(
-                                        text = "Daily Intake: ${medicineItem.dailyIntake.toString()}",
-                                        textAlign = TextAlign.Start,
-                                        fontSize = 20.sp
-                                    )
-                                    Text(
-                                        text = "Each Intake: ${medicineItem.eachIntakeAmount.toString()}",
-                                        textAlign = TextAlign.Start,
-                                        fontSize = 20.sp
-                                    )
 
-                                    if (medicineItem.selfNote != null) {
-                                        Text(
-                                            text = "Self note: ${medicineItem.selfNote}",
-                                            textAlign = TextAlign.Start,
-                                            fontSize = 20.sp
-                                        )
-                                    }
-//                                    Text( //not neccessary in medicine
-//                                        text = "Time: ${convertedDate[1]}",
-//                                        modifier = Modifier
-//                                            .padding(textPadding),
-//                                        textAlign = TextAlign.Start,
-//                                    )
-                                }
+                                    Spacer(modifier = Modifier.size(10.dp))
 
-                                Column(
-//                                    modifier = Modifier
-//                                        .fillMaxWidth()
-//                                        .padding(end = 5.dp),
-//                                    verticalArrangement = Arrangement.Bottom,
-                                    modifier = Modifier
-                                        .weight(3f) // Take 50% of the available width
-                                        .fillMaxHeight()
-                                ) {
-
-                                    Box(  //labeling the class
+                                    Box(  //Class Label
                                         modifier = Modifier
                                             .size(100.dp, 40.dp)
-                                            .background(Green20)
-                                            .clip(RoundedCornerShape(25))
+                                            .background(
+                                                color = Green20,
+                                                shape = RoundedCornerShape(8.dp))
                                     ) {
                                         Text(
                                             medicineItem.medicineInfo?.medicineClass!!,
-                                            fontSize = 12.sp,
+                                            fontSize = 14.sp,
                                             color = (Color.Black),
-                                            textAlign = TextAlign.Center
+                                            modifier = Modifier.align(Alignment.Center)
                                         )
                                     }
 
-                                    AsyncImage(
-                                        //fetch the backend directly, apiDomain is a global var from KtorClient
-                                        model = apiDomain + "/images/MedApp_medicinePicture/" + medicineItem.medicineInfo?.medicineImageName + ".jpg",
-                                        contentDescription = null,
-                                        modifier = Modifier
-                                            .size(100.dp)
-                                            .clip(RoundedCornerShape(8))
-//                                            .padding(textPadding)
-                                    )
+                                    Spacer(modifier = Modifier.size(10.dp))
 
-                                    Spacer(modifier = Modifier.width(5.dp))
-                                    Text(
-                                        text = "Issue Date: ${convertedDate[0]}",
-                                        fontSize = 15.sp,
-                                        textAlign = TextAlign.Start,
-                                    )
+                                    Row() {//Data Content
+                                        Column(
+                                            modifier = Modifier
+                                                .weight(6f) // Take 50% of the available width
+                                                .fillMaxHeight()
+                                                .padding(bottom = 5.dp)
+                                        ) {
+                                            Text(
+                                                text = "Daily Intake:",
+                                                textAlign = TextAlign.Start,
+                                                fontSize = 20.sp
+                                            )
+                                            Text(
+                                                text = "Each Intake:",
+                                                textAlign = TextAlign.Start,
+                                                fontSize = 20.sp
+                                            )
+
+//                                            if (medicineItem.medicineInfo?.specialRemark != null || medicineItem.specialRemark_patient != null) {
+//                                                Text(
+//                                                    text = "Remarks: ${medicineItem.medicineInfo?.specialRemark?.toString()}, ${medicineItem.specialRemark_patient?.toString()}",
+//                                                    textAlign = TextAlign.Start,
+//                                                    fontSize = 20.sp
+//                                                )
+//                                            }
+
+                                            if (medicineItem.selfNote != null) {
+                                                Text(
+                                                    text = "Self note:",
+                                                    textAlign = TextAlign.Start,
+                                                    fontSize = 20.sp
+                                                )
+                                            }
+
+                                            Spacer(modifier = Modifier.size(8.dp))
+
+                                            Text(
+                                                text = "Issue Quantity:",
+                                                fontSize = 15.sp,
+                                                textAlign = TextAlign.Start,
+                                            )
+                                            Text(
+                                                text = "Issue Date:",
+                                                fontSize = 15.sp,
+                                                textAlign = TextAlign.Start,
+                                            )
+                                        }
+
+
+                                        Column(
+                                            modifier = Modifier
+                                                .weight(4f) // Take 50% of the available width
+                                                .fillMaxHeight()
+                                                .padding(5.dp)
+                                        ) {
+                                            Text(
+                                                text = "${medicineItem.dailyIntake.toString()}",
+                                                textAlign = TextAlign.Start,
+                                                fontSize = 20.sp
+                                            )
+                                            Text(
+                                                text = "${medicineItem.eachIntakeAmount.toString()}",
+                                                textAlign = TextAlign.Start,
+                                                fontSize = 20.sp
+                                            )
+//                                        if (medicineItem.medicineInfo?.specialRemark != null || medicineItem.specialRemark_patient != null) {
+//                                            Text(
+//                                                text = "${medicineItem.medicineInfo?.specialRemark?.toString()}, ${medicineItem.specialRemark_patient?.toString()}",
+//                                                textAlign = TextAlign.Right,
+//                                                fontSize = 20.sp
+//                                            )
+//                                        }
+
+                                            if (medicineItem.selfNote != null) {
+                                                Text(
+                                                    text = "${medicineItem.selfNote}",
+                                                    textAlign = TextAlign.Start,
+                                                    fontSize = 20.sp
+                                                )
+                                            }
+
+                                            Spacer(modifier = Modifier.width(10.dp))
+
+                                            Text(
+                                                text = "${medicineItem.issueQuantity.toString()}",
+                                                fontSize = 15.sp,
+                                                textAlign = TextAlign.Start,
+                                            )
+                                            Text(
+                                                text = "${convertedDate[0]}",
+                                                fontSize = 15.sp,
+                                                textAlign = TextAlign.Start,
+                                            )
+                                        }
+                                    }
                                 }
+
+
+
+//                                Column(
+//                                    modifier = Modifier
+//                                        .weight(7f) // Take 50% of the available width
+//                                        .fillMaxHeight()
+//                                ) {
+//                                    Text(
+//                                        text = "${medicineItem.medicineInfo?.medicineName.toString()}",
+//                                        textAlign = TextAlign.Start,
+//                                        fontSize = 25.sp,
+//                                        fontWeight = FontWeight.Bold
+//                                    )
+//                                    Text(
+//                                        text = "Daily Intake: ${medicineItem.dailyIntake.toString()}",
+//                                        textAlign = TextAlign.Start,
+//                                        fontSize = 20.sp
+//                                    )
+//                                    Text(
+//                                        text = "Each Intake: ${medicineItem.eachIntakeAmount.toString()}",
+//                                        textAlign = TextAlign.Start,
+//                                        fontSize = 20.sp
+//                                    )
+//
+//                                    if (medicineItem.selfNote != null) {
+//                                        Text(
+//                                            text = "Self note: ${medicineItem.selfNote}",
+//                                            textAlign = TextAlign.Start,
+//                                            fontSize = 20.sp
+//                                        )
+//                                    }
+////                                    Text( //not neccessary in medicine
+////                                        text = "Time: ${convertedDate[1]}",
+////                                        modifier = Modifier
+////                                            .padding(textPadding),
+////                                        textAlign = TextAlign.Start,
+////                                    )
+//                                }
+//
+//                                Column(
+////                                    modifier = Modifier
+////                                        .fillMaxWidth()
+////                                        .padding(end = 5.dp),
+////                                    verticalArrangement = Arrangement.Bottom,
+//                                    modifier = Modifier
+//                                        .weight(3f) // Take 50% of the available width
+//                                        .fillMaxHeight()
+//                                ) {
+//
+//                                    Box(  //labeling the class
+//                                        modifier = Modifier
+//                                            .size(100.dp, 40.dp)
+//                                            .background(Green20)
+//                                            .clip(RoundedCornerShape(25))
+//                                    ) {
+//                                        Text(
+//                                            medicineItem.medicineInfo?.medicineClass!!,
+//                                            fontSize = 12.sp,
+//                                            color = (Color.Black),
+//                                            textAlign = TextAlign.Center
+//                                        )
+//                                    }
+//
+//                                    AsyncImage(
+//                                        //fetch the backend directly, apiDomain is a global var from KtorClient
+//                                        model = apiDomain + "/images/MedApp_medicinePicture/" + medicineItem.medicineInfo?.medicineImageName + ".jpg",
+//                                        contentDescription = null,
+//                                        modifier = Modifier
+//                                            .size(100.dp)
+//                                            .clip(RoundedCornerShape(8))
+////                                            .padding(textPadding)
+//                                    )
+//
+//                                    Spacer(modifier = Modifier.width(5.dp))
+//                                    Text(
+//                                        text = "Issue Date: ${convertedDate[0]}",
+//                                        fontSize = 15.sp,
+//                                        textAlign = TextAlign.Start,
+//                                    )
+//                                }
                             }
                         }
                     }
