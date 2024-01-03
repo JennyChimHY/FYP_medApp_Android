@@ -111,6 +111,14 @@ fun healthDataScreen(navController: NavHostController) {
     temperatureList.clear()
     bloodOxygenLevelList.clear()
     waistWidthList.clear()
+    updateDataBlock = mutableMapOf(
+        "bloodPressure" to false,
+        "bloodSugar" to false,
+        "heartRate" to false,
+        "temperature" to false,
+        "bloodOxygenLevel" to false,
+        "waistWidth" to false
+    )
 
     Scaffold(
         //diaplay the header of each page
@@ -419,194 +427,192 @@ fun addDataBlockDialog(type: String) {
 
 //    if (updateDataBlock[type] == true) {
 
-    //OLD DATA, to delete
-    var newRecordTimeslot: String = "abc"
-    var newUnit: String = "abc"
+//        var newRecordTimeslot: String = "abc"  //OLD DATA, to delete
 
-    var addDate by remember { mutableStateOf("") }
-    var addTime by remember { mutableStateOf("") }
-    var addTimeslot by remember { mutableStateOf("") }
-    var addValue by remember { mutableStateOf("") } //data class
-    var addValue2 by remember { mutableStateOf("") }
-    var addSelfNotes by remember { mutableStateOf("") }
-    val coroutineScope = rememberCoroutineScope()
+        var addDate by remember { mutableStateOf("") }
+        var addTime by remember { mutableStateOf("") }
+        var addTimeslot by remember { mutableStateOf("") }
+        var addValue by remember { mutableStateOf("") } //data class
+        var addValue2 by remember { mutableStateOf("") }
+        var newUnit: String = "abc"
+        var addSelfNotes by remember { mutableStateOf("") }
+        val coroutineScope = rememberCoroutineScope()
 
-
-    //Method 1: Simple hidden Row
-    Row(
-        horizontalArrangement = Arrangement.SpaceBetween,
-        modifier = Modifier
-            .fillMaxWidth()
-            .background(
-                color = Green20, shape = RoundedCornerShape(8.dp)
-            )
-            .padding(start = 3.dp, end = 3.dp)
-    ) {
-
-        Column(
+        //Method 1: Simple hidden Row
+        Row(
+            horizontalArrangement = Arrangement.SpaceBetween,
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(top = 8.dp, bottom = 8.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
+                .background(
+                    color = Green20, shape = RoundedCornerShape(8.dp)
+                )
+                .padding(start = 3.dp, end = 3.dp)
         ) {
 
-            Text(
-                text = "Add " + when (type) {
-                    "bloodPressure" -> "Blood Pressure"
-                    "bloodSugar" -> "Blood Sugar"
-                    "pulse" -> "Heart Rate"
-                    "temperature" -> "Temperature"
-                    "bloodOxygenLevel" -> "Blood Oxygen Level"
-                    "waistWidth" -> "Waist Width"
-                    else -> "Unknown"
-                } + " record",
-                modifier = Modifier.align(Alignment.Start),
-                fontWeight = FontWeight.Bold
-            )
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 8.dp, bottom = 8.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+
+                Text(
+                    text = "Add " + when (type) {
+                        "bloodPressure" -> "Blood Pressure"
+                        "bloodSugar" -> "Blood Sugar"
+                        "pulse" -> "Heart Rate"
+                        "temperature" -> "Temperature"
+                        "bloodOxygenLevel" -> "Blood Oxygen Level"
+                        "waistWidth" -> "Waist Width"
+                        else -> "Unknown"
+                    } + " record",
+                    modifier = Modifier.align(Alignment.Start),
+                    fontWeight = FontWeight.Bold
+                )
 
 //            Row() {
-            Text(text = "Date: ", modifier = Modifier.align(Alignment.Start))
-            addDate = datePickerComponent()
-            println("addDate: $addDate")
+                Text(text = "Date: ", modifier = Modifier.align(Alignment.Start))
+                addDate = datePickerComponent()
+                println("addDate: $addDate")
 //            }
 
-            Spacer(modifier = Modifier.height(8.dp))
+                Spacer(modifier = Modifier.height(8.dp))
 
-            Text(text = "Time: ", modifier = Modifier.align(Alignment.Start))
+                Text(text = "Time: ", modifier = Modifier.align(Alignment.Start))
 
-            Row() {
-                addTime = timePickerComponent()
-                println("addTime: $addTime")
-            }
+                Row() {
+                    addTime = timePickerComponent()
+                    println("addTime: $addTime")
+                }
 
-            Spacer(modifier = Modifier.height(8.dp))
+                Spacer(modifier = Modifier.height(8.dp))
 
-            Row() {
-                Text(text = "Timeslot: ")
-                OutlinedTextField( //TextField  //Enhance--> radio picker
+                Row() {
+                    Text(text = "Timeslot: ")
+                    OutlinedTextField( //TextField  //Enhance--> radio picker
 //                    label = { Text("Timeslot") },
-                    textStyle = TextStyle.Default.copy(fontSize = 28.sp),
-                    singleLine = true,
-                    value = addTimeslot,
-                    onValueChange = { addTimeslot = it },
-                    keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Text)
-                )
+                        textStyle = TextStyle.Default.copy(fontSize = 28.sp),
+                        singleLine = true,
+                        value = addTimeslot,
+                        onValueChange = { addTimeslot = it },
+                        keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Text)
+                    )
 //                newRecordTimeslot = "abc" //dropdown list
-            }
+                }
 
-            Spacer(modifier = Modifier.height(8.dp))
+                Spacer(modifier = Modifier.height(8.dp))
 
-            Row() {
+                Row() {
 
-                Text(text = "Value: ")
+                    Text(text = "Value: ")
 
-                OutlinedTextField( //TextField  //TODO: make outlinetextfield reusable
-//                    label = { Text("Input Value") },
-                    textStyle = TextStyle.Default.copy(fontSize = 23.sp),
-                    singleLine = true,
-                    value = addValue,
-                    onValueChange = { addValue = it },
-                    keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Decimal),
-                    modifier = Modifier
-                        .width(90.dp)
-                        .height(55.dp)
-                )
-
-                if (type == "bloodPressure") {
-                    Text(text = "/", fontSize = 38.sp)
-                    OutlinedTextField( //TextField
+                    OutlinedTextField( //TextField  //TODO: make outlinetextfield reusable
 //                    label = { Text("Input Value") },
                         textStyle = TextStyle.Default.copy(fontSize = 23.sp),
                         singleLine = true,
-                        value = addValue2,
-                        onValueChange = { addValue2 = it },
+                        value = addValue,
+                        onValueChange = { addValue = it },
                         keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Decimal),
                         modifier = Modifier
                             .width(90.dp)
                             .height(55.dp)
                     )
 
-                } else addValue2 = "0.0"
-
-                //unit
-                newUnit = when (type) {
-                    "bloodPressure" -> "mmHg"
-                    "bloodSugar" -> "mg/dL"
-                    "pulse" -> "bpm"
-                    "temperature" -> "dC"  //default
-                    "bloodOxygenLevel" -> "%"
-                    //"waistWidth" -> "Waist Width" //to be developed
-                    else -> "Unknown"
-                }
-
-                if (type == "temperature") {
-                    newUnit = "dC" //default, TODO: drop down list to choose
-                    //if dF -> convert the data to dC for DB default
-                    Text(
-                        text = when (newUnit) {
-                            "dC" -> "\u2103"
-                            "dF" -> "\u2109"
-                            else -> "Unknown"
-                        }
-                    )
-                } else {
-                    Text(text = " $newUnit")
-                }
-            }
-
-            Spacer(modifier = Modifier.height(8.dp))
-
-            Row(
-                Modifier.padding(5.dp)
-            ) {
-                Text(text = "Self Notes: ")
-
-                OutlinedTextField( //TextField
-//                    label = { Text("Self Notes:") },
-                    textStyle = TextStyle.Default.copy(fontSize = 28.sp),
-                    singleLine = true,
-                    value = addSelfNotes,
-                    onValueChange = { addSelfNotes = it },
-                    keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Text)
-                )
-            }
-
-            Row(
-                Modifier.padding(5.dp)
-            ) {
-                Button(colors = ButtonDefaults.buttonColors(
-                    containerColor = Color.Transparent,
-                ), onClick = {
-                    updateDataBlock[type] = false
-                    Log.d("updateDataBlock", "updateDataBlock: $updateDataBlock")
-
-                    if (validationCheckUpdate(
-                            addDate,
-                            addTime,
-                            addTimeslot,
-                            type,
-                            newUnit,
-                            addValue,
-                            addValue2,
-                            addSelfNotes
+                    if (type == "bloodPressure") {
+                        Text(text = "/", fontSize = 38.sp)
+                        OutlinedTextField( //TextField
+//                    label = { Text("Input Value") },
+                            textStyle = TextStyle.Default.copy(fontSize = 23.sp),
+                            singleLine = true,
+                            value = addValue2,
+                            onValueChange = { addValue2 = it },
+                            keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Decimal),
+                            modifier = Modifier
+                                .width(90.dp)
+                                .height(55.dp)
                         )
-                    ) {
-                        println("validation check and Ktor passed")
-                        //TODO printout successful message
+
+                    } else addValue2 = "0.0"
+
+                    //unit
+                    newUnit = when (type) {
+                        "bloodPressure" -> "mmHg"
+                        "bloodSugar" -> "mg/dL"
+                        "pulse" -> "bpm"
+                        "temperature" -> "dC"  //default
+                        "bloodOxygenLevel" -> "%"
+                        //"waistWidth" -> "Waist Width" //to be developed
+                        else -> "Unknown"
                     }
 
-                }) {//call function to pop up add record (overlay)
-                    Image(
-                        painter = painterResource(id = R.drawable.add),
-                        contentDescription = "Submit Record",
-                        modifier = Modifier.size(30.dp)
+                    if (type == "temperature") {
+                        newUnit = "dC" //default, TODO: drop down list to choose
+                        //if dF -> convert the data to dC for DB default
+                        Text(
+                            text = when (newUnit) {
+                                "dC" -> "\u2103"
+                                "dF" -> "\u2109"
+                                else -> "Unknown"
+                            }
+                        )
+                    } else {
+                        Text(text = " $newUnit")
+                    }
+                }
+
+                Spacer(modifier = Modifier.height(8.dp))
+
+                Row(
+                    Modifier.padding(5.dp)
+                ) {
+                    Text(text = "Self Notes: ")
+
+                    OutlinedTextField( //TextField
+//                    label = { Text("Self Notes:") },
+                        textStyle = TextStyle.Default.copy(fontSize = 28.sp),
+                        singleLine = true,
+                        value = addSelfNotes,
+                        onValueChange = { addSelfNotes = it },
+                        keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Text)
                     )
+                }
+
+                Row(
+                    Modifier.padding(5.dp)
+                ) {
+                    Button(colors = ButtonDefaults.buttonColors(
+                        containerColor = Color.Transparent,
+                    ), onClick = {
+                        updateDataBlock[type] = false
+                        Log.d("updateDataBlock", "updateDataBlock: $updateDataBlock")
+
+                        if (validationCheckUpdate(
+                                addDate,
+                                addTime,
+                                addTimeslot,
+                                type,
+                                newUnit,
+                                addValue,
+                                addValue2,
+                                addSelfNotes
+                            )
+                        ) {
+                            println("validation check and Ktor passed")
+                            //TODO printout successful message
+                        }
+
+                    }) {//call function to pop up add record (overlay)
+                        Image(
+                            painter = painterResource(id = R.drawable.add),
+                            contentDescription = "Submit Record",
+                            modifier = Modifier.size(30.dp)
+                        )
 //                    Text(text = "Submit")
+                    }
                 }
             }
         }
-    }
-    // }
+//    }
 }
 
 //@Composable
