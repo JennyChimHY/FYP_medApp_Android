@@ -156,21 +156,21 @@ object KtorClient {
         }
     }
 
-//    suspend fun patchHealthData(healthData: HealthData): HealthData {
-//        Log.d("Enter patchHealthData", "patchHealthData:$healthData ")
-//
-//        try {
-//            val healthdata: HealthData =
-//                httpClient.patch(apiDomain + "/healthDataRecord") {
-//                    setBody(healthData)
-//                }.body()
-//
-//            return healthdata
-//        } catch (e: Exception) {
-//            Log.d("KtorClient patchHealthData", e.toString()) //null or errors
-//            return HealthData(null, null, null, null, null, null, null, null, null, null, null, null, null, null)
-//        }
-//    }
+    suspend fun addHealthData(healthData: HealthData): HealthData {
+        Log.d("Enter patchHealthData", "patchHealthData:$healthData ")
+
+        try {
+            val healthdata: HealthData =
+                httpClient.patch(apiDomain + "/addHealthDataRecord") {
+                    setBody(healthData)
+                }.body()
+
+            return healthdata
+        } catch (e: Exception) {
+            Log.d("KtorClient patchHealthData", e.toString()) //null or errors
+            return HealthData(null, null, null, null, null, null, null, null, null, null)
+        }
+    }
 }
 
 

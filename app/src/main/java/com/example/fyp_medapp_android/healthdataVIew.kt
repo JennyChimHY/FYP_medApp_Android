@@ -31,6 +31,9 @@ import co.yml.charts.common.model.Point
 import co.yml.charts.ui.linechart.LineChart
 import co.yml.charts.ui.linechart.model.*
 import com.example.fyp_medapp_android.ui.theme.Green20
+import com.example.fyp_medapp_android.ui.theme.Green40
+import com.example.fyp_medapp_android.ui.theme.Green50
+import kotlinx.coroutines.launch
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
@@ -417,8 +420,6 @@ fun addDataBlockDialog(type: String) {
 //    if (updateDataBlock[type] == true) {
 
     //OLD DATA, to delete
-    var newTime24Hr: Date = Date(12, 0, 5)
-    var newAMPM: String = "AM"
     var newRecordTimeslot: String = "abc"
     var newUnit: String = "abc"
 
@@ -437,8 +438,8 @@ fun addDataBlockDialog(type: String) {
         modifier = Modifier
             .fillMaxWidth()
             .background(
-                color = Green20,
-                shape = RoundedCornerShape(8.dp))
+                color = Green20, shape = RoundedCornerShape(8.dp)
+            )
             .padding(start = 3.dp, end = 3.dp)
     ) {
 
@@ -464,19 +465,18 @@ fun addDataBlockDialog(type: String) {
             )
 
 //            Row() {
-                Text(text = "Date: ", modifier = Modifier.align(Alignment.Start))
-                addDate = datePickerComponent()
-                println("addDate: $addDate")
+            Text(text = "Date: ", modifier = Modifier.align(Alignment.Start))
+            addDate = datePickerComponent()
+            println("addDate: $addDate")
 //            }
 
             Spacer(modifier = Modifier.height(8.dp))
 
-            Row() {
-                Text(text = "Time: ")
-                Text(text = "12:00") //time picker
-                Text(text = "AM/PM") //drop down list/option?
-                newTime24Hr = Date(12, 0, 5) //lambda function to convert to 24hr format
+            Text(text = "Time: ", modifier = Modifier.align(Alignment.Start))
 
+            Row() {
+                addTime = timePickerComponent()
+                println("addTime: $addTime")
             }
 
             Spacer(modifier = Modifier.height(8.dp))
@@ -582,7 +582,7 @@ fun addDataBlockDialog(type: String) {
 
                     if (validationCheckUpdate(
                             addDate,
-                            newTime24Hr,
+                            addTime,
                             addTimeslot,
                             type,
                             newUnit,
@@ -609,9 +609,10 @@ fun addDataBlockDialog(type: String) {
     // }
 }
 
+//@Composable
 fun validationCheckUpdate(
     newDate: String,
-    newTime24Hr: Date,
+    newTime24Hr: String,
     newRecordTimeslot: String,
     type: String,
     newUnit: String,
@@ -623,12 +624,13 @@ fun validationCheckUpdate(
     //invalid -> error message
 
     var errorFlag = false
+//    val coroutineScope = rememberCoroutineScope()
 
     //pack the data with HealthData class
     var updateHealthdata = HealthData(
         _id = null,  //MongoDB auto gen??
         userId = globalLoginInfo.userID,
-        recordDateTime = "${newDate.toString()}T${newTime24Hr.toString()}.000Z", //2021-09-01T12:00:00.000Z
+        recordDateTime = "${newDate}T${newTime24Hr}:00.000Z", //2021-09-01T12:00:00.000Z
         recordTimeslot = newRecordTimeslot,
         recordType = type,
         recordUnit_Patient = newUnit,
@@ -640,10 +642,46 @@ fun validationCheckUpdate(
 
     println("updateHealthdata: $updateHealthdata")
 
-    //call KtorClient to update the data by api
+    //validation rules
 
 
-    return true //temp.
+    //call KtorClient to update the data by api if valid input
+//    if (!errorFlag) {
+////        KtorClient.addHealthData(updateHealthdata)
+//        coroutineScope.launch {
+//
+//            val addResult: HealthData =
+//                KtorClient.addHealthData(updateHealthdata) //not String message only, but User data class
+//            var message = ""
+//            if (addResult.userId != null) {           //success
+//                println("login true")
+//                message =
+//                    "Added Success." //null safety
+//
+//                Log.d("Added Success", message)
+////            Toast.makeText(
+////                LocalContext.current,
+////                message,
+////                Toast.LENGTH_SHORT
+////            ).show()
+//
+//            } else {     //error
+//                println("add false")
+//                println(addResult)
+//                message =
+//                    "Added Failed"
+//
+//            }
+//            Log.d("Added failed", message)
+////            Toast.makeText(
+////                LocalContext.current,
+////                message,
+////                Toast.LENGTH_SHORT
+////            ).show()
+//        }
+//    }
+
+    return true //temp.string msg -> validate fail ; add failed ; add success
 
 }
 
@@ -758,44 +796,46 @@ fun displayLineChart(targetList: List<HealthData>) {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun datePickerComponent() : String {
-    val addDateState = rememberDatePickerState(initialSelectedDateMillis = Instant.now().toEpochMilli()) //**user input
-//    val openDialog = remember { mutableStateOf(true) }
+fun datePickerComponent(): String {
+    val addDateState = rememberDatePickerState(
+        initialSelectedDateMillis = Instant.now().toEpochMilli()
+    ) //**user input
     var selectedDate: OffsetDateTime? = null
 
+    DatePicker(state = addDateState,
+    modifier = Modifier
+        .width(300.dp)
+        .height(500.dp)
+    )
+    selectedDate = addDateState.selectedDateMillis?.let {
+        Instant.ofEpochMilli(it).atOffset(ZoneOffset.UTC)
+    }
 
-//    Button(colors = ButtonDefaults.buttonColors(
-//        containerColor = Color.Transparent,
-//    ), onClick = { openDialog.value = true }) {
-//        Image(
-//            painter = painterResource(id = R.drawable.calendar),
-//            contentDescription = "Select Date",
-//            modifier = Modifier.size(30.dp)
-//        )
-//    }
+    println("selectedDate: $selectedDate")
 
-//    if (openDialog.value) {
-//        DatePickerDialog(onDismissRequest = {
-//            openDialog.value = false
-//        }, confirmButton = {
-//            TextButton(onClick = {
-//                openDialog.value = false
-//            }) {
-//                Text("OK")
-//            }
-//        }, dismissButton = {
-//            TextButton(onClick = {
-//                openDialog.value = false
-//            }) {
-//                Text("CANCEL")
-//            }
-//        }) {
-            DatePicker(state = addDateState)
-            selectedDate = addDateState.selectedDateMillis?.let {
-                Instant.ofEpochMilli(it).atOffset(ZoneOffset.UTC)
-            }
+    return selectedDate.toString().split("T")[0]
+}
 
-            println("selectedDate: $selectedDate")
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun timePickerComponent() : String {
 
-            return selectedDate.toString().split("T")[0]
+    val addTimeState = rememberTimePickerState()
+    var selectedTime = ""
+
+    TimePicker(
+        state = addTimeState,
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(400.dp),
+        colors = TimePickerDefaults.colors(
+            clockDialColor = Color.Transparent,
+            timeSelectorSelectedContainerColor = Green40,
+            selectorColor = Green50,
+        )
+    )
+//    Text(text = "Time is ${addTimeState.hour} : ${addTimeState.minute}")
+    selectedTime = "${addTimeState.hour}:${addTimeState.minute}"
+
+    return selectedTime
 }
