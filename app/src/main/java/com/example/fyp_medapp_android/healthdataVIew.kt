@@ -1,5 +1,6 @@
 package com.example.fyp_medapp_android
 
+import android.content.Context
 import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.*
@@ -9,13 +10,18 @@ import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -32,6 +38,10 @@ import kotlinx.serialization.descriptors.PrimitiveKind
 import kotlinx.serialization.descriptors.PrimitiveSerialDescriptor
 import kotlinx.serialization.encoding.Decoder
 import kotlinx.serialization.encoding.Encoder
+import java.time.Instant
+import java.time.OffsetDateTime
+import java.time.ZoneOffset
+import java.time.format.DateTimeFormatter
 import java.util.*
 import kotlin.math.round
 
@@ -206,12 +216,8 @@ fun healthDataScreen(navController: NavHostController) {
 
                     var sortedDataList =
                         mutableListOf(  //take the list out and call table function one by one
-                            bloodPressureList,
-                            bloodSugarList, //cannot update inside list of list
-                            heartRateList,
-                            temperatureList,
-                            bloodOxygenLevelList,
-                            waistWidthList
+                            bloodPressureList, bloodSugarList, //cannot update inside list of list
+                            heartRateList, temperatureList, bloodOxygenLevelList, waistWidthList
                         )
 
                     Column(
@@ -233,10 +239,7 @@ fun healthDataScreen(navController: NavHostController) {
 //Table setting for displaying record
 @Composable  //normal table cell
 fun RowScope.TableCell(
-    text: String,
-    weight: Float,
-    alignment: TextAlign = TextAlign.Center,
-    title: Boolean = false
+    text: String, weight: Float, alignment: TextAlign = TextAlign.Center, title: Boolean = false
 ) {
     Text(
         text = text,
@@ -247,6 +250,7 @@ fun RowScope.TableCell(
         textAlign = alignment,
     )
 }
+
 @Composable //status cell which will change label colour according to the data
 fun RowScope.StatusCell(
     text: String,
@@ -319,7 +323,8 @@ fun showDataInGraphTable_byType(targetList: List<HealthData>) {
                 ), onClick = {
                     updateDataBlock[type] = true
                     Log.d("updateDataBlock", "updateDataBlock: ${updateDataBlock[type]}")
-                /*TODO make appear*/ }) {//call function to pop up add record (overlay)
+                    /*TODO make appear*/
+                }) {//call function to pop up add record (overlay)
                     Image(
                         painter = painterResource(id = R.drawable.add),
                         contentDescription = "Add Record",
@@ -329,7 +334,7 @@ fun showDataInGraphTable_byType(targetList: List<HealthData>) {
             }
 
             //update record block
-//            addDataBlockDialog(type)
+            addDataBlockDialog(type)
 
             //Graph presentation, pass targetList
             displayLineChart(targetList)
@@ -363,20 +368,24 @@ fun showDataInGraphTable_byType(targetList: List<HealthData>) {
                     String.format("%02d:%s %s", hour12hr, minute, period)
                 }
 
-                val convertedTime = dateTime[1].let(convertTo12HourFormat) // Using the lambda function
+                val convertedTime =
+                    dateTime[1].let(convertTo12HourFormat) // Using the lambda function
 
                 Row(Modifier.fillMaxWidth()) {
-                    TableCell(text = "$date $convertedTime \n ${content.recordTimeslot}", weight = column1Weight)
+                    TableCell(
+                        text = "$date $convertedTime \n ${content.recordTimeslot}",
+                        weight = column1Weight
+                    )
                     TableCell(text = valueStringConvertor(content), weight = column2Weight)
                     StatusCell(text = content.healthStatus.toString(), weight = column3Weight)
                 }
 
                 Divider(
-                            color = Color.LightGray,
-                            modifier = Modifier
-                                .height(1.dp)
-                                .fillMaxHeight()
-                                .fillMaxWidth()
+                    color = Color.LightGray,
+                    modifier = Modifier
+                        .height(1.dp)
+                        .fillMaxHeight()
+                        .fillMaxWidth()
                 )
 
             }
@@ -401,31 +410,47 @@ fun valueStringConvertor(item: HealthData): String {
 
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun addDataBlockDialog(type: String) {
 
 //    if (updateDataBlock[type] == true) {
 
-//    var date: String by remember { mutableStateOf("") }
-    var newDate: Date = Date(2021, 9, 1)
-    var newTime12Hr: Date = Date(12, 0, 5)
+    //OLD DATA, to delete
     var newTime24Hr: Date = Date(12, 0, 5)
     var newAMPM: String = "AM"
     var newRecordTimeslot: String = "abc"
-    var newData1: Double = 1.0
-    var newData2: Double? = null
     var newUnit: String = "abc"
-    var newSelfNotes: String? = null
+
+    var addDate by remember { mutableStateOf("") }
+    var addTime by remember { mutableStateOf("") }
+    var addTimeslot by remember { mutableStateOf("") }
+    var addValue by remember { mutableStateOf("") } //data class
+    var addValue2 by remember { mutableStateOf("") }
+    var addSelfNotes by remember { mutableStateOf("") }
+    val coroutineScope = rememberCoroutineScope()
+
 
     //Method 1: Simple hidden Row
     Row(
-        horizontalArrangement = Arrangement.SpaceBetween, modifier = Modifier.fillMaxWidth()
+        horizontalArrangement = Arrangement.SpaceBetween,
+        modifier = Modifier
+            .fillMaxWidth()
+            .background(
+                color = Green20,
+                shape = RoundedCornerShape(8.dp))
+            .padding(start = 3.dp, end = 3.dp)
     ) {
 
-        Column {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(top = 8.dp, bottom = 8.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
 
             Text(
-                text = "Update " + when (type) {
+                text = "Add " + when (type) {
                     "bloodPressure" -> "Blood Pressure"
                     "bloodSugar" -> "Blood Sugar"
                     "pulse" -> "Heart Rate"
@@ -433,18 +458,18 @@ fun addDataBlockDialog(type: String) {
                     "bloodOxygenLevel" -> "Blood Oxygen Level"
                     "waistWidth" -> "Waist Width"
                     else -> "Unknown"
-                }
+                } + " record",
+                modifier = Modifier.align(Alignment.Start),
+                fontWeight = FontWeight.Bold
             )
 
-            Spacer(modifier = Modifier.height(modifierForForm))
+//            Row() {
+                Text(text = "Date: ", modifier = Modifier.align(Alignment.Start))
+                addDate = datePickerComponent()
+                println("addDate: $addDate")
+//            }
 
-            Row() {
-                Text(text = "Date: ")
-                Text(text = "2021-09-01") //date picker
-                newDate = Date(2021, 9, 1)
-            }
-
-            Spacer(modifier = Modifier.height(modifierForForm))
+            Spacer(modifier = Modifier.height(8.dp))
 
             Row() {
                 Text(text = "Time: ")
@@ -454,70 +479,121 @@ fun addDataBlockDialog(type: String) {
 
             }
 
-            Spacer(modifier = Modifier.height(modifierForForm))
+            Spacer(modifier = Modifier.height(8.dp))
 
             Row() {
-                Text(text = "Record Timeslot: ")
-                newRecordTimeslot = "abc" //dropdown list
+                Text(text = "Timeslot: ")
+                OutlinedTextField( //TextField  //Enhance--> radio picker
+//                    label = { Text("Timeslot") },
+                    textStyle = TextStyle.Default.copy(fontSize = 28.sp),
+                    singleLine = true,
+                    value = addTimeslot,
+                    onValueChange = { addTimeslot = it },
+                    keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Text)
+                )
+//                newRecordTimeslot = "abc" //dropdown list
             }
 
-            Spacer(modifier = Modifier.height(modifierForForm))
+            Spacer(modifier = Modifier.height(8.dp))
 
             Row() {
-                Text(text = "Data: ")
-                Text(text = "120") //num field, number pad only
-                newData1 = 120.0
+
+                Text(text = "Value: ")
+
+                OutlinedTextField( //TextField  //TODO: make outlinetextfield reusable
+//                    label = { Text("Input Value") },
+                    textStyle = TextStyle.Default.copy(fontSize = 23.sp),
+                    singleLine = true,
+                    value = addValue,
+                    onValueChange = { addValue = it },
+                    keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Decimal),
+                    modifier = Modifier
+                        .width(90.dp)
+                        .height(55.dp)
+                )
 
                 if (type == "bloodPressure") {
-                    newData2 = 120.0
+                    Text(text = "/", fontSize = 38.sp)
+                    OutlinedTextField( //TextField
+//                    label = { Text("Input Value") },
+                        textStyle = TextStyle.Default.copy(fontSize = 23.sp),
+                        singleLine = true,
+                        value = addValue2,
+                        onValueChange = { addValue2 = it },
+                        keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Decimal),
+                        modifier = Modifier
+                            .width(90.dp)
+                            .height(55.dp)
+                    )
+
+                } else addValue2 = "0.0"
+
+                //unit
+                newUnit = when (type) {
+                    "bloodPressure" -> "mmHg"
+                    "bloodSugar" -> "mg/dL"
+                    "pulse" -> "bpm"
+                    "temperature" -> "dC"  //default
+                    "bloodOxygenLevel" -> "%"
+                    //"waistWidth" -> "Waist Width" //to be developed
+                    else -> "Unknown"
                 }
-
-                Text("Unit: ")
-
-                newUnit =
-                    when (type) {
-                        "bloodPressure" -> "mmHg"
-                        "bloodSugar" -> "mg/dL"
-                        "pulse" -> "bpm"
-                        "temperature" -> "dC"  //default
-                        "bloodOxygenLevel" -> "%"
-                        //"waistWidth" -> "Waist Width" //to be developed
-                        else -> "Unknown"
-                    }
 
                 if (type == "temperature") {
-                    //drop down list to choose
-                    newUnit = "dF"
+                    newUnit = "dC" //default, TODO: drop down list to choose
                     //if dF -> convert the data to dC for DB default
-                    Text(text = when(newUnit) {
-                        "dC" -> "\u2103"
-                        "dF" -> "\u2109"
-                        else -> "Unknown"
-                    })
+                    Text(
+                        text = when (newUnit) {
+                            "dC" -> "\u2103"
+                            "dF" -> "\u2109"
+                            else -> "Unknown"
+                        }
+                    )
                 } else {
-                    Text( text = newUnit )
+                    Text(text = " $newUnit")
                 }
-
             }
 
-            Spacer(modifier = Modifier.height(modifierForForm))
+            Spacer(modifier = Modifier.height(8.dp))
 
-            Row() {
+            Row(
+                Modifier.padding(5.dp)
+            ) {
                 Text(text = "Self Notes: ")
-                newSelfNotes = "abc" //text field
+
+                OutlinedTextField( //TextField
+//                    label = { Text("Self Notes:") },
+                    textStyle = TextStyle.Default.copy(fontSize = 28.sp),
+                    singleLine = true,
+                    value = addSelfNotes,
+                    onValueChange = { addSelfNotes = it },
+                    keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Text)
+                )
             }
 
-            Spacer(modifier = Modifier.height(modifierForForm))
-
-            Row() {
-
+            Row(
+                Modifier.padding(5.dp)
+            ) {
                 Button(colors = ButtonDefaults.buttonColors(
                     containerColor = Color.Transparent,
                 ), onClick = {
                     updateDataBlock[type] = false
                     Log.d("updateDataBlock", "updateDataBlock: $updateDataBlock")
 
-                    validationCheck(newDate, newTime24Hr, newRecordTimeslot, type, newUnit, newData1, newData2, newSelfNotes)
+                    if (validationCheckUpdate(
+                            addDate,
+                            newTime24Hr,
+                            addTimeslot,
+                            type,
+                            newUnit,
+                            addValue,
+                            addValue2,
+                            addSelfNotes
+                        )
+                    ) {
+                        println("validation check and Ktor passed")
+                        //TODO printout successful message
+                    }
 
                 }) {//call function to pop up add record (overlay)
                     Image(
@@ -525,57 +601,49 @@ fun addDataBlockDialog(type: String) {
                         contentDescription = "Submit Record",
                         modifier = Modifier.size(30.dp)
                     )
+//                    Text(text = "Submit")
                 }
             }
-
-
-            //Method 2: Dialog
-//            AlertDialog(
-//                onDismissRequest = {
-//                    updateDataBlock = false
-//                },
-//                title = {
-//                    Text(text = "Update Health Data Record")
-//                },
-//                text = {
-//                    Text(text = "Please select the health data type you want to update.")
-//                },
-//                confirmButton = {
-//                    Button(
-//                        onClick = {
-//                            updateDataBlock = false
-//                        }
-//                    ) {
-//                        Text(text = "OK")
-//                    }
-//                }
-//            )
         }
-        // }
     }
+    // }
 }
 
-fun validationCheck(newDate: Date, newTime24Hr: Date, newRecordTimeslot: String, type: String, newUnit: String, newData1: Double, newData2: Double?, newSelfNote: String?) {
-
+fun validationCheckUpdate(
+    newDate: String,
+    newTime24Hr: Date,
+    newRecordTimeslot: String,
+    type: String,
+    newUnit: String,
+    newData1: String,
+    newData2: String?,
+    newSelfNote: String?
+): Boolean {
     //validation
-
-
     //invalid -> error message
+
+    var errorFlag = false
+
     //pack the data with HealthData class
     var updateHealthdata = HealthData(
-        _id = null,
+        _id = null,  //MongoDB auto gen??
         userId = globalLoginInfo.userID,
         recordDateTime = "${newDate.toString()}T${newTime24Hr.toString()}.000Z", //2021-09-01T12:00:00.000Z
         recordTimeslot = newRecordTimeslot,
         recordType = type,
         recordUnit_Patient = newUnit,
-        recordValue1_defaultUnit = newData1,
-        recordValue2_defaultUnit = newData2, //if hv then input, otherwise null
+        recordValue1_defaultUnit = newData1.toDouble(),
+        recordValue2_defaultUnit = newData2?.toDouble(), //if hv then input, otherwise null
         healthStatus = "healthy", //call calculate status function? or call above right after onclick?
-        selfNote = "test"
+        selfNote = newSelfNote?.toString()
     )
 
+    println("updateHealthdata: $updateHealthdata")
+
     //call KtorClient to update the data by api
+
+
+    return true //temp.
 
 }
 
@@ -622,10 +690,10 @@ fun displayLineChart(targetList: List<HealthData>) {
         }
     }
 
-    for(item in targetList) {
+    for (item in targetList) {
         date.add(item.recordDateTime.toString().split("T")[0])
         value1.add(item.recordValue1_defaultUnit!!.toFloat())
-        if(item.recordValue2_defaultUnit != null) {
+        if (item.recordValue2_defaultUnit != null) {
             value2.add(item.recordValue2_defaultUnit!!.toFloat())
         }
     }
@@ -640,29 +708,22 @@ fun displayLineChart(targetList: List<HealthData>) {
 
     var pointsData = mutableListOf<Point>()
     pointsData.add(Point(0f, 0f))       //add the min. value
-    for (i in 0..value1.size-1) {
+    for (i in 0..value1.size - 1) {
         var pointY = value1[i]
         var pointX = i + 1
         pointsData.add(Point(pointX.toFloat(), pointY))
         Log.d("pointsData", "pointsData: $pointsData")
     }
-    pointsData.add(Point((value1.size+1).toFloat(), maxVal.toFloat()))  //add the max. value
+    pointsData.add(Point((value1.size + 1).toFloat(), maxVal.toFloat()))  //add the max. value
 
+    val xAxisData = AxisData.Builder().axisStepSize(100.dp).backgroundColor(Color.Transparent)
+        .steps(pointsData.size - 1).labelData { i ->
+            i.toString()
+        }  //date[i] label diaply date
+        .labelAndAxisLinePadding(15.dp).build()
 
-    val xAxisData = AxisData.Builder()
-        .axisStepSize(100.dp)
-        .backgroundColor(Color.Transparent)
-        .steps(pointsData.size - 1)
-        .labelData { i ->
-            i.toString() }  //date[i] label diaply date
-        .labelAndAxisLinePadding(15.dp)
-        .build()
-
-    val yAxisData = AxisData.Builder()
-        .steps(division)
-        .backgroundColor(Color.Transparent)
-        .labelAndAxisLinePadding(20.dp)
-        .labelData { i ->
+    val yAxisData = AxisData.Builder().steps(division).backgroundColor(Color.Transparent)
+        .labelAndAxisLinePadding(20.dp).labelData { i ->
             val yScale = maxVal / division
             (i * yScale).toString()
         }.build()
@@ -690,8 +751,51 @@ fun displayLineChart(targetList: List<HealthData>) {
     LineChart(
         modifier = Modifier
             .fillMaxWidth()
-            .height(300.dp),
-        lineChartData = lineChartData
+            .height(300.dp), lineChartData = lineChartData
     )
 
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun datePickerComponent() : String {
+    val addDateState = rememberDatePickerState(initialSelectedDateMillis = Instant.now().toEpochMilli()) //**user input
+//    val openDialog = remember { mutableStateOf(true) }
+    var selectedDate: OffsetDateTime? = null
+
+
+//    Button(colors = ButtonDefaults.buttonColors(
+//        containerColor = Color.Transparent,
+//    ), onClick = { openDialog.value = true }) {
+//        Image(
+//            painter = painterResource(id = R.drawable.calendar),
+//            contentDescription = "Select Date",
+//            modifier = Modifier.size(30.dp)
+//        )
+//    }
+
+//    if (openDialog.value) {
+//        DatePickerDialog(onDismissRequest = {
+//            openDialog.value = false
+//        }, confirmButton = {
+//            TextButton(onClick = {
+//                openDialog.value = false
+//            }) {
+//                Text("OK")
+//            }
+//        }, dismissButton = {
+//            TextButton(onClick = {
+//                openDialog.value = false
+//            }) {
+//                Text("CANCEL")
+//            }
+//        }) {
+            DatePicker(state = addDateState)
+            selectedDate = addDateState.selectedDateMillis?.let {
+                Instant.ofEpochMilli(it).atOffset(ZoneOffset.UTC)
+            }
+
+            println("selectedDate: $selectedDate")
+
+            return selectedDate.toString().split("T")[0]
 }

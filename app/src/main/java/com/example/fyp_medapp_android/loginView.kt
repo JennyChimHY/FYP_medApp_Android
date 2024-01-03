@@ -75,19 +75,8 @@ fun Login(navController: NavHostController, snackbarHostState: SnackbarHostState
         content = { innerPadding ->
 
             //Login UI
-//            Column() {
-//                //fill the TopAppBar space
-//                Spacer(Modifier.size(60.dp)) //failed
-//            }
-
             Column(
             Modifier.padding(innerPadding),
-//                //different padding for 4 sides
-//                top = 60.dp,
-//                bottom = 30.dp,
-//                start = 16.dp,
-//                end = 16.dp
-//            ),
                 verticalArrangement = Arrangement.Center,
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
