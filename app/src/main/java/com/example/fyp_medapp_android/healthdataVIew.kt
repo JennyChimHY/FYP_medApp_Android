@@ -52,14 +52,14 @@ import kotlin.math.round
 data class HealthData(
     val _id: String?,
     val userId: String?,
-    val recordDateTime: String?,
-    val recordTimeslot: String?,
+    var recordDateTime: String?,
+    var recordTimeslot: String?,
     val recordType: String?,
-    val recordUnit_Patient: String?,
-    val recordValue1_defaultUnit: Double?,
-    val recordValue2_defaultUnit: Double?,
-    val healthStatus: String?,
-    val selfNote: String?
+    var recordUnit_Patient: String?,
+    var recordValue1_defaultUnit: Double?,
+    var recordValue2_defaultUnit: Double?,
+    var healthStatus: String?,
+    var selfNote: String?
 )
 
 //global variables, (or make function filterDataByDate_Type() return list of list?)
@@ -428,266 +428,250 @@ fun addDataBlockDialog(type: String) {
 //    if (updateDataBlock[type] == true) {
 
 //        var newRecordTimeslot: String = "abc"  //OLD DATA, to delete
+    var addhealthData by remember {
+        mutableStateOf( //mutableStateOf
+            HealthData(
+                _id = null,
+                userId = globalLoginInfo.userID,
+                recordDateTime = "",
+                recordTimeslot = "",
+                recordType = type,
+                recordUnit_Patient = null,
+                recordValue1_defaultUnit = 0.0,
+                recordValue2_defaultUnit = 0.0,
+                healthStatus = null,
+                selfNote = null
+            )
+        )
+    }
 
-        var addDate by remember { mutableStateOf("") }
-        var addTime by remember { mutableStateOf("") }
-        var addTimeslot by remember { mutableStateOf("") }
-        var addValue by remember { mutableStateOf("") } //data class
-        var addValue2 by remember { mutableStateOf("") }
-        var newUnit: String = "abc"
-        var addSelfNotes by remember { mutableStateOf("") }
-        val coroutineScope = rememberCoroutineScope()
+    var addDate by remember { mutableStateOf("") }
+    var addTime by remember { mutableStateOf("") }
+    var addTimeslot by remember { mutableStateOf("") }
+    var addValue by remember { mutableStateOf("") } //data class
+    var addValue2 by remember { mutableStateOf("") }
+    var addSelfNotes by remember { mutableStateOf("") }
+    val coroutineScope = rememberCoroutineScope()
 
-        //Method 1: Simple hidden Row
-        Row(
-            horizontalArrangement = Arrangement.SpaceBetween,
+    //Method 1: Simple hidden Row --> press "ok" to close the row, validate and update to server
+    Row(
+        horizontalArrangement = Arrangement.SpaceBetween,
+        modifier = Modifier
+            .fillMaxWidth()
+            .background(
+                color = Green20, shape = RoundedCornerShape(8.dp)
+            )
+            .padding(start = 3.dp, end = 3.dp)
+    ) {
+
+        Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .background(
-                    color = Green20, shape = RoundedCornerShape(8.dp)
-                )
-                .padding(start = 3.dp, end = 3.dp)
+                .padding(top = 8.dp, bottom = 8.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
 
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(top = 8.dp, bottom = 8.dp),
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-
-                Text(
-                    text = "Add " + when (type) {
-                        "bloodPressure" -> "Blood Pressure"
-                        "bloodSugar" -> "Blood Sugar"
-                        "pulse" -> "Heart Rate"
-                        "temperature" -> "Temperature"
-                        "bloodOxygenLevel" -> "Blood Oxygen Level"
-                        "waistWidth" -> "Waist Width"
-                        else -> "Unknown"
-                    } + " record",
-                    modifier = Modifier.align(Alignment.Start),
-                    fontWeight = FontWeight.Bold
-                )
+            Text(
+                text = "Add " + when (type) {
+                    "bloodPressure" -> "Blood Pressure"
+                    "bloodSugar" -> "Blood Sugar"
+                    "pulse" -> "Heart Rate"
+                    "temperature" -> "Temperature"
+                    "bloodOxygenLevel" -> "Blood Oxygen Level"
+                    "waistWidth" -> "Waist Width"
+                    else -> "Unknown"
+                } + " record",
+                modifier = Modifier.align(Alignment.Start),
+                fontWeight = FontWeight.Bold
+            )
 
 //            Row() {
-                Text(text = "Date: ", modifier = Modifier.align(Alignment.Start))
-                addDate = datePickerComponent()
-                println("addDate: $addDate")
+            Text(text = "Date: ", modifier = Modifier.align(Alignment.Start))
+            addDate = datePickerComponent()
+            println("addDate: $addDate")
 //            }
 
-                Spacer(modifier = Modifier.height(8.dp))
+            Spacer(modifier = Modifier.height(8.dp))
 
-                Text(text = "Time: ", modifier = Modifier.align(Alignment.Start))
+            Text(text = "Time: ", modifier = Modifier.align(Alignment.Start))
 
-                Row() {
-                    addTime = timePickerComponent()
-                    println("addTime: $addTime")
-                }
+            Row() {
+                addTime = timePickerComponent()
+                println("addTime: $addTime")
+            }
 
-                Spacer(modifier = Modifier.height(8.dp))
+            Spacer(modifier = Modifier.height(8.dp))
 
-                Row() {
-                    Text(text = "Timeslot: ")
-                    OutlinedTextField( //TextField  //Enhance--> radio picker
+            Row() {
+                Text(text = "Timeslot: ")
+                OutlinedTextField( //TextField  //Enhance--> radio picker
 //                    label = { Text("Timeslot") },
-                        textStyle = TextStyle.Default.copy(fontSize = 28.sp),
-                        singleLine = true,
-                        value = addTimeslot,
-                        onValueChange = { addTimeslot = it },
-                        keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Text)
-                    )
+                    textStyle = TextStyle.Default.copy(fontSize = 28.sp),
+                    singleLine = true,
+                    value = addTimeslot,
+                    onValueChange = { addTimeslot = it },
+                    keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Text)
+                )
 //                newRecordTimeslot = "abc" //dropdown list
-                }
+            }
 
-                Spacer(modifier = Modifier.height(8.dp))
+            Spacer(modifier = Modifier.height(8.dp))
 
-                Row() {
+            Row() {
 
-                    Text(text = "Value: ")
+                Text(text = "Value: ")
 
-                    OutlinedTextField( //TextField  //TODO: make outlinetextfield reusable
+                OutlinedTextField( //TextField  //TODO: make outlinetextfield reusable
+//                    label = { Text("Input Value") },
+                    textStyle = TextStyle.Default.copy(fontSize = 23.sp),
+                    singleLine = true,
+                    value = addValue,
+                    onValueChange = { addValue = it },
+                    keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Decimal),
+                    modifier = Modifier
+                        .width(90.dp)
+                        .height(55.dp)
+                )
+
+                if (type == "bloodPressure") {
+                    Text(text = "/", fontSize = 38.sp)
+                    OutlinedTextField( //TextField
 //                    label = { Text("Input Value") },
                         textStyle = TextStyle.Default.copy(fontSize = 23.sp),
                         singleLine = true,
-                        value = addValue,
-                        onValueChange = { addValue = it },
+                        value = addValue2,
+                        onValueChange = { addValue2 = it },
                         keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Decimal),
                         modifier = Modifier
                             .width(90.dp)
                             .height(55.dp)
                     )
 
-                    if (type == "bloodPressure") {
-                        Text(text = "/", fontSize = 38.sp)
-                        OutlinedTextField( //TextField
-//                    label = { Text("Input Value") },
-                            textStyle = TextStyle.Default.copy(fontSize = 23.sp),
-                            singleLine = true,
-                            value = addValue2,
-                            onValueChange = { addValue2 = it },
-                            keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Decimal),
-                            modifier = Modifier
-                                .width(90.dp)
-                                .height(55.dp)
-                        )
+                } else addhealthData.recordValue2_defaultUnit = 0.0
 
-                    } else addValue2 = "0.0"
-
-                    //unit
-                    newUnit = when (type) {
-                        "bloodPressure" -> "mmHg"
-                        "bloodSugar" -> "mg/dL"
-                        "pulse" -> "bpm"
-                        "temperature" -> "dC"  //default
-                        "bloodOxygenLevel" -> "%"
-                        //"waistWidth" -> "Waist Width" //to be developed
-                        else -> "Unknown"
-                    }
-
-                    if (type == "temperature") {
-                        newUnit = "dC" //default, TODO: drop down list to choose
-                        //if dF -> convert the data to dC for DB default
-                        Text(
-                            text = when (newUnit) {
-                                "dC" -> "\u2103"
-                                "dF" -> "\u2109"
-                                else -> "Unknown"
-                            }
-                        )
-                    } else {
-                        Text(text = " $newUnit")
-                    }
+                //unit
+                addhealthData.recordUnit_Patient = when (type) {
+                    "bloodPressure" -> "mmHg"
+                    "bloodSugar" -> "mg/dL"
+                    "pulse" -> "bpm"
+                    "temperature" -> "dC"  //default
+                    "bloodOxygenLevel" -> "%"
+                    //"waistWidth" -> "Waist Width" //to be developed
+                    else -> "Unknown"
                 }
 
-                Spacer(modifier = Modifier.height(8.dp))
-
-                Row(
-                    Modifier.padding(5.dp)
-                ) {
-                    Text(text = "Self Notes: ")
-
-                    OutlinedTextField( //TextField
-//                    label = { Text("Self Notes:") },
-                        textStyle = TextStyle.Default.copy(fontSize = 28.sp),
-                        singleLine = true,
-                        value = addSelfNotes,
-                        onValueChange = { addSelfNotes = it },
-                        keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Text)
+                if (type == "temperature") {
+                    addhealthData.recordUnit_Patient = "dC" //default, TODO: drop down list to choose
+                    //if dF -> convert the data to dC for DB default
+                    Text(
+                        text = when (addhealthData.recordUnit_Patient) {
+                            "dC" -> "\u2103"
+                            "dF" -> "\u2109"
+                            else -> "Unknown"
+                        }
                     )
+                } else {
+                    Text(text = " ${addhealthData.recordUnit_Patient}")
                 }
+            }
 
-                Row(
-                    Modifier.padding(5.dp)
-                ) {
-                    Button(colors = ButtonDefaults.buttonColors(
+            Spacer(modifier = Modifier.height(8.dp))
+
+            Row(
+                Modifier.padding(5.dp)
+            ) {
+                Text(text = "Self Notes: ")
+
+                OutlinedTextField( //TextField
+//                    label = { Text("Self Notes:") },
+                    textStyle = TextStyle.Default.copy(fontSize = 28.sp),
+                    singleLine = true,
+                    value = addSelfNotes,
+                    onValueChange = { addSelfNotes = it },
+                    keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Text)
+                )
+            }
+
+            Row(
+                Modifier.padding(5.dp)
+            ) {
+                Button(
+                    colors = ButtonDefaults.buttonColors(
                         containerColor = Color.Transparent,
                     ), onClick = {
                         updateDataBlock[type] = false
                         Log.d("updateDataBlock", "updateDataBlock: $updateDataBlock")
 
-                        if (validationCheckUpdate(
-                                addDate,
-                                addTime,
-                                addTimeslot,
-                                type,
-                                newUnit,
-                                addValue,
-                                addValue2,
-                                addSelfNotes
-                            )
-                        ) {
-                            println("validation check and Ktor passed")
-                            //TODO printout successful message
+                        addhealthData.recordDateTime =
+                            "${addDate}T${addTime}:00.000Z" //2021-09-01T12:00:00.000Z
+                        addhealthData.recordTimeslot = addTimeslot
+                        addhealthData.recordValue1_defaultUnit = addValue.toDouble()
+                        addhealthData.recordValue2_defaultUnit = addValue2.toDouble()
+                        addhealthData.selfNote = addSelfNotes
+
+                        var checkAddhealthData = validationCheckUpdate(addhealthData)
+
+                        if (checkAddhealthData != null) {
+                            println("validation check and Ktor passed: $checkAddhealthData")
+                            //call KtorClient to update the data by api if valid input
+
+//                            coroutineScope.launch {
+//
+//                                val addResult: HealthData =
+//                                    KtorClient.addHealthData(checkAddhealthData) //not String message only, but User data class
+//                                var message = ""
+//                                if (addResult.userId != null) {           //success
+//                                    println("login true")
+//                                    message =
+//                                        "Added Success." //null safety
+//
+//                                    Log.d("Added Success", message)
+////            Toast.makeText(
+////                LocalContext.current,
+////                message,
+////                Toast.LENGTH_SHORT
+////            ).show()
+//
+//                                } else {     //error
+//                                    println("add false")
+//                                    println(addResult)
+//                                    message = "Added Failed"
+//                                }
+//
+//                                Log.d("Added failed", message)
+//                            }
+                        } else {
+                            println("validation check failed")
                         }
 
                     }) {//call function to pop up add record (overlay)
-                        Image(
-                            painter = painterResource(id = R.drawable.add),
-                            contentDescription = "Submit Record",
-                            modifier = Modifier.size(30.dp)
-                        )
+                    Image(
+                        painter = painterResource(id = R.drawable.add),
+                        contentDescription = "Submit Record",
+                        modifier = Modifier.size(30.dp)
+                    )
 //                    Text(text = "Submit")
-                    }
                 }
             }
         }
+    }
 //    }
 }
 
-//@Composable
 fun validationCheckUpdate(
-    newDate: String,
-    newTime24Hr: String,
-    newRecordTimeslot: String,
-    type: String,
-    newUnit: String,
-    newData1: String,
-    newData2: String?,
-    newSelfNote: String?
-): Boolean {
+    addhealthData: HealthData
+): HealthData {
     //validation
     //invalid -> error message
 
     var errorFlag = false
-//    val coroutineScope = rememberCoroutineScope()
-
-    //pack the data with HealthData class
-    var updateHealthdata = HealthData(
-        _id = null,  //MongoDB auto gen??
-        userId = globalLoginInfo.userID,
-        recordDateTime = "${newDate}T${newTime24Hr}:00.000Z", //2021-09-01T12:00:00.000Z
-        recordTimeslot = newRecordTimeslot,
-        recordType = type,
-        recordUnit_Patient = newUnit,
-        recordValue1_defaultUnit = newData1.toDouble(),
-        recordValue2_defaultUnit = newData2?.toDouble(), //if hv then input, otherwise null
-        healthStatus = "healthy", //call calculate status function? or call above right after onclick?
-        selfNote = newSelfNote?.toString()
-    )
-
-    println("updateHealthdata: $updateHealthdata")
 
     //validation rules
 
+    addhealthData.healthStatus = "healthy" //default, to be developed
+    Log.d("addhealthData", "addhealthData: $addhealthData")
 
-    //call KtorClient to update the data by api if valid input
-//    if (!errorFlag) {
-////        KtorClient.addHealthData(updateHealthdata)
-//        coroutineScope.launch {
-//
-//            val addResult: HealthData =
-//                KtorClient.addHealthData(updateHealthdata) //not String message only, but User data class
-//            var message = ""
-//            if (addResult.userId != null) {           //success
-//                println("login true")
-//                message =
-//                    "Added Success." //null safety
-//
-//                Log.d("Added Success", message)
-////            Toast.makeText(
-////                LocalContext.current,
-////                message,
-////                Toast.LENGTH_SHORT
-////            ).show()
-//
-//            } else {     //error
-//                println("add false")
-//                println(addResult)
-//                message =
-//                    "Added Failed"
-//
-//            }
-//            Log.d("Added failed", message)
-////            Toast.makeText(
-////                LocalContext.current,
-////                message,
-////                Toast.LENGTH_SHORT
-////            ).show()
-//        }
-//    }
-
-    return true //temp.string msg -> validate fail ; add failed ; add success
+    return addhealthData //temp.string msg -> validate fail ; add failed ; add success
 
 }
 
@@ -808,10 +792,11 @@ fun datePickerComponent(): String {
     ) //**user input
     var selectedDate: OffsetDateTime? = null
 
-    DatePicker(state = addDateState,
-    modifier = Modifier
-        .width(300.dp)
-        .height(500.dp)
+    DatePicker(
+        state = addDateState,
+        modifier = Modifier
+            .width(300.dp)
+            .height(500.dp)
     )
     selectedDate = addDateState.selectedDateMillis?.let {
         Instant.ofEpochMilli(it).atOffset(ZoneOffset.UTC)
@@ -824,7 +809,7 @@ fun datePickerComponent(): String {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun timePickerComponent() : String {
+fun timePickerComponent(): String {
 
     val addTimeState = rememberTimePickerState()
     var selectedTime = ""
