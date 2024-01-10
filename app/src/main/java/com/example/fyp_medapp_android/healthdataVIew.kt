@@ -62,6 +62,12 @@ data class HealthData(
     var selfNote: String?
 )
 
+@Serializable
+data class addhealthDataRecordResult(
+    val acknowledged: Boolean,
+    val insertedId: String
+)
+
 //global variables, (or make function filterDataByDate_Type() return list of list?)
 var bloodPressureList = mutableListOf<HealthData>()
 var bloodSugarList = mutableListOf<HealthData>()
@@ -547,7 +553,7 @@ fun addDataBlockDialog(type: String) {
                             .height(55.dp)
                     )
 
-                } else addhealthData.recordValue2_defaultUnit = 0.0
+                } else addValue2 = "0.0"
 
                 //unit
                 addhealthData.recordUnit_Patient = when (type) {
@@ -602,6 +608,18 @@ fun addDataBlockDialog(type: String) {
                         updateDataBlock[type] = false
                         Log.d("updateDataBlock", "updateDataBlock: $updateDataBlock")
 
+                        var checkTimeFormat = addTime.split(":")
+                        //TODO: Improve the logic
+                        if (checkTimeFormat[0].length == 1) {
+                            if (checkTimeFormat[1].length == 1) {
+                                addTime = "0${checkTimeFormat[0]}:0${checkTimeFormat[1]}"
+                            } else {
+                                addTime = "0${checkTimeFormat[0]}:${checkTimeFormat[1]}"
+                            }
+                        } else if (checkTimeFormat[1].length == 1) {
+                            addTime = "${checkTimeFormat[0]}:0${checkTimeFormat[1]}"
+                        }
+
                         addhealthData.recordDateTime =
                             "${addDate}T${addTime}:00.000Z" //2021-09-01T12:00:00.000Z
                         addhealthData.recordTimeslot = addTimeslot
@@ -615,31 +633,32 @@ fun addDataBlockDialog(type: String) {
                             println("validation check and Ktor passed: $checkAddhealthData")
                             //call KtorClient to update the data by api if valid input
 
-//                            coroutineScope.launch {
-//
-//                                val addResult: HealthData =
-//                                    KtorClient.addHealthData(checkAddhealthData) //not String message only, but User data class
-//                                var message = ""
-//                                if (addResult.userId != null) {           //success
-//                                    println("login true")
-//                                    message =
-//                                        "Added Success." //null safety
-//
-//                                    Log.d("Added Success", message)
-////            Toast.makeText(
-////                LocalContext.current,
-////                message,
-////                Toast.LENGTH_SHORT
-////            ).show()
-//
-//                                } else {     //error
-//                                    println("add false")
-//                                    println(addResult)
-//                                    message = "Added Failed"
-//                                }
-//
-//                                Log.d("Added failed", message)
-//                            }
+                            coroutineScope.launch {
+
+                                val addResult: addhealthDataRecordResult =
+                                    KtorClient.addHealthData(checkAddhealthData) //not String message only, but User data class
+                                var message = ""
+                                Log.d("addResult", "addResult: $addResult")
+                                if (addResult.acknowledged) {           //success
+                                    println("add true")
+                                    message =
+                                        "Added Success." //null safety
+
+                                    Log.d("Added Success", message)
+//            Toast.makeText(
+//                LocalContext.current,
+//                message,
+//                Toast.LENGTH_SHORT
+//            ).show()
+
+                                } else {     //error
+                                    println("add false")
+                                    println(addResult)
+                                    message = "Added Failed"
+                                }
+
+                                Log.d("Added failed", message)
+                            }
                         } else {
                             println("validation check failed")
                         }
