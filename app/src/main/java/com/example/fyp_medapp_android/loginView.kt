@@ -118,7 +118,6 @@ fun Login(navController: NavHostController, snackbarHostState: SnackbarHostState
                             KtorClient.postLogin(info) //not String message only, but User data class
                         var message = ""
                         if (loginResult.userID != null) {           //success
-                            println("login true")
                             message =
                                 "Login Success. Welcome ${loginResult.lastName ?: ""} ${loginResult.firstName ?: ""}." //null safety
 
@@ -126,7 +125,7 @@ fun Login(navController: NavHostController, snackbarHostState: SnackbarHostState
                             globalLoginInfo = loginResult;
 
                             Log.d("loginView userProfile", message)
-//                    snackbarHostState.showSnackbar(message) BUG HERE
+                    snackbarHostState.showSnackbar(message)
 
                             Log.d("after login navcontroller", navController.toString())
                             navController.navigate("home") //pass to home page
