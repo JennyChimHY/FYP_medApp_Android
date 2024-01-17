@@ -126,6 +126,8 @@ fun healthDataScreen(navController: NavHostController) {
         "waistWidth" to false
     )
 
+    val snackbarHostState = remember { SnackbarHostState() }
+
     Scaffold(
         //diaplay the header of each page
         topBar = {
@@ -143,7 +145,7 @@ fun healthDataScreen(navController: NavHostController) {
 
 //            //add logout button the the bar
 //            logoutButton(navController)
-        }, snackbarHost = { },  //lab11
+        }, snackbarHost = { SnackbarHost(snackbarHostState) },  //lab11
         content = { innerPadding ->
             //display the content of the page
             Column(modifier = Modifier.padding(innerPadding)) {
@@ -243,7 +245,7 @@ fun healthDataScreen(navController: NavHostController) {
                         for (item in sortedDataList) {
                             if (item.size > 0) {
                                 println("item: $item")
-                                showDataInGraphTable_byType(item)
+                                showDataInGraphTable_byType(item, snackbarHostState)
                             }
                         }
                     }
@@ -298,7 +300,10 @@ fun RowScope.StatusCell(
 }
 
 @Composable
-fun showDataInGraphTable_byType(targetList: List<HealthData>) {
+fun showDataInGraphTable_byType(
+    targetList: List<HealthData>,
+    snackbarHostState: SnackbarHostState
+) {
 
     // Each cell of a column must have the same weight.
     val column1Weight = .35f // 40%
@@ -351,7 +356,7 @@ fun showDataInGraphTable_byType(targetList: List<HealthData>) {
             }
 
             //update record block
-            addDataBlockDialog(type)
+            addDataBlockDialog(type, snackbarHostState)
 
             //Graph presentation, pass targetList
             displayLineChart(targetList)
@@ -429,7 +434,7 @@ fun valueStringConvertor(item: HealthData): String {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun addDataBlockDialog(type: String) {
+fun addDataBlockDialog(type: String, snackbarHostState: SnackbarHostState) { //
 
 //    if (updateDataBlock[type] == true) {
 
@@ -491,11 +496,9 @@ fun addDataBlockDialog(type: String) {
                 fontWeight = FontWeight.Bold
             )
 
-//            Row() {
             Text(text = "Date: ", modifier = Modifier.align(Alignment.Start))
             addDate = datePickerComponent()
             println("addDate: $addDate")
-//            }
 
             Spacer(modifier = Modifier.height(8.dp))
 
@@ -518,7 +521,6 @@ fun addDataBlockDialog(type: String) {
                     onValueChange = { addTimeslot = it },
                     keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Text)
                 )
-//                newRecordTimeslot = "abc" //dropdown list
             }
 
             Spacer(modifier = Modifier.height(8.dp))
@@ -527,7 +529,7 @@ fun addDataBlockDialog(type: String) {
 
                 Text(text = "Value: ")
 
-                OutlinedTextField( //TextField  //TODO: make outlinetextfield reusable
+                OutlinedTextField( //TextField  //TODO: make outlinetextfield reusable??
 //                    label = { Text("Input Value") },
                     textStyle = TextStyle.Default.copy(fontSize = 23.sp),
                     singleLine = true,
@@ -539,7 +541,7 @@ fun addDataBlockDialog(type: String) {
                         .height(55.dp)
                 )
 
-                if (type == "bloodPressure") {
+                if (type == "bloodPressure") {  //TODO: self-defined type has 2 values
                     Text(text = "/", fontSize = 38.sp)
                     OutlinedTextField( //TextField
 //                    label = { Text("Input Value") },
@@ -563,19 +565,46 @@ fun addDataBlockDialog(type: String) {
                     "temperature" -> "dC"  //default
                     "bloodOxygenLevel" -> "%"
                     //"waistWidth" -> "Waist Width" //to be developed
-                    else -> "Unknown"
+                    else -> "Unknown" //TODO: self-defined type
                 }
 
                 if (type == "temperature") {
-                    addhealthData.recordUnit_Patient = "dC" //default, TODO: drop down list to choose
-                    //if dF -> convert the data to dC for DB default
-                    Text(
-                        text = when (addhealthData.recordUnit_Patient) {
-                            "dC" -> "\u2103"
-                            "dF" -> "\u2109"
-                            else -> "Unknown"
+                    //radio options
+                    val radioOptions = listOf("\u2103", "\u2109")
+                    var selectedOption by remember { mutableStateOf(radioOptions[0]) }
+
+                    Column(
+                        modifier = Modifier.padding(8.dp),
+                        verticalArrangement = Arrangement.spacedBy(16.dp)
+                    ) {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            radioOptions.forEach { unitChoice ->
+                                RadioButton(
+                                    selected = (unitChoice == selectedOption),
+                                    onClick = { selectedOption = unitChoice }
+                                )
+                                Text(
+                                    text = unitChoice,
+                                    style = MaterialTheme.typography.bodyMedium,
+                                    modifier = Modifier.padding(start = 8.dp)
+                                )
+                                Spacer(modifier = Modifier.width(8.dp))
+                            }
                         }
+                    }
+
+                    addhealthData.recordUnit_Patient = when (selectedOption) {
+                        "\u2103" -> "dC"
+                        "\u2109" -> "dF"
+                        else -> ""
+                    }
+
+                    Log.d(
+                        "addhealthData.recordUnit_Patient",
+                        ": ${addhealthData.recordUnit_Patient}"
                     )
+
+//                    //if dF -> convert the data to dC for DB default
                 } else {
                     Text(text = " ${addhealthData.recordUnit_Patient}")
                 }
@@ -623,7 +652,14 @@ fun addDataBlockDialog(type: String) {
                         addhealthData.recordDateTime =
                             "${addDate}T${addTime}:00.000Z" //2021-09-01T12:00:00.000Z
                         addhealthData.recordTimeslot = addTimeslot
-                        addhealthData.recordValue1_defaultUnit = addValue.toDouble()
+                        var addValuetmp = addValue.toDouble()
+                        //Temperature type Unit conversion
+                        if (addhealthData.recordUnit_Patient == "dF" && addValuetmp != 0.0) {
+                            addValuetmp = (5.0/9.0) * (addValuetmp - 32.0)
+                            println("after conversion in if: ${addValuetmp}")
+                        }
+
+                        addhealthData.recordValue1_defaultUnit = addValuetmp
                         addhealthData.recordValue2_defaultUnit = addValue2.toDouble()
                         addhealthData.selfNote = addSelfNotes
 
@@ -640,24 +676,24 @@ fun addDataBlockDialog(type: String) {
                                 var message = ""
                                 Log.d("addResult", "addResult: $addResult")
                                 if (addResult.acknowledged) {           //success
-                                    println("add true")
                                     message =
-                                        "Added Success." //null safety
+                                        "Added Success."
+
+                                    snackbarHostState.showSnackbar(message)
 
                                     Log.d("Added Success", message)
-//            Toast.makeText(
-//                LocalContext.current,
-//                message,
-//                Toast.LENGTH_SHORT
-//            ).show()
+//                                    Toast.makeText(
+//                                        LocalContext.current,
+//                                        message,
+//                                        Toast.LENGTH_SHORT
+//                                    ).show()
 
                                 } else {     //error
                                     println("add false")
                                     println(addResult)
                                     message = "Added Failed"
+                                    Log.d("Added failed", message)
                                 }
-
-                                Log.d("Added failed", message)
                             }
                         } else {
                             println("validation check failed")
@@ -679,16 +715,119 @@ fun addDataBlockDialog(type: String) {
 
 fun validationCheckUpdate(
     addhealthData: HealthData
-): HealthData {
-    //validation
-    //invalid -> error message
-
-    var errorFlag = false
+): HealthData? {
+    //validation, invalid -> error message
 
     //validation rules
 
-    addhealthData.healthStatus = "healthy" //default, to be developed
-    Log.d("addhealthData", "addhealthData: $addhealthData")
+    //1. Input not null
+    //For type with 2 values  TODO: self-defined type has 2 units
+    if (addhealthData.recordType == "bloodPressure" && addhealthData.recordValue2_defaultUnit == 0.0) {
+        return null
+    }
+
+    if (addhealthData.recordUnit_Patient == "" || addhealthData.recordDateTime == "" || addhealthData.recordTimeslot == ""
+        || addhealthData.recordValue1_defaultUnit == 0.0
+    ) {
+
+        //message: input incomplete
+        return null
+    }
+
+    //2. Within the Range, 3. health status
+    // min and max rules, will mapping / array / direct constant?
+    var minRange = 0.0
+    var maxRange = 0.0
+    var minRange_high = 0.0  //for data type with 2 values
+    var maxRange_high = 0.0
+
+    var status_risky = 0.0
+    var status_danger = 0.0
+    var status_risky_high = 0.0 //for data type with 2 values
+    var status_danger_high = 0.0
+
+    Log.d("addhealthData", "before addhealthData: $addhealthData")
+
+    when (addhealthData.recordType) {
+        "bloodPressure" -> {
+            minRange = 60.0
+            maxRange = 110.0
+            minRange_high = 80.0
+            maxRange_high = 150.0
+
+            status_risky = 81.0
+            status_danger = 90.0
+            status_risky_high = 120.0
+            status_danger_high = 140.0
+        }
+        "bloodSugar" -> {
+            minRange = 3.0
+            maxRange = 8.0
+            status_risky = 5.6
+            status_danger = 6.9
+        }
+        "pulse" -> {
+            minRange = 50.0
+            maxRange = 185.0
+            status_risky = 100.0
+            status_danger = 120.0
+        }
+        "temperature" -> {
+            minRange = 34.0
+            maxRange = 45.0
+            status_risky = 37.3 //more than
+            status_danger = 38.0
+        }
+        "bloodOxygenLevel" -> {
+            minRange = 70.0
+            maxRange = 100.0
+            status_risky = 92.0 //less than
+            status_danger = 88.0 //less than
+        }
+        "waistWidth" -> {
+            minRange = 20.0
+            maxRange = 110.0
+            status_risky = 100.0
+            status_danger = 100.0
+        }
+        else -> {  //TODO: self-defined type
+            minRange = 0.0
+            maxRange = 100.0
+            status_risky = 150.0
+            status_danger = 150.0
+        }
+    }
+
+    //check the value is within the range and input the health status
+    if (addhealthData.recordValue2_defaultUnit == 0.0) { //only 1 value
+        if (addhealthData.recordValue1_defaultUnit!! < minRange || addhealthData.recordValue1_defaultUnit!! > maxRange) {
+            //msg: out of range
+            return null
+        } else if (addhealthData.recordValue1_defaultUnit!! > status_danger) {
+            addhealthData.healthStatus = "danger"
+        } else if (addhealthData.recordValue1_defaultUnit!! > status_risky) {
+            addhealthData.healthStatus = "risk"
+        } else {
+            addhealthData.healthStatus = "healthy"
+        }
+    } else { //2 values
+        if (addhealthData.recordValue1_defaultUnit!! < minRange || addhealthData.recordValue1_defaultUnit!! > maxRange
+            || addhealthData.recordValue2_defaultUnit!! < minRange_high || addhealthData.recordValue2_defaultUnit!! > maxRange_high
+        ) {
+            //msg: out of range
+            return null
+        } else if (addhealthData.recordValue1_defaultUnit!! > status_danger || addhealthData.recordValue2_defaultUnit!! > status_danger_high) {
+            addhealthData.healthStatus = "danger"
+        } else if (addhealthData.recordValue1_defaultUnit!! > status_risky || addhealthData.recordValue2_defaultUnit!! > status_risky_high) {
+            addhealthData.healthStatus = "risk"
+        } else {
+            addhealthData.healthStatus = "healthy"
+        }
+    }
+
+
+//    addhealthData.healthStatus = "healthy" //default, to be developed
+    Log.d("addhealthData", "after addhealthData: $addhealthData")
 
     return addhealthData //temp.string msg -> validate fail ; add failed ; add success
 
@@ -732,6 +871,7 @@ fun displayLineChart(targetList: List<HealthData>) {
             division = 7
         }
         else -> {
+            //TODO: self-defined type
             maxVal = 100
             division = 4
         }

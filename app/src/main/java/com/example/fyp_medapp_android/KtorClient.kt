@@ -33,8 +33,8 @@ data class LoginResult(
     val token: String
 )
 
-//var apiDomain = "https://medappserver.f0226942.hkbu.app"
-var apiDomain = "https://rnevx-158-182-113-104.a.free.pinggy.link"
+var apiDomain = "https://medappserver.f0226942.hkbu.app"
+//var apiDomain = "https://rnevx-158-182-113-104.a.free.pinggy.link"
 object KtorClient {
     var token: String = ""
 
