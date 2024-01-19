@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "982322418133",
+    "project_id": "fyp-medapp",
+    "storage_bucket": "fyp-medapp.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:982322418133:android:9b42f673dfe598b73ead5c",
+        "android_client_info": {
+          "package_name": "com.example.fyp_medapp_android"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCgj_jlrDttT9A9PY_00ka9K2tl56-9HfM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

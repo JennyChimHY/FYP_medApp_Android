@@ -1,27 +1,21 @@
 package com.example.fyp_medapp_android
 
-import android.content.Context
 import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -33,14 +27,10 @@ import co.yml.charts.ui.linechart.model.*
 import com.example.fyp_medapp_android.ui.theme.Green20
 import com.example.fyp_medapp_android.ui.theme.Green40
 import com.example.fyp_medapp_android.ui.theme.Green50
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlinx.serialization.KSerializer
-import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
-import kotlinx.serialization.descriptors.PrimitiveKind
-import kotlinx.serialization.descriptors.PrimitiveSerialDescriptor
-import kotlinx.serialization.encoding.Decoder
-import kotlinx.serialization.encoding.Encoder
 import java.time.Instant
 import java.time.OffsetDateTime
 import java.time.ZoneOffset
@@ -77,14 +67,14 @@ var bloodOxygenLevelList = mutableListOf<HealthData>()
 var waistWidthList = mutableListOf<HealthData>()
 
 var sortDataFlag = false
-var updateDataBlock: MutableMap<String, Boolean> = mutableMapOf(
-    "bloodPressure" to false,
-    "bloodSugar" to false,
-    "heartRate" to false,
-    "temperature" to false,
-    "bloodOxygenLevel" to false,
-    "waistWidth" to false
-)
+//var updateDataBlock: MutableMap<String, Boolean> = mutableMapOf( //remember { mutableStateOf(false)
+//    "bloodPressure" to false,
+//    "bloodSugar" to false,
+//    "heartRate" to false,
+//    "temperature" to false,
+//    "bloodOxygenLevel" to false,
+//    "waistWidth" to false
+//)
 
 var modifierForForm = 5.dp
 
@@ -117,14 +107,23 @@ fun healthDataScreen(navController: NavHostController) {
     temperatureList.clear()
     bloodOxygenLevelList.clear()
     waistWidthList.clear()
-    updateDataBlock = mutableMapOf(
+//    updateDataBlock = mutableMapOf(
+//        "bloodPressure" to false,
+//        "bloodSugar" to false,
+//        "heartRate" to false,
+//        "temperature" to false,
+//        "bloodOxygenLevel" to false,
+//        "waistWidth" to false
+//    )
+
+    var updateDataBlock by remember { mutableStateOf(mutableStateMapOf(
         "bloodPressure" to false,
         "bloodSugar" to false,
         "heartRate" to false,
         "temperature" to false,
         "bloodOxygenLevel" to false,
         "waistWidth" to false
-    )
+    ))}
 
     val snackbarHostState = remember { SnackbarHostState() }
 
@@ -155,9 +154,9 @@ fun healthDataScreen(navController: NavHostController) {
                             KtorClient.getHealthData(globalLoginInfo.userID) //not String message only, but User data class
                     })
 
-                println("before filtering, $sortDataFlag")
+//                println("before filtering, $sortDataFlag")
                 filterDataByDate_Type(healthdataResult.value)
-                println("after filtering, $sortDataFlag")
+//                println("after filtering, $sortDataFlag")
 
 //                Log.d("healthdata screen after calling API", "healthdataResult: $healthdataResult")
 
@@ -245,7 +244,7 @@ fun healthDataScreen(navController: NavHostController) {
                         for (item in sortedDataList) {
                             if (item.size > 0) {
                                 println("item: $item")
-                                showDataInGraphTable_byType(item, snackbarHostState)
+                                showDataInGraphTable_byType(item, snackbarHostState, updateDataBlock)
                             }
                         }
                     }
@@ -299,18 +298,24 @@ fun RowScope.StatusCell(
     )
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun showDataInGraphTable_byType(
     targetList: List<HealthData>,
-    snackbarHostState: SnackbarHostState
+    snackbarHostState: SnackbarHostState, updateDataBlock: MutableMap<String, Boolean>
 ) {
 
     // Each cell of a column must have the same weight.
-    val column1Weight = .35f // 40%
-    val column2Weight = .35f // 40%
+    val column1Weight = .37f // 37%
+    val column2Weight = .3f // 40%
     val column3Weight = .3f // 20%
+    val column4Weight = .03f // 3%
 
     var type = targetList[0].recordType.toString() //for update record block
+
+    val coroutineScope = rememberCoroutineScope()  //for delete record
+//    var localContext = LocalContext.current
+    var openDialog = remember { mutableStateOf(false) }
 
     if (!targetList.isEmpty()) { //sortDataFlag &&
 
@@ -356,7 +361,9 @@ fun showDataInGraphTable_byType(
             }
 
             //update record block
-            addDataBlockDialog(type, snackbarHostState)
+            if (updateDataBlock[type] == true) {
+                addDataBlockDialog(type, snackbarHostState, updateDataBlock)
+            }
 
             //Graph presentation, pass targetList
             displayLineChart(targetList)
@@ -367,6 +374,7 @@ fun showDataInGraphTable_byType(
                 TableCell(text = "Date", weight = column1Weight)
                 TableCell(text = "Data", weight = column2Weight)
                 TableCell(text = "Status", weight = column3Weight)
+                TableCell(text = "", weight = column4Weight)
             }
 
             //table content
@@ -400,6 +408,111 @@ fun showDataInGraphTable_byType(
                     )
                     TableCell(text = valueStringConvertor(content), weight = column2Weight)
                     StatusCell(text = content.healthStatus.toString(), weight = column3Weight)
+
+                    //Button Cell
+                    Button(
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = Color.Transparent,
+                        ), onClick = {  //not in a UI thread
+                                openDialog.value = true
+                        }) {
+                        Image(
+                            painter = painterResource(id = R.drawable.delete),
+                            contentDescription = "Delete Record",
+                            modifier = Modifier.size(20.dp)
+                        )
+                    }
+
+                    var confirmDelete = remember { mutableStateOf(false) }
+
+                    if (openDialog.value) {
+                    //double confirm there, no need CoroutineScope(Dispatchers.Main).launch {//define UI scope
+
+                        AlertDialog(
+                            onDismissRequest = {
+                                openDialog.value = false
+                            }) {
+                            Column(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .background(
+                                        color = Green20, shape = RoundedCornerShape(8.dp)
+                                    )
+                                    .padding(start = 3.dp, end = 3.dp)
+                            ) {
+                                Text(
+                                    text = "Are you sure to delete this record?",
+                                    modifier = Modifier.align(Alignment.CenterHorizontally),
+                                    fontWeight = FontWeight.Bold
+                                )
+
+                                Divider(
+                                    color = Color.LightGray,
+                                    modifier = Modifier
+                                        .height(1.dp)
+                                        .fillMaxHeight()
+                                        .fillMaxWidth()
+                                )
+
+                                //button row
+                                Row(
+                                    modifier = Modifier.padding(all = 8.dp),
+                                    horizontalArrangement = Arrangement.Center
+                                ) {
+                                    Button(
+//                                        modifier = Modifier.fillMaxWidth(),
+                                        onClick = {
+                                            confirmDelete.value = true
+                                            println(confirmDelete)
+                                            openDialog.value = false
+                                        }
+                                    ) {
+                                        Text("Delete")
+                                    }
+
+                                    Spacer(modifier = Modifier.width(8.dp))
+
+                                    Button(
+//                                        modifier = Modifier.fillMaxWidth(),
+                                        onClick = {
+                                            confirmDelete.value = false
+                                            openDialog.value = false
+                                        }
+                                    ) {
+                                        Text("Cancel")
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    println("after if value $confirmDelete.value")
+                if (confirmDelete.value) {
+                    //call KTor client to delete the record
+
+                    println("To delete... ${content._id}")
+//                                coroutineScope.launch(Dispatchers.IO) { //define call KtorClient scope
+//
+//                val deleteResult: deletehealthDataRecordResult =
+//                    KtorClient.deleteHealthData(recordID) //not String message only, but User data class
+//                var message = ""
+//                Log.d("deleteResult", "deleteResult: $deleteResult")
+//                if (deleteResult.acknowledged) {           //success
+//                    message =
+//                        "Delete Success."
+//
+//                    Log.d("Delete Success", message)
+//                } else {     //error
+//                    println("delete false")
+//                    println(deleteResult)
+//                    message = "Delete Failed"
+//                    Log.d("Delete failed", message)
+//                }
+//                                }
+                }
+
+
+
+
                 }
 
                 Divider(
@@ -434,9 +547,7 @@ fun valueStringConvertor(item: HealthData): String {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun addDataBlockDialog(type: String, snackbarHostState: SnackbarHostState) { //
-
-//    if (updateDataBlock[type] == true) {
+fun addDataBlockDialog(type: String, snackbarHostState: SnackbarHostState, updateDataBlock: MutableMap<String, Boolean>) { //
 
 //        var newRecordTimeslot: String = "abc"  //OLD DATA, to delete
     var addhealthData by remember {
@@ -498,7 +609,7 @@ fun addDataBlockDialog(type: String, snackbarHostState: SnackbarHostState) { //
 
             Text(text = "Date: ", modifier = Modifier.align(Alignment.Start))
             addDate = datePickerComponent()
-            println("addDate: $addDate")
+//            println("addDate: $addDate")
 
             Spacer(modifier = Modifier.height(8.dp))
 
@@ -506,7 +617,7 @@ fun addDataBlockDialog(type: String, snackbarHostState: SnackbarHostState) { //
 
             Row() {
                 addTime = timePickerComponent()
-                println("addTime: $addTime")
+//                println("addTime: $addTime")
             }
 
             Spacer(modifier = Modifier.height(8.dp))
@@ -652,15 +763,19 @@ fun addDataBlockDialog(type: String, snackbarHostState: SnackbarHostState) { //
                         addhealthData.recordDateTime =
                             "${addDate}T${addTime}:00.000Z" //2021-09-01T12:00:00.000Z
                         addhealthData.recordTimeslot = addTimeslot
-                        var addValuetmp = addValue.toDouble()
+                        var addValuetmp: Double = 0.0
+
+                        if (addValue != null) {
+                            addValuetmp = addValue.toDouble()
+                        }
                         //Temperature type Unit conversion
-                        if (addhealthData.recordUnit_Patient == "dF" && addValuetmp != 0.0) {
-                            addValuetmp = (5.0/9.0) * (addValuetmp - 32.0)
-                            println("after conversion in if: ${addValuetmp}")
+                        if (addhealthData.recordUnit_Patient == "dF" && addValuetmp > 0.0) {
+                            addValuetmp = (5.0/9.0) * (addValuetmp!! - 32.0)
+//                            println("after conversion in if: ${addValuetmp}")
                         }
 
                         addhealthData.recordValue1_defaultUnit = addValuetmp
-                        addhealthData.recordValue2_defaultUnit = addValue2.toDouble()
+                        addhealthData.recordValue2_defaultUnit = addValue2?.toDouble()
                         addhealthData.selfNote = addSelfNotes
 
                         var checkAddhealthData = validationCheckUpdate(addhealthData)
@@ -689,8 +804,8 @@ fun addDataBlockDialog(type: String, snackbarHostState: SnackbarHostState) { //
 //                                    ).show()
 
                                 } else {     //error
-                                    println("add false")
-                                    println(addResult)
+//                                    println("add false")
+//                                    println(addResult)
                                     message = "Added Failed"
                                     Log.d("Added failed", message)
                                 }
@@ -710,7 +825,6 @@ fun addDataBlockDialog(type: String, snackbarHostState: SnackbarHostState) { //
             }
         }
     }
-//    }
 }
 
 fun validationCheckUpdate(
@@ -729,7 +843,6 @@ fun validationCheckUpdate(
     if (addhealthData.recordUnit_Patient == "" || addhealthData.recordDateTime == "" || addhealthData.recordTimeslot == ""
         || addhealthData.recordValue1_defaultUnit == 0.0
     ) {
-
         //message: input incomplete
         return null
     }
@@ -825,8 +938,6 @@ fun validationCheckUpdate(
         }
     }
 
-
-//    addhealthData.healthStatus = "healthy" //default, to be developed
     Log.d("addhealthData", "after addhealthData: $addhealthData")
 
     return addhealthData //temp.string msg -> validate fail ; add failed ; add success
@@ -885,12 +996,8 @@ fun displayLineChart(targetList: List<HealthData>) {
         }
     }
 
-//    var pointTMP = 52.22
+//    var pointTMP = 52.22  //for testing
 //    var pointsData = mutableListOf(Point(0f, pointTMP.toFloat()), Point(1f, 55.56f), Point(2f, 54.44f), Point(3f, 65.56f), Point(4f, 10f))
-//    Log.d("pointsData", "pointsData: $pointsData")
-
-//    var pointTMP = 20f
-//    var pointsData = mutableListOf(Point(0f, pointTMP.toFloat()), Point(1f, 40f), Point(2f, 60f), Point(3f, 80f), Point(4f, 100f))
 //    Log.d("pointsData", "pointsData: $pointsData")
 
     var pointsData = mutableListOf<Point>()
@@ -899,7 +1006,7 @@ fun displayLineChart(targetList: List<HealthData>) {
         var pointY = value1[i]
         var pointX = i + 1
         pointsData.add(Point(pointX.toFloat(), pointY))
-        Log.d("pointsData", "pointsData: $pointsData")
+//        Log.d("pointsData", "pointsData: $pointsData")
     }
     pointsData.add(Point((value1.size + 1).toFloat(), maxVal.toFloat()))  //add the max. value
 
@@ -961,7 +1068,7 @@ fun datePickerComponent(): String {
         Instant.ofEpochMilli(it).atOffset(ZoneOffset.UTC)
     }
 
-    println("selectedDate: $selectedDate")
+//    println("selectedDate: $selectedDate")
 
     return selectedDate.toString().split("T")[0]
 }

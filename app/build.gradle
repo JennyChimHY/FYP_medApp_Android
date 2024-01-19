@@ -2,6 +2,9 @@ plugins {
     id 'com.android.application'
     id 'org.jetbrains.kotlin.android'
     id 'org.jetbrains.kotlin.plugin.serialization' version '1.8.10'
+
+    // Add the Google services Gradle plugin Firebase push noti
+    id "com.google.gms.google-services"
 }
 
 android {
@@ -63,10 +66,11 @@ dependencies {
     implementation "io.ktor:ktor-serialization-kotlinx-json:2.1.2"
     implementation("androidx.navigation:navigation-compose:2.7.3")
     implementation("io.coil-kt:coil-compose:2.4.0")
-    //JWT token
-    implementation 'com.auth0.android:jwtdecode:2.0.2'
-    //YCharts
-    implementation 'co.yml:ycharts:2.1.0'
+    //Import plugin
+    implementation 'com.auth0.android:jwtdecode:2.0.2'  //JWT token
+    implementation 'co.yml:ycharts:2.1.0' //YCharts
+    implementation platform('com.google.firebase:firebase-bom:32.7.0') // Firebase BoM
+    implementation 'com.google.firebase:firebase-messaging-ktx:23.4.0' // Firebase Cloud Messaging
 
     testImplementation 'junit:junit:4.13.2'
     androidTestImplementation 'androidx.test.ext:junit:1.1.5'
