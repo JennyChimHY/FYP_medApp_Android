@@ -116,14 +116,18 @@ fun healthDataScreen(navController: NavHostController) {
 //        "waistWidth" to false
 //    )
 
-    var updateDataBlock by remember { mutableStateOf(mutableStateMapOf(
-        "bloodPressure" to false,
-        "bloodSugar" to false,
-        "heartRate" to false,
-        "temperature" to false,
-        "bloodOxygenLevel" to false,
-        "waistWidth" to false
-    ))}
+    var updateDataBlock by remember {
+        mutableStateOf(
+            mutableStateMapOf(
+                "bloodPressure" to false,
+                "bloodSugar" to false,
+                "heartRate" to false,
+                "temperature" to false,
+                "bloodOxygenLevel" to false,
+                "waistWidth" to false
+            )
+        )
+    }
 
     val snackbarHostState = remember { SnackbarHostState() }
 
@@ -244,7 +248,11 @@ fun healthDataScreen(navController: NavHostController) {
                         for (item in sortedDataList) {
                             if (item.size > 0) {
                                 println("item: $item")
-                                showDataInGraphTable_byType(item, snackbarHostState, updateDataBlock)
+                                showDataInGraphTable_byType(
+                                    item,
+                                    snackbarHostState,
+                                    updateDataBlock
+                                )
                             }
                         }
                     }
@@ -306,10 +314,10 @@ fun showDataInGraphTable_byType(
 ) {
 
     // Each cell of a column must have the same weight.
-    val column1Weight = .37f // 37%
-    val column2Weight = .3f // 40%
-    val column3Weight = .3f // 20%
-    val column4Weight = .03f // 3%
+    val column1Weight = .4f // 40%
+    val column2Weight = .28f // 28%
+    val column3Weight = .3f // 30%
+    val column4Weight = .02f // 2%
 
     var type = targetList[0].recordType.toString() //for update record block
 
@@ -414,7 +422,7 @@ fun showDataInGraphTable_byType(
                         colors = ButtonDefaults.buttonColors(
                             containerColor = Color.Transparent,
                         ), onClick = {  //not in a UI thread
-                                openDialog.value = true
+                            openDialog.value = true
                         }) {
                         Image(
                             painter = painterResource(id = R.drawable.delete),
@@ -426,7 +434,7 @@ fun showDataInGraphTable_byType(
                     var confirmDelete = remember { mutableStateOf(false) }
 
                     if (openDialog.value) {
-                    //double confirm there, no need CoroutineScope(Dispatchers.Main).launch {//define UI scope
+                        //double confirm there, no need CoroutineScope(Dispatchers.Main).launch {//define UI scope
 
                         AlertDialog(
                             onDismissRequest = {
@@ -463,7 +471,6 @@ fun showDataInGraphTable_byType(
 //                                        modifier = Modifier.fillMaxWidth(),
                                         onClick = {
                                             confirmDelete.value = true
-                                            println(confirmDelete)
                                             openDialog.value = false
                                         }
                                     ) {
@@ -485,32 +492,30 @@ fun showDataInGraphTable_byType(
                             }
                         }
                     }
-                    println("after if value $confirmDelete.value")
-                if (confirmDelete.value) {
-                    //call KTor client to delete the record
+//                    println("after if value $confirmDelete.value")
+                    if (confirmDelete.value) {
+                        //call KTor client to delete the record
 
-                    println("To delete... ${content._id}")
-//                                coroutineScope.launch(Dispatchers.IO) { //define call KtorClient scope
-//
-//                val deleteResult: deletehealthDataRecordResult =
-//                    KtorClient.deleteHealthData(recordID) //not String message only, but User data class
-//                var message = ""
-//                Log.d("deleteResult", "deleteResult: $deleteResult")
-//                if (deleteResult.acknowledged) {           //success
-//                    message =
-//                        "Delete Success."
-//
-//                    Log.d("Delete Success", message)
-//                } else {     //error
-//                    println("delete false")
-//                    println(deleteResult)
-//                    message = "Delete Failed"
-//                    Log.d("Delete failed", message)
-//                }
-//                                }
-                }
+                        println("To delete... ${content._id}")  //recordID
+                        coroutineScope.launch(Dispatchers.IO) { //define call KtorClient scope
 
+                            val deleteResult: addhealthDataRecordResult =
+                                KtorClient.deleteHealthData(content._id!!) //not String message only, but User data class
+                            var message = ""
+                            Log.d("deleteResult", "deleteResult: $deleteResult")
+                            if (deleteResult.acknowledged) {           //success
+                                message =
+                                    "Delete Success."
 
+                                Log.d("Delete Success", message)
+                            } else {     //error
+                                println("delete false")
+                                println(deleteResult)
+                                message = "Delete Failed"
+                                Log.d("Delete failed", message)
+                            }
+                        }
+                    }
 
 
                 }
@@ -547,7 +552,11 @@ fun valueStringConvertor(item: HealthData): String {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun addDataBlockDialog(type: String, snackbarHostState: SnackbarHostState, updateDataBlock: MutableMap<String, Boolean>) { //
+fun addDataBlockDialog(
+    type: String,
+    snackbarHostState: SnackbarHostState,
+    updateDataBlock: MutableMap<String, Boolean>
+) { //
 
 //        var newRecordTimeslot: String = "abc"  //OLD DATA, to delete
     var addhealthData by remember {
@@ -622,16 +631,36 @@ fun addDataBlockDialog(type: String, snackbarHostState: SnackbarHostState, updat
 
             Spacer(modifier = Modifier.height(8.dp))
 
+
+            Text(text = "Timeslot: ", modifier = Modifier.align(Alignment.Start))
+
             Row() {
-                Text(text = "Timeslot: ")
-                OutlinedTextField( //TextField  //Enhance--> radio picker
-//                    label = { Text("Timeslot") },
-                    textStyle = TextStyle.Default.copy(fontSize = 28.sp),
-                    singleLine = true,
-                    value = addTimeslot,
-                    onValueChange = { addTimeslot = it },
-                    keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Text)
-                )
+
+                val radioOptions_timeSlot = listOf("Before Breakfast", "After Breakfast", "Before Lunch", "After Lunch", "Before Dinner", "After Dinner", "Before Sleep", "Other")
+                var selectedOption by remember { mutableStateOf(radioOptions_timeSlot[0]) }
+
+                Column(
+                    modifier = Modifier.padding(8.dp),
+                    verticalArrangement = Arrangement.spacedBy(16.dp)
+                ) {
+//                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        radioOptions_timeSlot.forEach { unitChoice ->
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                RadioButton(
+                                    selected = (unitChoice == selectedOption),
+                                    onClick = { selectedOption = unitChoice }
+                                )
+                                Text(
+                                    text = unitChoice,
+                                    style = MaterialTheme.typography.bodyMedium,
+                                    modifier = Modifier.padding(start = 8.dp)
+                                )
+                                Spacer(modifier = Modifier.width(8.dp))
+                            }
+                        }
+//                    }
+                }
+                addTimeslot = selectedOption
             }
 
             Spacer(modifier = Modifier.height(8.dp))
@@ -681,15 +710,15 @@ fun addDataBlockDialog(type: String, snackbarHostState: SnackbarHostState, updat
 
                 if (type == "temperature") {
                     //radio options
-                    val radioOptions = listOf("\u2103", "\u2109")
-                    var selectedOption by remember { mutableStateOf(radioOptions[0]) }
+                    val radioOptions_temperature = listOf("\u2103", "\u2109")
+                    var selectedOption by remember { mutableStateOf(radioOptions_temperature[0]) }
 
                     Column(
                         modifier = Modifier.padding(8.dp),
                         verticalArrangement = Arrangement.spacedBy(16.dp)
                     ) {
                         Row(verticalAlignment = Alignment.CenterVertically) {
-                            radioOptions.forEach { unitChoice ->
+                            radioOptions_temperature.forEach { unitChoice ->
                                 RadioButton(
                                     selected = (unitChoice == selectedOption),
                                     onClick = { selectedOption = unitChoice }
@@ -745,7 +774,7 @@ fun addDataBlockDialog(type: String, snackbarHostState: SnackbarHostState, updat
                     colors = ButtonDefaults.buttonColors(
                         containerColor = Color.Transparent,
                     ), onClick = {
-                        updateDataBlock[type] = false
+
                         Log.d("updateDataBlock", "updateDataBlock: $updateDataBlock")
 
                         var checkTimeFormat = addTime.split(":")
@@ -770,7 +799,7 @@ fun addDataBlockDialog(type: String, snackbarHostState: SnackbarHostState, updat
                         }
                         //Temperature type Unit conversion
                         if (addhealthData.recordUnit_Patient == "dF" && addValuetmp > 0.0) {
-                            addValuetmp = (5.0/9.0) * (addValuetmp!! - 32.0)
+                            addValuetmp = (5.0 / 9.0) * (addValuetmp!! - 32.0)
 //                            println("after conversion in if: ${addValuetmp}")
                         }
 
@@ -809,6 +838,8 @@ fun addDataBlockDialog(type: String, snackbarHostState: SnackbarHostState, updat
                                     message = "Added Failed"
                                     Log.d("Added failed", message)
                                 }
+
+                                updateDataBlock[type] = false //UI thread: close the block
                             }
                         } else {
                             println("validation check failed")
@@ -820,7 +851,6 @@ fun addDataBlockDialog(type: String, snackbarHostState: SnackbarHostState, updat
                         contentDescription = "Submit Record",
                         modifier = Modifier.size(30.dp)
                     )
-//                    Text(text = "Submit")
                 }
             }
         }
