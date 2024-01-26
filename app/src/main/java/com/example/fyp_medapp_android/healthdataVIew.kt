@@ -53,7 +53,7 @@ data class HealthData(
 )
 
 @Serializable
-data class addhealthDataRecordResult(
+data class addDeletehealthDataRecordResult(
     val acknowledged: Boolean,
     val insertedId: String
 )
@@ -358,7 +358,6 @@ fun showDataInGraphTable_byType(
                 ), onClick = {
                     updateDataBlock[type] = true
                     Log.d("updateDataBlock", "updateDataBlock: ${updateDataBlock[type]}")
-                    /*TODO make appear*/
                 }) {//call function to pop up add record (overlay)
                     Image(
                         painter = painterResource(id = R.drawable.add),
@@ -499,7 +498,7 @@ fun showDataInGraphTable_byType(
                         println("To delete... ${content._id}")  //recordID
                         coroutineScope.launch(Dispatchers.IO) { //define call KtorClient scope
 
-                            val deleteResult: addhealthDataRecordResult =
+                            val deleteResult: addDeletehealthDataRecordResult =
                                 KtorClient.deleteHealthData(content._id!!) //not String message only, but User data class
                             var message = ""
                             Log.d("deleteResult", "deleteResult: $deleteResult")
@@ -815,7 +814,7 @@ fun addDataBlockDialog(
 
                             coroutineScope.launch {
 
-                                val addResult: addhealthDataRecordResult =
+                                val addResult: addDeletehealthDataRecordResult =
                                     KtorClient.addHealthData(checkAddhealthData) //not String message only, but User data class
                                 var message = ""
                                 Log.d("addResult", "addResult: $addResult")
