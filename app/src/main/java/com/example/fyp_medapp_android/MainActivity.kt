@@ -7,8 +7,6 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Face
-import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
@@ -20,12 +18,16 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.*
 import androidx.navigation.compose.rememberNavController
 import com.example.fyp_medapp_android.ui.theme.FYP_medApp_AndroidTheme
+import java.time.LocalDateTime
 
 class MainActivity : ComponentActivity() {
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        //create empty local notification channel
+        val alarmScheduler: AlarmScheduler = AlarmSchedulerImpl(this)
+        var alarmItem: AlarmItem? = null
         setContent {
             FYP_medApp_AndroidTheme {
                 // A surface container using the 'background' color from the theme
@@ -34,8 +36,22 @@ class MainActivity : ComponentActivity() {
                     color = MaterialTheme.colorScheme.background
                 ) {
 //                    Greeting("MedApp")
+                    //alarm scheduling
+                    alarmItem = AlarmItem(  //empty list of time, type of reminder and photo?
+                        alarmTime = LocalDateTime.now().plusSeconds(
+                            "40".toLong()
+                        ),
+                        message = "Reminder"
+                    )
+                    alarmItem?.let(alarmScheduler::schedule)
+
+
+                    //turn to home page
                     BasicSetting()
                 }
+
+
+
             }
         }
     }

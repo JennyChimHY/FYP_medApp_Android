@@ -69,6 +69,9 @@ dependencies {
     //Import plugin
     implementation 'com.auth0.android:jwtdecode:2.0.2'  //JWT token
     implementation 'co.yml:ycharts:2.1.0' //YCharts
+
+    implementation 'com.google.accompanist:accompanist-permissions:0.31.1-alpha'  //Local notification??
+
     implementation platform('com.google.firebase:firebase-bom:32.7.0') // Firebase BoM
     implementation 'com.google.firebase:firebase-messaging-ktx:23.4.0' // Firebase Cloud Messaging
 

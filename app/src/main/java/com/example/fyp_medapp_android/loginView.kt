@@ -5,13 +5,12 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Home
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
@@ -19,11 +18,12 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.app.NotificationManagerCompat
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
-import com.auth0.android.jwt.JWT
 import kotlinx.coroutines.launch
 import kotlinx.serialization.Serializable
+import java.time.LocalDateTime
 import kotlin.math.log
 
 var globalLoginStatus: Boolean = false
@@ -123,6 +123,26 @@ fun Login(navController: NavHostController, snackbarHostState: SnackbarHostState
 
                             globalLoginStatus = true; //redirected in HomeNav
                             globalLoginInfo = loginResult;
+
+//                            val context = LocalContext.current
+//                            //if allow notification --> take medicine record and add into notification channel
+//                            if (loginResult.userRole == "patient" && NotificationManagerCompat.from(context).areNotificationsEnabled()) {
+//                                //check system noti enable or not
+//                                val medicineList = KtorClient.getMedicine(loginResult.userID)
+//                                if (medicineList != null) {
+//                                    for (medicine in medicineList) {
+//                                            val alarmItem = AlarmItem(
+//                                                alarmTime = LocalDateTime.now().plusSeconds(
+//                                                    "40".toLong()
+//                                                ), //medicine.time,
+//                                                message = "Reminder: ${medicine.medicineName} ${medicine.dailyIntake} ${medicine.eachIntakeAmount}"
+//                                        )
+//                                        alarmItem?.let(alarmScheduler::schedule)
+//
+//                                        alarmScheduler.schedule(alarmItem) //use for loop to add each alarm item
+//                                    }
+//                                }
+//                            }
 
                             Log.d("loginView userProfile", message)
                     snackbarHostState.showSnackbar(message)
