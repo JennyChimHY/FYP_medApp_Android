@@ -154,7 +154,7 @@ fun Login(navController: NavHostController, snackbarHostState: SnackbarHostState
                                                 "10".toLong()
                                             ), //medicine.dailyIntake
                                             notiType = "Medicine",
-                                            message = "Reminder: ${medicine.medicineInfo?.medicineName} ${medicine.dailyIntake} ${medicine.eachIntakeAmount}",
+                                            message = "${medicine.medicineInfo?.medicineName}:\n ${medicine.dailyIntake} time(s) per day, ${medicine.eachIntakeAmount} dose(s) each time.",
                                             picture = medicine.medicineInfo?.medicineImageName
                                         )
                                         alarmItem?.let(alarmScheduler::schedule)

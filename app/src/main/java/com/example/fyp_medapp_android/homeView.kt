@@ -178,13 +178,15 @@ fun logoutButton(navController: NavHostController) {
 fun welcomeSection(navController: NavHostController) {
     Row() {
         Text(
-            text = "Welcome\n${globalLoginInfo.lastName} ${globalLoginInfo.firstName} !",
-            modifier = Modifier.padding(
+            text = "Welcome,\n${globalLoginInfo.lastName} ${globalLoginInfo.firstName} !",
+            modifier = Modifier
+                .padding(
                 start = 10.dp,
                 top = 10.dp,
                 end = 10.dp,
                 bottom = 20.dp
-            ),
+            )
+                .weight(1f),
             fontSize = 30.sp,
             fontWeight = FontWeight.Bold,
             lineHeight = 1.em

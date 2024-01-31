@@ -41,7 +41,7 @@ class MainActivity : ComponentActivity() {
                             "8".toLong()
                         ),
                         notiType = "Initial",
-                        message = "Initial Reminder",
+                        message = "Testing Alarm Success, Reminder Success.",
                         picture = "xarelto"
                     )
                     alarmItem?.let(alarmScheduler::schedule)
