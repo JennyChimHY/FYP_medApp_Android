@@ -39,6 +39,7 @@ data class PatientConnection(
     val patientID: String,
     val patientName: String
 )
+
 data class User(
     val token: String?,
     val _id: String?,
@@ -62,12 +63,19 @@ fun Login(navController: NavHostController, snackbarHostState: SnackbarHostState
     var usernameLocal by remember { mutableStateOf("") } //data class
     var pwdLocal by remember { mutableStateOf("") }
     val coroutineScope = rememberCoroutineScope()
-
+    val context = LocalContext.current  //for notification, composable function outter layer*
 
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text(text = "Login", color = Color.White, fontSize = 35.sp, fontWeight = FontWeight.Bold) },
+                title = {
+                    Text(
+                        text = "Login",
+                        color = Color.White,
+                        fontSize = 35.sp,
+                        fontWeight = FontWeight.Bold
+                    )
+                },
                 colors = TopAppBarDefaults.smallTopAppBarColors(containerColor = MaterialTheme.colorScheme.primary)
             )
         },
@@ -76,13 +84,14 @@ fun Login(navController: NavHostController, snackbarHostState: SnackbarHostState
 
             //Login UI
             Column(
-            Modifier.padding(innerPadding),
+                Modifier.padding(innerPadding),
                 verticalArrangement = Arrangement.Center,
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
 
-                Row(Modifier.padding(16.dp),
-                    ) { //verticalAlignment = Alignment.CenterVertically
+                Row(
+                    Modifier.padding(16.dp),
+                ) { //verticalAlignment = Alignment.CenterVertically
                     OutlinedTextField(
                         label = { Text("Username or User ID:") },
                         textStyle = TextStyle.Default.copy(fontSize = 28.sp),
@@ -96,14 +105,14 @@ fun Login(navController: NavHostController, snackbarHostState: SnackbarHostState
 
                 Row(
                     Modifier.padding(16.dp),
-                    ) { //verticalAlignment = Alignment.CenterVertically
+                ) { //verticalAlignment = Alignment.CenterVertically
                     OutlinedTextField(
                         label = { Text("Password") },
                         textStyle = TextStyle.Default.copy(fontSize = 28.sp),
                         singleLine = true,
                         value = pwdLocal,
                         onValueChange = { pwdLocal = it },
-                        visualTransformation =  PasswordVisualTransformation(),
+                        visualTransformation = PasswordVisualTransformation(),
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password)
                     )
                 }
@@ -112,7 +121,10 @@ fun Login(navController: NavHostController, snackbarHostState: SnackbarHostState
                 Button(onClick = {
                     coroutineScope.launch {
 
-                        val info = Info(usernameLocal, pwdLocal) //create an object based on Info data class
+                        val info = Info(
+                            usernameLocal,
+                            pwdLocal
+                        ) //create an object based on Info data class
 
                         val loginResult: User =
                             KtorClient.postLogin(info) //not String message only, but User data class
@@ -124,30 +136,36 @@ fun Login(navController: NavHostController, snackbarHostState: SnackbarHostState
                             globalLoginStatus = true; //redirected in HomeNav
                             globalLoginInfo = loginResult;
 
-//                            val context = LocalContext.current
-//                            //if allow notification --> take medicine record and add into notification channel
-//                            if (loginResult.userRole == "patient" && NotificationManagerCompat.from(context).areNotificationsEnabled()) {
-//                                //check system noti enable or not
-//                                val medicineList = KtorClient.getMedicine(loginResult.userID)
-//                                if (medicineList != null) {
-//                                    for (medicine in medicineList) {
-//                                            val alarmItem = AlarmItem(
-//                                                alarmTime = LocalDateTime.now().plusSeconds(
-//                                                    "40".toLong()
-//                                                ), //medicine.time,
-//                                                message = "Reminder: ${medicine.medicineName} ${medicine.dailyIntake} ${medicine.eachIntakeAmount}"
-//                                        )
-//                                        alarmItem?.let(alarmScheduler::schedule)
-//
-//                                        alarmScheduler.schedule(alarmItem) //use for loop to add each alarm item
-//                                    }
-//                                }
-//                            }
+                            val alarmScheduler: AlarmScheduler =
+                                AlarmSchedulerImpl(context.applicationContext)
+
+                            //if allow notification --> take medicine record and add into notification channel
+                            if (loginResult.userRole == "patient" && NotificationManagerCompat.from(
+                                    context
+                                ).areNotificationsEnabled()
+                            ) {
+                                //check system noti enable or not
+                                val medicineList = KtorClient.getMedicine(loginResult.userID)
+                                println("medicineList: $medicineList")
+                                if (medicineList != null) {
+                                    for (medicine in medicineList) {
+                                        val alarmItem = AlarmItem(
+                                            alarmTime = LocalDateTime.now().plusSeconds(
+                                                "10".toLong()
+                                            ), //medicine.dailyIntake
+                                            notiType = "Medicine",
+                                            message = "Reminder: ${medicine.medicineInfo?.medicineName} ${medicine.dailyIntake} ${medicine.eachIntakeAmount}",
+                                            picture = medicine.medicineInfo?.medicineImageName
+                                        )
+                                        alarmItem?.let(alarmScheduler::schedule)
+
+                                        alarmScheduler.schedule(alarmItem) //use for loop to add each alarm item
+                                    }
+                                }
+                            }
 
                             Log.d("loginView userProfile", message)
-                    snackbarHostState.showSnackbar(message)
-
-                            Log.d("after login navcontroller", navController.toString())
+                            snackbarHostState.showSnackbar(message)
                             navController.navigate("home") //pass to home page
 
 
@@ -162,10 +180,12 @@ fun Login(navController: NavHostController, snackbarHostState: SnackbarHostState
                         snackbarHostState.showSnackbar(message)
                     }
                 }) {
-                    Text(text = "Login",
+                    Text(
+                        text = "Login",
                         modifier = Modifier.padding(16.dp),
                         textAlign = TextAlign.Center,
-                        fontSize = 38.sp)
+                        fontSize = 38.sp
+                    )
                 }
             }
         },

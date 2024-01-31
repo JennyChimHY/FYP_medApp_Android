@@ -35,13 +35,14 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-//                    Greeting("MedApp")
                     //alarm scheduling
                     alarmItem = AlarmItem(  //empty list of time, type of reminder and photo?
                         alarmTime = LocalDateTime.now().plusSeconds(
-                            "40".toLong()
+                            "8".toLong()
                         ),
-                        message = "Reminder"
+                        notiType = "Initial",
+                        message = "Initial Reminder",
+                        picture = "xarelto"
                     )
                     alarmItem?.let(alarmScheduler::schedule)
 

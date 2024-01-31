@@ -17,7 +17,9 @@ import java.time.ZoneId
 
 data class AlarmItem(
     val alarmTime : LocalDateTime,
-    val message : String
+    val notiType: String,
+    val message : String,
+    val picture : String?
 )
 
 interface AlarmScheduler {
@@ -33,7 +35,9 @@ class AlarmSchedulerImpl(
 
     override fun schedule(alarmItem: AlarmItem) {
         val intent = Intent(context, AlarmReceiver::class.java).apply {
+            putExtra("EXTRA_NOTITYPE", alarmItem.notiType)
             putExtra("EXTRA_MESSAGE", alarmItem.message)
+            putExtra("EXTRA_PICTURE", alarmItem.picture)
         }
         val alarmTime = alarmItem.alarmTime.atZone(ZoneId.systemDefault()).toEpochSecond()*1000L
         alarmManager.setExactAndAllowWhileIdle(
