@@ -65,6 +65,6 @@
         android:layout_weight="50"
         android:scaleType="fitCenter"
         android:src="@drawable/chlorothiazide" />
-
+<!--    android:scaleType="centerCrop" -->
 
 </LinearLayout>

@@ -1,5 +1,6 @@
 package com.example.fyp_medapp_android
 
+import android.util.Log
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
@@ -129,7 +130,10 @@ fun InitialScreen(navController: NavHostController, snackbarHostState: SnackbarH
                         Row() {
                             Button(onClick = {
                                 navController.navigate("login")
-                            }
+                            },
+                                elevation = ButtonDefaults.buttonElevation(
+                                    defaultElevation = 10.dp
+                                )
                             ) {
                                 Text(
                                     text = "Login",
@@ -169,6 +173,29 @@ fun logoutButton(navController: NavHostController) {
             ) {
                 Text(text = "Logout")
             }
+        }
+    }
+}
+
+@Composable
+fun switchToPatientMode(navController: NavHostController) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(end = 20.dp),
+        horizontalArrangement = Arrangement.End
+    ) {
+        Button(
+            onClick = {
+                globalLoginInfo.userRole = "patient"
+                Log.d("Button", "Switch Mode: ${globalLoginInfo.userRole}")
+            },
+            colors = ButtonDefaults.buttonColors(
+                containerColor = MaterialTheme.colorScheme.tertiary,
+                contentColor = Color.White
+            )
+        ) {
+            Text(text = "Patient Mode")
         }
     }
 }
@@ -318,6 +345,11 @@ fun HomeScreen(navController: NavHostController, snackbarHostState: SnackbarHost
 
 //            //add logout button the the bar
 //            logoutButton(navController)
+
+            //caregiver switch mode
+            if(globalLoginInfo.userRole == "caregiver") {
+                switchToPatientMode(navController)
+            }
         },
         snackbarHost = { SnackbarHost(snackbarHostState) },  //lab11
         content = { innerPadding ->

@@ -28,6 +28,7 @@ import kotlin.math.log
 
 var globalLoginStatus: Boolean = false
 lateinit var globalLoginInfo: User
+lateinit var globalLoginPatientInfo: User //for patient profile view, in caregiver mode
 
 @Serializable
 data class Info(  //for frontend input and send to backend
@@ -140,26 +141,41 @@ fun Login(navController: NavHostController, snackbarHostState: SnackbarHostState
                                 AlarmSchedulerImpl(context.applicationContext)
 
                             //if allow notification --> take medicine record and add into notification channel
-                            if (loginResult.userRole == "patient" && NotificationManagerCompat.from(
-                                    context
-                                ).areNotificationsEnabled()
+                            if (loginResult.userRole == "patient" && NotificationManagerCompat.from(context).areNotificationsEnabled()
                             ) {
                                 //check system noti enable or not
                                 val medicineList = KtorClient.getMedicine(loginResult.userID)
                                 println("medicineList: $medicineList")
                                 if (medicineList != null) {
-                                    for (medicine in medicineList) {
-                                        val alarmItem = AlarmItem(
-                                            alarmTime = LocalDateTime.now().plusSeconds(
-                                                "10".toLong()
-                                            ), //medicine.dailyIntake
-                                            notiType = "Medicine",
-                                            message = "${medicine.medicineInfo?.medicineName}:\n ${medicine.dailyIntake} time(s) per day, ${medicine.eachIntakeAmount} dose(s) each time.",
-                                            picture = medicine.medicineInfo?.medicineImageName
-                                        )
-                                        alarmItem?.let(alarmScheduler::schedule)
 
-                                        alarmScheduler.schedule(alarmItem) //use for loop to add each alarm item
+                                    val currentDateTime = LocalDateTime.now()
+                                    for (medicine in medicineList) {
+                                        var setHour = 9 //reset default daily intake = 1
+
+                                        for (i in 0 until medicine.dailyIntake!!) {
+                                            if(medicine.dailyIntake > 1) { //daily intake > 1
+                                                setHour = 9 + ((12/(medicine.dailyIntake-1)) * i)
+                                                Log.d("setHour", setHour.toString())
+                                            }
+                                            val newDateTime = currentDateTime
+                                                .withHour(setHour) //9, 13, 17, 21 if dailyIntake = 4
+                                                .withMinute(0)
+                                                .withSecond(0)
+                                                .withNano(0)
+
+                                            Log.d("${medicine.medicineInfo?.medicineName} Reminder newDateTime, $i time of ${medicine.dailyIntake}", newDateTime.toString())
+
+                                            val alarmItem = AlarmItem(
+                                                alarmTime = newDateTime//LocalDateTime.now().plusSeconds("10".toLong())
+                                                , //medicine.dailyIntake
+                                                notiType = "Medicine",
+                                                message = "${medicine.medicineInfo?.medicineName}:\n ${medicine.dailyIntake} time(s) per day, ${medicine.eachIntakeAmount} dose(s) each time.",
+                                                picture = medicine.medicineInfo?.medicineImageName
+                                            )
+                                            alarmItem?.let(alarmScheduler::schedule)
+
+                                            alarmScheduler.schedule(alarmItem) //use for loop to add each alarm item
+                                        }
                                     }
                                 }
                             }
@@ -179,7 +195,11 @@ fun Login(navController: NavHostController, snackbarHostState: SnackbarHostState
                         Log.d("loginView userProfile", message)
                         snackbarHostState.showSnackbar(message)
                     }
-                }) {
+                },
+                    elevation = ButtonDefaults.buttonElevation(
+                        defaultElevation = 10.dp
+                    )
+                ) {
                     Text(
                         text = "Login",
                         modifier = Modifier.padding(16.dp),

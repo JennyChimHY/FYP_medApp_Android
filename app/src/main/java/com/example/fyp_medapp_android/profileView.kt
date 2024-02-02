@@ -1,5 +1,6 @@
 package com.example.fyp_medapp_android
 
+import android.util.Log
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -101,7 +102,15 @@ fun profileScreen(navController: NavHostController) {
                             ),
                             modifier = Modifier
                                 .size(width = 400.dp, height = 100.dp)
-                                .padding(8.dp)
+                                .padding(8.dp),
+                            elevation = CardDefaults.cardElevation(
+                                defaultElevation = 5.dp
+                            ),
+                            onClick = {
+                                Log.d("Click", "CardExample: ${patient.patientName}")
+                                globalLoginInfo.userRole = "caregiver"
+                                //call KtorClient to get patient info
+                            }
                         ) {
                             Text(
                                 text = "Name: ${patient.patientName}",
