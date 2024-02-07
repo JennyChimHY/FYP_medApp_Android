@@ -34,7 +34,7 @@ data class LoginResult(
 )
 
 //var apiDomain = "https://medappserver.f0226942.hkbu.app"
-var apiDomain = "http://rnnwz-158-182-113-225.a.free.pinggy.link"
+var apiDomain = "http://rnqso-158-182-113-225.a.free.pinggy.link"
 object KtorClient {
     var token: String = ""
 
@@ -66,25 +66,25 @@ object KtorClient {
 //        return response.toString()
 //    }
 
-    suspend fun getPatientInfo(patientID: String?): User { //Login function, post the info to backend to authorize
-        Log.d("Enter getPatientInfo", "getPatientInfo:$patientID ")
-
-        try {
-            val response: User =
-                httpClient.get(apiDomain + "/user/$patientID")
-                    .body() //.toString() vs .body()
-
-            Log.d("KtorClient getPatientInfo", response.toString())
-
-            return response
-        } catch (e: Exception) {  //catch 404 error from backend
-            Log.d("KtorClient getPatientInfo", e.toString())
-
-            //TODO check not null
-            return User(null, null, null, null, null, null, null, null, null,
-                null, null, null)
-        }
-    }
+//    suspend fun getPatientInfo(patientID: String?): User { //Login function, post the info to backend to authorize
+//        Log.d("Enter getPatientInfo", "getPatientInfo:$patientID ")
+//
+//        try {
+//            val response: User =
+//                httpClient.get(apiDomain + "/user/$patientID")
+//                    .body() //.toString() vs .body()
+//
+//            Log.d("KtorClient getPatientInfo", response.toString())
+//
+//            return response
+//        } catch (e: Exception) {  //catch 404 error from backend
+//            Log.d("KtorClient getPatientInfo", e.toString())
+//
+//            //TODO check not null
+//            return User(null, null, null, null, null, null, null, null, null,
+//                null, null, null)
+//        }
+//    }
 
     suspend fun postLogin(login: Info): User { //Login function, post the info to backend to authorize
         Log.d("Enter postLogin", login.toString())
@@ -115,9 +115,10 @@ object KtorClient {
             val userRole = jwt.getClaim("userRole").asString()
             val token = jwt.getClaim("token").asString()
             val patientConnection = jwt.getClaim("patientConnection").asArray(PatientConnection::class.java) //String::class.java)
+            val patientProfileList = jwt.getClaim("patientProfileList").asArray(User::class.java)
 
             val user = User(token, _id, userID, firstName, lastName, gender, age, dob, username, email,
-                password, userRole, patientConnection)
+                password, userRole, patientConnection, patientProfileList)
             println("return user")
             return user
         } else {

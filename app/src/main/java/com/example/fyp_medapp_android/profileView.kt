@@ -99,7 +99,7 @@ fun profileScreen(navController: NavHostController) {
                 ) {
 
                     items(globalLoginInfo.patientConnection) { patient ->
-                        Card( //TODO: select the card and call api to get connected patient info through ID
+                        Card( //Select the card and call api to get connected patient info through ID
                             colors = CardDefaults.cardColors(
                                 containerColor = MaterialTheme.colorScheme.secondary,
                             ),
@@ -115,10 +115,36 @@ fun profileScreen(navController: NavHostController) {
                                     Log.d("Click", "CardExample: ${patient.patientName}")
                                     globalLoginInfo.userRole = "caregiver"
 
-                                    //save id only first, others to be fuxed/change approach
-                                    var patientInfo = KtorClient.getPatientInfo(patient.patientID)
-                                    globalLoginPatientInfo = patientInfo
-                                    Log.d("GET", "Patient info: ${globalLoginPatientInfo.userID}")
+                                    val getPatientDetail: (String) -> User = {
+                                        // lambda function to get the corresponding profile
+                                        var result = globalLoginInfo.patientProfileList!!.filter { patient -> patient.userID == it }.first()
+
+                                        var tmpPatientInfo: User? = User(
+                                            globalLoginInfo.token,
+                                            result!!._id,
+                                            result.userID,
+                                            result.firstName,
+                                            result.lastName,
+                                            result.gender,
+                                            result.age,
+                                            result.dob,
+                                            result.username,
+                                            result.email,
+                                            result.password,
+                                            result.userRole,
+                                            result.patientConnection,
+                                            result.patientProfileList
+                                        )
+
+                                        println("tmpPatientInfo: $tmpPatientInfo")
+
+                                        tmpPatientInfo!!
+
+                                    }
+
+                                    globalLoginPatientInfo = getPatientDetail(patient.patientID!!)
+
+                                    Log.d("GET", "Patient info: ${globalLoginPatientInfo.userID}") //.patientProfileList[0]!!.firstName
                                     navController.navigate("home")
                                 }
                             }

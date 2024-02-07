@@ -55,7 +55,7 @@ data class User(
     var password: String?,
     var userRole: String?,
     var patientConnection: Array<PatientConnection> = arrayOf<PatientConnection>(),
-    var patientDetail: Array<User>? = arrayOf<User>()  //outter layer
+    var patientProfileList: Array<User>? = arrayOf<User>()  //outter layer
 )
 
 @OptIn(ExperimentalMaterial3Api::class)
