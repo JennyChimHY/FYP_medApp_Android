@@ -54,7 +54,8 @@ data class User(
     val email: String?,
     var password: String?,
     var userRole: String?,
-    var patientConnection: Array<PatientConnection> = arrayOf<PatientConnection>()
+    var patientConnection: Array<PatientConnection> = arrayOf<PatientConnection>(),
+    var patientDetail: Array<User>? = arrayOf<User>()  //outter layer
 )
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -155,7 +156,6 @@ fun Login(navController: NavHostController, snackbarHostState: SnackbarHostState
                                         for (i in 0 until medicine.dailyIntake!!) {
                                             if(medicine.dailyIntake > 1) { //daily intake > 1
                                                 setHour = 9 + ((12/(medicine.dailyIntake-1)) * i)
-                                                Log.d("setHour", setHour.toString())
                                             }
                                             val newDateTime = currentDateTime
                                                 .withHour(setHour) //9, 13, 17, 21 if dailyIntake = 4

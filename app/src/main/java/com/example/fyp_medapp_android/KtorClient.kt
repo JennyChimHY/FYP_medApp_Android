@@ -33,8 +33,8 @@ data class LoginResult(
     val token: String
 )
 
-var apiDomain = "https://medappserver.f0226942.hkbu.app"
-//var apiDomain = "https://rnlxo-158-182-197-234.a.free.pinggy.link"
+//var apiDomain = "https://medappserver.f0226942.hkbu.app"
+var apiDomain = "http://rnnwz-158-182-113-225.a.free.pinggy.link"
 object KtorClient {
     var token: String = ""
 
@@ -65,6 +65,26 @@ object KtorClient {
 //
 //        return response.toString()
 //    }
+
+    suspend fun getPatientInfo(patientID: String?): User { //Login function, post the info to backend to authorize
+        Log.d("Enter getPatientInfo", "getPatientInfo:$patientID ")
+
+        try {
+            val response: User =
+                httpClient.get(apiDomain + "/user/$patientID")
+                    .body() //.toString() vs .body()
+
+            Log.d("KtorClient getPatientInfo", response.toString())
+
+            return response
+        } catch (e: Exception) {  //catch 404 error from backend
+            Log.d("KtorClient getPatientInfo", e.toString())
+
+            //TODO check not null
+            return User(null, null, null, null, null, null, null, null, null,
+                null, null, null)
+        }
+    }
 
     suspend fun postLogin(login: Info): User { //Login function, post the info to backend to authorize
         Log.d("Enter postLogin", login.toString())

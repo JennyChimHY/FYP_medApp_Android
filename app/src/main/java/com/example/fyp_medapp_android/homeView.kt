@@ -189,6 +189,7 @@ fun switchToPatientMode(navController: NavHostController) {
             onClick = {
                 globalLoginInfo.userRole = "patient"
                 Log.d("Button", "Switch Mode: ${globalLoginInfo.userRole}")
+                navController.navigate("home")
             },
             colors = ButtonDefaults.buttonColors(
                 containerColor = MaterialTheme.colorScheme.tertiary,
@@ -204,34 +205,50 @@ fun switchToPatientMode(navController: NavHostController) {
 @Composable
 fun welcomeSection(navController: NavHostController) {
     Row() {
-        Text(
-            text = "Welcome,\n${globalLoginInfo.lastName} ${globalLoginInfo.firstName} !",
-            modifier = Modifier
-                .padding(
-                start = 10.dp,
-                top = 10.dp,
-                end = 10.dp,
-                bottom = 20.dp
-            )
-                .weight(1f),
-            fontSize = 30.sp,
-            fontWeight = FontWeight.Bold,
-            lineHeight = 1.em
-        )
-
-        // User Profile Icon -> navigate
-        Column() {
+        if(globalLoginInfo.userRole == "caregiver") {
             Text(
-                text = "User\nProfile",
-                modifier = Modifier.padding(
-                    start = 10.dp,
-                    top = 10.dp,
-                    end = 10.dp,
-                    bottom = 20.dp
-                ),
-                fontSize = 20.sp,
-                fontWeight = FontWeight.Normal
+                text = "Caregiver Mode",
+                modifier = Modifier
+                    .padding(
+                        start = 10.dp,
+                        top = 10.dp,
+                        end = 10.dp,
+                        bottom = 20.dp
+                    ),
+                fontSize = 30.sp,
+                fontWeight = FontWeight.Bold,
+                lineHeight = 1.em
             )
+        } else {
+            Text(
+                text = "Welcome,\n${globalLoginInfo.lastName} ${globalLoginInfo.firstName} !",
+                modifier = Modifier
+                    .padding(
+                        start = 10.dp,
+                        top = 10.dp,
+                        end = 10.dp,
+                        bottom = 20.dp
+                    )
+                    .weight(1f),
+                fontSize = 30.sp,
+                fontWeight = FontWeight.Bold,
+                lineHeight = 1.em
+            )
+
+            // User Profile Icon -> navigate
+            Column() {
+                Text(
+                    text = "User\nProfile",
+                    modifier = Modifier.padding(
+                        start = 10.dp,
+                        top = 10.dp,
+                        end = 10.dp,
+                        bottom = 20.dp
+                    ),
+                    fontSize = 20.sp,
+                    fontWeight = FontWeight.Normal
+                )
+            }
         }
 
         Column() {
@@ -248,14 +265,14 @@ fun welcomeSection(navController: NavHostController) {
     }
 }
 
-@Composable
-fun Icon(
-    painter: Painter,
-    contentDescription: String?,
-    modifier: Modifier = Modifier,
-    tint: Color = LocalContentColor.current
-) {
-}
+//@Composable
+//fun Icon(
+//    painter: Painter,
+//    contentDescription: String?,
+//    modifier: Modifier = Modifier,
+//    tint: Color = LocalContentColor.current
+//) {
+//}
 
 //after login home page, 2nd section: select functions
 @Composable

@@ -6,6 +6,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -14,10 +15,12 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun profileScreen(navController: NavHostController) {
+    val coroutineScope = rememberCoroutineScope()  //for user role switching
 
     //use of globalLoginInfo
     Scaffold(
@@ -107,9 +110,17 @@ fun profileScreen(navController: NavHostController) {
                                 defaultElevation = 5.dp
                             ),
                             onClick = {
-                                Log.d("Click", "CardExample: ${patient.patientName}")
-                                globalLoginInfo.userRole = "caregiver"
-                                //call KtorClient to get patient info
+                                //call KtorClient to get patient info, using patient.patientID as parameter to call API
+                                coroutineScope.launch {
+                                    Log.d("Click", "CardExample: ${patient.patientName}")
+                                    globalLoginInfo.userRole = "caregiver"
+
+                                    //save id only first, others to be fuxed/change approach
+                                    var patientInfo = KtorClient.getPatientInfo(patient.patientID)
+                                    globalLoginPatientInfo = patientInfo
+                                    Log.d("GET", "Patient info: ${globalLoginPatientInfo.userID}")
+                                    navController.navigate("home")
+                                }
                             }
                         ) {
                             Text(
