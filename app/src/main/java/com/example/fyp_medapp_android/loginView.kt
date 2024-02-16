@@ -29,6 +29,7 @@ import kotlin.math.log
 var globalLoginStatus: Boolean = false
 lateinit var globalLoginInfo: User
 lateinit var globalLoginPatientInfo: User //for patient profile view, in caregiver mode
+lateinit var targetUserID: String
 
 @Serializable
 data class Info(  //for frontend input and send to backend
@@ -36,11 +37,13 @@ data class Info(  //for frontend input and send to backend
     val password: String
 )
 
+@Serializable
 data class PatientConnection(
     val patientID: String,
     val patientName: String
 )
 
+@Serializable
 data class User(
     val token: String?,
     val _id: String?,
@@ -54,8 +57,8 @@ data class User(
     val email: String?,
     var password: String?,
     var userRole: String?,
-    var patientConnection: Array<PatientConnection> = arrayOf<PatientConnection>(),
-    var patientProfileList: Array<User>? = arrayOf<User>()  //outter layer
+    var patientConnection: Array<PatientConnection>? = arrayOf<PatientConnection>(),
+    var patientProfileList: List<User>?  //outter layer
 )
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -135,8 +138,18 @@ fun Login(navController: NavHostController, snackbarHostState: SnackbarHostState
                             message =
                                 "Login Success. Welcome ${loginResult.lastName ?: ""} ${loginResult.firstName ?: ""}." //null safety
 
+                            //call another API to take patient profile list
+                                val patientProfileList = KtorClient.getPatientProfileList()
+                                println("patientProfileList: $patientProfileList")
+                                if (patientProfileList != null) {
+                                    loginResult.patientProfileList = patientProfileList
+                                }
+
+
+
                             globalLoginStatus = true; //redirected in HomeNav
                             globalLoginInfo = loginResult;
+                            targetUserID = loginResult.userID.toString()
 
                             val alarmScheduler: AlarmScheduler =
                                 AlarmSchedulerImpl(context.applicationContext)
@@ -216,7 +229,7 @@ fun Login(navController: NavHostController, snackbarHostState: SnackbarHostState
 fun Logout(navController: NavHostController, snackbarHostState: SnackbarHostState) {
     // TODO
     //  clearCache() //clear all stored data including medicine, appoint, health data
-    globalLoginInfo = User(null, null, null, null, null, null, null, null, null, null, null, null)
+    globalLoginInfo = User(null, null, null, null, null, null, null, null, null, null, null, null, null, null)
     globalLoginStatus = false
 
 //    snackbarHostState = remember { SnackbarHostState() } //TODO: clean after logout

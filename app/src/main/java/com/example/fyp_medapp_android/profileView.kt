@@ -82,87 +82,143 @@ fun profileScreen(navController: NavHostController) {
                     }
                 }
 
-                Row(
-                    modifier = Modifier.padding(8.dp)
-                ) {
-                    Text(
-                        text = "Patient Connection:",
-                        modifier = Modifier
-                            .padding(textPadding),
-                        textAlign = TextAlign.Start,
-                    )
-                }
-
-                LazyColumn(
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    modifier = Modifier.padding(8.dp)
-                ) {
-
-                    items(globalLoginInfo.patientConnection) { patient ->
-                        Card( //Select the card and call api to get connected patient info through ID
-                            colors = CardDefaults.cardColors(
-                                containerColor = MaterialTheme.colorScheme.secondary,
-                            ),
+                if (globalLoginInfo.userRole == "caregiver") {
+                    Row(
+                        modifier = Modifier.padding(8.dp)
+                    ) {
+                        Text(
+                            text = "Patient Profile:",
                             modifier = Modifier
-                                .size(width = 400.dp, height = 100.dp)
-                                .padding(8.dp),
-                            elevation = CardDefaults.cardElevation(
-                                defaultElevation = 5.dp
-                            ),
-                            onClick = {
-                                //call KtorClient to get patient info, using patient.patientID as parameter to call API
-                                coroutineScope.launch {
-                                    Log.d("Click", "CardExample: ${patient.patientName}")
-                                    globalLoginInfo.userRole = "caregiver"
+                                .padding(textPadding),
+                            textAlign = TextAlign.Start,
+                        )
+                    }
 
-                                    val getPatientDetail: (String) -> User = {
-                                        // lambda function to get the corresponding profile
-                                        var result = globalLoginInfo.patientProfileList!!.filter { patient -> patient.userID == it }.first()
+                    Row() {
+                        Column() {
+                            Text(
+                                text = "Name: ${globalLoginPatientInfo.username}",
+                                modifier = Modifier
+                                    .padding(textPadding),
+                                textAlign = TextAlign.Start,
+                            )
+                            Text(
+                                text = "Gender: ${globalLoginPatientInfo.gender}",
+                                modifier = Modifier
+                                    .padding(textPadding),
+                                textAlign = TextAlign.Start,
+                            )
+                            Text(
+                                text = "Age: ${globalLoginPatientInfo.age.toString()}",
+                                modifier = Modifier
+                                    .padding(textPadding),
+                                textAlign = TextAlign.Start,
+                            )
+                            Text(
+                                text = "Date of Birth: ${globalLoginPatientInfo.dob.toString()}",
+                                modifier = Modifier
+                                    .padding(textPadding),
+                                textAlign = TextAlign.Start,
+                            )
+                            Text(
+                                text = "Email: ${globalLoginPatientInfo.email}",
+                                modifier = Modifier
+                                    .padding(textPadding),
+                                textAlign = TextAlign.Start,
+                            )
+                        }
+                    }
 
-                                        var tmpPatientInfo: User? = User(
-                                            globalLoginInfo.token,
-                                            result!!._id,
-                                            result.userID,
-                                            result.firstName,
-                                            result.lastName,
-                                            result.gender,
-                                            result.age,
-                                            result.dob,
-                                            result.username,
-                                            result.email,
-                                            result.password,
-                                            result.userRole,
-                                            result.patientConnection,
-                                            result.patientProfileList
-                                        )
+                } else {
+                    Row(
+                        modifier = Modifier.padding(8.dp)
+                    ) {
+                        Text(
+                            text = "Patient Connection:",
+                            modifier = Modifier
+                                .padding(textPadding),
+                            textAlign = TextAlign.Start,
+                        )
+                    }
 
-                                        println("tmpPatientInfo: $tmpPatientInfo")
+                    LazyColumn(
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        modifier = Modifier.padding(8.dp)
+                    ) {
 
-                                        tmpPatientInfo!!
+                        items(globalLoginInfo?.patientConnection!!) { patient ->
+                            Card( //Select the card and call api to get connected patient info through ID
+                                colors = CardDefaults.cardColors(
+                                    containerColor = MaterialTheme.colorScheme.secondary,
+                                ),
+                                modifier = Modifier
+                                    .size(width = 400.dp, height = 100.dp)
+                                    .padding(8.dp),
+                                elevation = CardDefaults.cardElevation(
+                                    defaultElevation = 5.dp
+                                ),
+                                onClick = {
+                                    //call KtorClient to get patient info, using patient.patientID as parameter to call API
+                                    coroutineScope.launch {
+                                        Log.d("Click", "CardExample: ${patient.patientName}")
+                                        globalLoginInfo.userRole = "caregiver"
 
+                                        val getPatientDetail: (String) -> User = {
+                                            // lambda function to get the corresponding profile
+                                            var result =
+                                                globalLoginInfo.patientProfileList!!.filter { patient -> patient.userID == it }
+                                                    .first()
+
+                                            var tmpPatientInfo: User? = User(
+                                                globalLoginInfo.token,
+                                                result!!._id,
+                                                result.userID,
+                                                result.firstName,
+                                                result.lastName,
+                                                result.gender,
+                                                result.age,
+                                                result.dob,
+                                                result.username,
+                                                result.email,
+                                                result.password,
+                                                result.userRole,
+                                                result.patientConnection,
+                                                result.patientProfileList
+                                            )
+
+                                            println("tmpPatientInfo: $tmpPatientInfo")
+
+                                            tmpPatientInfo!!
+
+                                        }
+
+                                        globalLoginPatientInfo =
+                                            getPatientDetail(patient.patientID!!)
+                                        targetUserID = globalLoginPatientInfo.userID!!
+
+                                        Log.d(
+                                            "GET",
+                                            "Patient info: ${globalLoginPatientInfo.userID}"
+                                        ) //.patientProfileList[0]!!.firstName
+                                        navController.navigate("home")
                                     }
-
-                                    globalLoginPatientInfo = getPatientDetail(patient.patientID!!)
-
-                                    Log.d("GET", "Patient info: ${globalLoginPatientInfo.userID}") //.patientProfileList[0]!!.firstName
-                                    navController.navigate("home")
                                 }
+                            ) {
+                                Text(
+                                    text = "Name: ${patient.patientName}",
+                                    modifier = Modifier
+                                        .padding(8.dp),
+                                    textAlign = TextAlign.Center,
+                                    color = (Color.Black)
+                                )
+                                Text(
+                                    text = "HKID: ${patient.patientID}",
+                                    modifier = Modifier
+                                        .padding(8.dp),
+                                    textAlign = TextAlign.Center,
+                                    color = (Color.Black)
+                                )
                             }
-                        ) {
-                            Text(
-                                text = "Name: ${patient.patientName}",
-                                modifier = Modifier
-                                    .padding(8.dp),
-                                textAlign = TextAlign.Center,
-                                color = (Color.Black)
-                            )
-                            Text(
-                                text = "HKID: ${patient.patientID}",
-                                modifier = Modifier
-                                    .padding(8.dp),
-                                textAlign = TextAlign.Center,
-                                color = (Color.Black)
-                            )
                         }
                     }
                 }

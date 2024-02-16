@@ -32,50 +32,51 @@ import com.example.fyp_medapp_android.ui.theme.Green40
 
 var modifierPadding = 16.dp
 var sectionBorderColor = Green40
+
 @Composable
 fun HomeNav(navController: NavHostController, snackbarHostState: SnackbarHostState) {
 
-        NavHost(
-            navController = navController,
-            startDestination = "home",
-        ) {
-            composable("home") {
+    NavHost(
+        navController = navController,
+        startDestination = "home",
+    ) {
+        composable("home") {
 
-                if(!globalLoginStatus) {
-                    InitialScreen(navController, snackbarHostState)
-                } else {
-                    HomeScreen(navController, snackbarHostState)
-                }
+            if (!globalLoginStatus) {
+                InitialScreen(navController, snackbarHostState)
+            } else {
+                HomeScreen(navController, snackbarHostState)
             }
+        }
 
-            composable("login") {
-                LoginScreen(navController, snackbarHostState)
-            }
+        composable("login") {
+            LoginScreen(navController, snackbarHostState)
+        }
 
-            composable("logout") {
-                Logout(navController, snackbarHostState)
-            }
+        composable("logout") {
+            Logout(navController, snackbarHostState)
+        }
 
-            composable("profile") { //user profile
-                profileScreen(navController)
-            }
+        composable("profile") { //user profile
+            profileScreen(navController)
+        }
 
-            composable("medicine") {
-                medicineSceen(navController)
-            }
+        composable("medicine") {
+            medicineSceen(navController)
+        }
 
-            composable("appointment") {
-                appointmentScreen(navController)
-            }
+        composable("appointment") {
+            appointmentScreen(navController)
+        }
 
-            composable("healthData") {
-                healthDataScreen(navController)
-            }
+        composable("healthData") {
+            healthDataScreen(navController)
+        }
 
 //            composable("event/{deptId}") { backStackEntry -> //FROM  navController.navigate("details/123")
 //                EventScreen(snackbarHostState, backStackEntry.arguments?.getString("deptId"))
 //            }
-        }
+    }
 
 }
 
@@ -91,7 +92,14 @@ fun InitialScreen(navController: NavHostController, snackbarHostState: SnackbarH
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text(text = "MedApp", color = Color.White, fontSize = 35.sp, fontWeight = FontWeight.Bold) },
+                title = {
+                    Text(
+                        text = "MedApp",
+                        color = Color.White,
+                        fontSize = 35.sp,
+                        fontWeight = FontWeight.Bold
+                    )
+                },
                 colors = TopAppBarDefaults.smallTopAppBarColors(containerColor = MaterialTheme.colorScheme.primary)
             )
 
@@ -100,7 +108,7 @@ fun InitialScreen(navController: NavHostController, snackbarHostState: SnackbarH
         },
         snackbarHost = { SnackbarHost(snackbarHostState) },  //lab11
         content = { innerPadding ->
-            Column(modifier = Modifier.padding(innerPadding),) {
+            Column(modifier = Modifier.padding(innerPadding)) {
 
                 if (!globalLoginStatus) {  // not login
 
@@ -128,9 +136,10 @@ fun InitialScreen(navController: NavHostController, snackbarHostState: SnackbarH
                         Spacer(Modifier.size(modifierPadding))
 
                         Row() {
-                            Button(onClick = {
-                                navController.navigate("login")
-                            },
+                            Button(
+                                onClick = {
+                                    navController.navigate("login")
+                                },
                                 elevation = ButtonDefaults.buttonElevation(
                                     defaultElevation = 10.dp
                                 )
@@ -160,10 +169,12 @@ fun InitialScreen(navController: NavHostController, snackbarHostState: SnackbarH
 @Composable
 fun logoutButton(navController: NavHostController) {
     if (globalLoginStatus) {
-        Row(  modifier = Modifier
-            .fillMaxWidth()
-            .padding(end = 20.dp),
-                horizontalArrangement = Arrangement.End) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(end = 20.dp),
+            horizontalArrangement = Arrangement.End
+        ) {
             Button(
                 onClick = { navController.navigate("logout") },
                 colors = ButtonDefaults.buttonColors(
@@ -188,6 +199,9 @@ fun switchToPatientMode(navController: NavHostController) {
         Button(
             onClick = {
                 globalLoginInfo.userRole = "patient"
+                targetUserID = globalLoginInfo.userID!!
+                //clear the patient info globalPatientInfo??
+
                 Log.d("Button", "Switch Mode: ${globalLoginInfo.userRole}")
                 navController.navigate("home")
             },
@@ -205,9 +219,10 @@ fun switchToPatientMode(navController: NavHostController) {
 @Composable
 fun welcomeSection(navController: NavHostController) {
     Row() {
-        if(globalLoginInfo.userRole == "caregiver") {
+        if (globalLoginInfo.userRole == "caregiver") {
+
             Text(
-                text = "Caregiver Mode",
+                text = "Caregiver Mode\n ${globalLoginPatientInfo.firstName} ${globalLoginPatientInfo.lastName}",
                 modifier = Modifier
                     .padding(
                         start = 10.dp,
@@ -215,13 +230,13 @@ fun welcomeSection(navController: NavHostController) {
                         end = 10.dp,
                         bottom = 20.dp
                     ),
-                fontSize = 30.sp,
+                fontSize = 20.sp,
                 fontWeight = FontWeight.Bold,
                 lineHeight = 1.em
             )
         } else {
             Text(
-                text = "Welcome,\n${globalLoginInfo.lastName} ${globalLoginInfo.firstName} !",
+                text = "Welcome,\n${globalLoginInfo.lastName} ${globalLoginInfo.firstName}!",
                 modifier = Modifier
                     .padding(
                         start = 10.dp,
@@ -234,21 +249,21 @@ fun welcomeSection(navController: NavHostController) {
                 fontWeight = FontWeight.Bold,
                 lineHeight = 1.em
             )
+        }
 
-            // User Profile Icon -> navigate
-            Column() {
-                Text(
-                    text = "User\nProfile",
-                    modifier = Modifier.padding(
-                        start = 10.dp,
-                        top = 10.dp,
-                        end = 10.dp,
-                        bottom = 20.dp
-                    ),
-                    fontSize = 20.sp,
-                    fontWeight = FontWeight.Normal
-                )
-            }
+        // User Profile Icon -> navigate
+        Column() {
+            Text(
+                text = "User\nProfile",
+                modifier = Modifier.padding(
+                    start = 10.dp,
+                    top = 10.dp,
+                    end = 10.dp,
+                    bottom = 20.dp
+                ),
+                fontSize = 20.sp,
+                fontWeight = FontWeight.Normal
+            )
         }
 
         Column() {
@@ -277,8 +292,10 @@ fun welcomeSection(navController: NavHostController) {
 //after login home page, 2nd section: select functions
 @Composable
 fun selectFunctionSection(navController: NavHostController) {
-    var functionIconList = mutableVectorOf(R.drawable.medicine, R.drawable.calendar, R.drawable.health)
-    var functionContentDescriptionList = mutableListOf<String>("medicine", "appointment", "healthData")
+    var functionIconList =
+        mutableVectorOf(R.drawable.medicine, R.drawable.calendar, R.drawable.health)
+    var functionContentDescriptionList =
+        mutableListOf<String>("medicine", "appointment", "healthData")
 
     Row(modifier = Modifier.padding(modifierPadding)) {
         Text(
@@ -295,15 +312,17 @@ fun selectFunctionSection(navController: NavHostController) {
         )
     }
 
-    Row(modifier = Modifier.padding(modifierPadding),
-        verticalAlignment = Alignment.CenterVertically) {
+    Row(
+        modifier = Modifier.padding(modifierPadding),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
 
         for (i in functionIconList.indices) {
             Button(
-            colors = ButtonDefaults.buttonColors(
-                containerColor = Color.Transparent,
-            ),
-            onClick = {  navController.navigate(functionContentDescriptionList[i]) }) {
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = Color.Transparent,
+                ),
+                onClick = { navController.navigate(functionContentDescriptionList[i]) }) {
                 //IconButton failed to load paintResource
                 Image(
                     painter = painterResource(id = functionIconList[i]),
@@ -339,7 +358,7 @@ fun newsFeedCardSection() {
                     contentScale = ContentScale.Crop,
                     modifier = Modifier
                         .fillMaxSize()
-                    )
+                )
             }
         }
     }
@@ -356,7 +375,14 @@ fun HomeScreen(navController: NavHostController, snackbarHostState: SnackbarHost
         //diaplay the header of each page
         topBar = {
             TopAppBar(
-                title = { Text(text = "Home", color = Color.White, fontSize = 35.sp, fontWeight = FontWeight.Bold) },
+                title = {
+                    Text(
+                        text = "Home",
+                        color = Color.White,
+                        fontSize = 35.sp,
+                        fontWeight = FontWeight.Bold
+                    )
+                },
                 colors = TopAppBarDefaults.smallTopAppBarColors(containerColor = MaterialTheme.colorScheme.primary)
             )
 
@@ -364,7 +390,7 @@ fun HomeScreen(navController: NavHostController, snackbarHostState: SnackbarHost
 //            logoutButton(navController)
 
             //caregiver switch mode
-            if(globalLoginInfo.userRole == "caregiver") {
+            if (globalLoginInfo.userRole == "caregiver") {
                 switchToPatientMode(navController)
             }
         },
@@ -392,7 +418,6 @@ fun HomeScreen(navController: NavHostController, snackbarHostState: SnackbarHost
         }
     )
 }
-
 
 
 @Preview(showBackground = true)

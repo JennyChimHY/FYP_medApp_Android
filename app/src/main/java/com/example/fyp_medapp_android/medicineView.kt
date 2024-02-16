@@ -90,6 +90,13 @@ fun medicineSceen(navController: NavHostController) {
         content = { innerPadding ->
             //display the content of the page
 
+//            val targetUserID = if (globalLoginInfo.userRole == "patient") {
+//                globalLoginInfo.userID
+//            } else {
+//                globalLoginInfo.patientConnection[0].patientID
+//            }
+            //changed to global var
+
             var convertedDate =
                 mutableListOf<String>()  //TODO: difference between listOf and mutableListOf and List<String>?
             Column(modifier = Modifier.padding(innerPadding)) {
@@ -97,7 +104,7 @@ fun medicineSceen(navController: NavHostController) {
                     initialValue = listOf<Medicine>(),
                     producer = {
                         value =
-                            KtorClient.getMedicine(globalLoginInfo.userID) //not String message only, but User data class
+                            KtorClient.getMedicine(targetUserID) //not String message only, but User data class
                     })
                 Log.d("medicineScreen after calling API", "medicineResult: $medicineResult")
 

@@ -151,7 +151,7 @@ fun healthDataScreen(navController: NavHostController) {
                 val healthdataResult =
                     produceState(initialValue = listOf<HealthData>(), producer = {
                         value =
-                            KtorClient.getHealthData(globalLoginInfo.userID) //not String message only, but User data class
+                            KtorClient.getHealthData(targetUserID) //not String message only, but User data class
                     })
 
 //                println("before filtering, $sortDataFlag")
@@ -558,7 +558,7 @@ fun addDataBlockDialog(
         mutableStateOf( //mutableStateOf
             HealthData(
                 _id = null,
-                userId = globalLoginInfo.userID,
+                userId = targetUserID,
                 recordDateTime = "",
                 recordTimeslot = "",
                 recordType = type,

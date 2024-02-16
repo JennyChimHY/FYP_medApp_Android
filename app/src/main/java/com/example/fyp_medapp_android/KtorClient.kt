@@ -33,8 +33,15 @@ data class LoginResult(
     val token: String
 )
 
-//var apiDomain = "https://medappserver.f0226942.hkbu.app"
-var apiDomain = "http://rnqso-158-182-113-225.a.free.pinggy.link"
+@Serializable
+data class PatientProfile(
+    val _id: String?,
+    val userID: String?,
+    val patientProfileList: List<User>?
+)
+
+var apiDomain = "https://medappserver.f0226942.hkbu.app"
+//var apiDomain = "http://rnnii-158-182-108-51.a.free.pinggy.link"
 object KtorClient {
     var token: String = ""
 
@@ -115,16 +122,36 @@ object KtorClient {
             val userRole = jwt.getClaim("userRole").asString()
             val token = jwt.getClaim("token").asString()
             val patientConnection = jwt.getClaim("patientConnection").asArray(PatientConnection::class.java) //String::class.java)
-            val patientProfileList = jwt.getClaim("patientProfileList").asArray(User::class.java)
+//            val patientProfileList = jwt.getClaim("patientProfileList").asArray(User::class.java)
 
             val user = User(token, _id, userID, firstName, lastName, gender, age, dob, username, email,
-                password, userRole, patientConnection, patientProfileList)
+                password, userRole, patientConnection, null)
             println("return user")
             return user
         } else {
             println("return null user")
             return User(null, null, null, null, null, null, null, null, null,
-                null, null, null)
+                null, null, null, null, null)
+        }
+    }
+
+    suspend fun getPatientProfileList(): List<User> { //Login function, post the info to backend to authorize
+
+
+        try {
+            val response: PatientProfile =
+                httpClient.get(apiDomain + "/patientProfileList")
+                    .body() //.toString() vs .body()
+
+            Log.d("KtorClient getPatientProfileList", response.toString())
+
+            return response.patientProfileList!!
+
+        } catch (e: Exception) {  //catch 404 error from backend
+            Log.d("KtorClient getPatientProfileList", e.toString())
+
+            //TODO check not null
+            return emptyList()
         }
     }
 
