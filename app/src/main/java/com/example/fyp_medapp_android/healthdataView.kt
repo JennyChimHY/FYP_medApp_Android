@@ -249,6 +249,11 @@ fun healthDataScreen(navController: NavHostController) {
                                     snackbarHostState,
                                     updateDataBlock
                                 )
+
+                                HorizontalDivider(
+                                    thickness = 4.dp,
+                                    color = sectionBorderColor
+                                )  //section line
                             }
                         }
                     }
@@ -257,6 +262,10 @@ fun healthDataScreen(navController: NavHostController) {
             //}
         })
 }
+
+
+var tableFontSize = 15.sp
+var tablePadding = 5.dp
 
 //Table setting for displaying record
 @Composable  //normal table cell
@@ -267,8 +276,9 @@ fun RowScope.TableCell(
         text = text,
         Modifier
             .weight(weight)
-            .padding(10.dp),
+            .padding(tablePadding),
         fontWeight = if (title) FontWeight.Bold else FontWeight.Normal,
+        fontSize = tableFontSize,
         textAlign = alignment,
     )
 }
@@ -295,8 +305,9 @@ fun RowScope.StatusCell(
         text = text,
         Modifier
             .weight(weight)
-            .padding(12.dp)
+            .padding(tablePadding)
             .background(color, shape = RoundedCornerShape(50.dp)),
+        fontSize = tableFontSize,
         textAlign = alignment,
         color = textColor
     )
@@ -311,9 +322,9 @@ fun showDataInGraphTable_byType(
 
     // Each cell of a column must have the same weight.
     val column1Weight = .4f // 40%
-    val column2Weight = .28f // 28%
+    val column2Weight = .25f // 25%
     val column3Weight = .3f // 30%
-    val column4Weight = .02f // 2%
+    val column4Weight = .05f // 5%
 
     var type = targetList[0].recordType.toString() //for update record block
 
@@ -327,7 +338,7 @@ fun showDataInGraphTable_byType(
         Column(
             Modifier
 //                    .fillMaxSize()
-                .padding(16.dp)
+                .padding(10.dp)
         ) {
 
             //Table Title
@@ -441,7 +452,7 @@ fun showDataInGraphTable_byType(
                                     .background(
                                         color = Green20, shape = RoundedCornerShape(8.dp)
                                     )
-                                    .padding(start = 3.dp, end = 3.dp)
+                                    .padding(start = 5.dp, end = 5.dp)
                             ) {
                                 Text(
                                     text = "Are you sure to delete this record?",
@@ -531,7 +542,7 @@ fun showDataInGraphTable_byType(
 fun valueStringConvertor(item: HealthData): String {
 
     when (item.recordType) {
-        "bloodPressure" -> return "${round(item.recordValue1_defaultUnit!!).toInt()} / ${round(item.recordValue2_defaultUnit!!).toInt()} ${item.recordUnit_Patient.toString()}"
+        "bloodPressure" -> return "${round(item.recordValue1_defaultUnit!!).toInt()}/${round(item.recordValue2_defaultUnit!!).toInt()} ${item.recordUnit_Patient.toString()}"
         "temperature" -> {
             if (item.recordUnit_Patient.toString() == "dF") {
                 var dFvalue = item.recordValue1_defaultUnit!!.toDouble() * 9 / 5 + 32

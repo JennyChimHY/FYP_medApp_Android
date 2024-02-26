@@ -73,6 +73,10 @@ fun HomeNav(navController: NavHostController, snackbarHostState: SnackbarHostSta
             healthDataScreen(navController)
         }
 
+        composable("locationHistory") {
+            locationHistoryScreen(navController)
+        }
+
 //            composable("event/{deptId}") { backStackEntry -> //FROM  navController.navigate("details/123")
 //                EventScreen(snackbarHostState, backStackEntry.arguments?.getString("deptId"))
 //            }
@@ -200,7 +204,8 @@ fun switchToPatientMode(navController: NavHostController) {
             onClick = {
                 globalLoginInfo.userRole = "patient"
                 targetUserID = globalLoginInfo.userID!!
-                //clear the patient info globalPatientInfo??
+                //clear the patient info globalPatientInfo
+                globalLoginPatientInfo = User(null, null, null, null, null, null, null, null, null, null, null, null, null, null)
 
                 Log.d("Button", "Switch Mode: ${globalLoginInfo.userRole}")
                 navController.navigate("home")
@@ -293,9 +298,9 @@ fun welcomeSection(navController: NavHostController) {
 @Composable
 fun selectFunctionSection(navController: NavHostController) {
     var functionIconList =
-        mutableVectorOf(R.drawable.medicine, R.drawable.calendar, R.drawable.health)
+        mutableVectorOf(R.drawable.medicine, R.drawable.calendar, R.drawable.health, R.drawable.location)
     var functionContentDescriptionList =
-        mutableListOf<String>("medicine", "appointment", "healthData")
+        mutableListOf<String>("medicine", "appointment", "healthData", "locationHistory")
 
     Row(modifier = Modifier.padding(modifierPadding)) {
         Text(

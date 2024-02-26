@@ -25,7 +25,6 @@ import com.example.fyp_medapp_android.ui.theme.Green20
 import com.example.fyp_medapp_android.ui.theme.Green50
 import kotlinx.serialization.Serializable
 
-
 @Serializable
 data class Appointment(
     val _id: String?,
@@ -61,9 +60,11 @@ fun appointmentScreen(navController: NavHostController) {
 //            //add logout button the the bar
 //            logoutButton(navController)
         },
-        snackbarHost = { },  //lab11
+        snackbarHost = { },
         content = { innerPadding ->
             //display the content of the page
+            boxTextSize = 10.sp
+
             Column(modifier = Modifier.padding(innerPadding)) {
                 val appointmentResult = produceState(
                     initialValue = listOf<Appointment>(),
@@ -109,16 +110,17 @@ fun appointmentScreen(navController: NavHostController) {
                                 ) {
                                     Box(  //Class Label
                                         modifier = Modifier
-                                            .size(100.dp, 40.dp)
+                                            .size(120.dp, 40.dp)
                                             .background(
                                                 color = Green20,
                                                 shape = RoundedCornerShape(8.dp))
                                     ) {
                                         Text(
                                             appointItem.appointType.toString(),
-                                            fontSize = 14.sp,
+                                            fontSize = boxTextSize,
                                             color = (Color.Black),
-                                            modifier = Modifier.align(Alignment.Center)
+                                            modifier = Modifier.align(Alignment.Center),
+                                            maxLines = 2
                                         )
                                     }
                                 }
@@ -130,16 +132,17 @@ fun appointmentScreen(navController: NavHostController) {
                                 ) {
                                     Box(  //Class Label
                                         modifier = Modifier
-                                            .size(100.dp, 40.dp)
+                                            .size(120.dp, 40.dp)
                                             .background(
                                                 color = Green20,
                                                 shape = RoundedCornerShape(8.dp))
                                     ) {
                                         Text(
                                             appointItem.appointClass.toString(),
-                                            fontSize = 14.sp,
+                                            fontSize = boxTextSize,
                                             color = (Color.Black),
-                                            modifier = Modifier.align(Alignment.Center)
+                                            modifier = Modifier.align(Alignment.Center),
+                                            maxLines = 2
                                         )
                                     }
                                 }

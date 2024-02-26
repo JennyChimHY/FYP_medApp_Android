@@ -21,6 +21,7 @@ import kotlinx.coroutines.launch
 @Composable
 fun profileScreen(navController: NavHostController) {
     val coroutineScope = rememberCoroutineScope()  //for user role switching
+    textPadding = 5.dp
 
     //use of globalLoginInfo
     Scaffold(
@@ -81,6 +82,11 @@ fun profileScreen(navController: NavHostController) {
                         )
                     }
                 }
+
+                HorizontalDivider(
+                    thickness = 2.dp,
+                    color = sectionBorderColor
+                )  //section line
 
                 if (globalLoginInfo.userRole == "caregiver") {
                     Row(
@@ -147,12 +153,12 @@ fun profileScreen(navController: NavHostController) {
                     ) {
 
                         items(globalLoginInfo?.patientConnection!!) { patient ->
-                            Card( //Select the card and call api to get connected patient info through ID
+                            Card( //Select the card and get connected patient info in globalLoginInfo.patientProfileList
                                 colors = CardDefaults.cardColors(
                                     containerColor = MaterialTheme.colorScheme.secondary,
                                 ),
                                 modifier = Modifier
-                                    .size(width = 400.dp, height = 100.dp)
+                                    .size(width = 400.dp, height = 120.dp)
                                     .padding(8.dp),
                                 elevation = CardDefaults.cardElevation(
                                     defaultElevation = 5.dp
@@ -167,7 +173,7 @@ fun profileScreen(navController: NavHostController) {
                                             // lambda function to get the corresponding profile
                                             var result =
                                                 globalLoginInfo.patientProfileList!!.filter { patient -> patient.userID == it }
-                                                    .first()
+                                                    .first()  //get the target patient info from the stored connection list
 
                                             var tmpPatientInfo: User? = User(
                                                 globalLoginInfo.token,

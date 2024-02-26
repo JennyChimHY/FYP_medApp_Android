@@ -32,6 +32,8 @@ import kotlinx.coroutines.launch
 import kotlinx.serialization.Serializable
 import java.util.*
 
+var textPadding = 10.dp
+var boxTextSize = 15.sp
 
 @Serializable
 data class MedicineInfo(
@@ -61,8 +63,6 @@ data class Medicine(
     val selfNote: String?,
     val medicineInfo: MedicineInfo?
 )
-
-var textPadding = 10.dp
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -170,16 +170,17 @@ fun medicineSceen(navController: NavHostController) {
 
                                     Box(  //Class Label
                                         modifier = Modifier
-                                            .size(100.dp, 40.dp)
+                                            .size(120.dp, 40.dp)
                                             .background(
                                                 color = Green20,
                                                 shape = RoundedCornerShape(8.dp))
                                     ) {
                                         Text(
                                             medicineItem.medicineInfo?.medicineClass!!,
-                                            fontSize = 14.sp,
+                                            fontSize = boxTextSize,
                                             color = (Color.Black),
-                                            modifier = Modifier.align(Alignment.Center)
+                                            modifier = Modifier.align(Alignment.Center),
+                                            maxLines = 2
                                         )
                                     }
 
@@ -281,87 +282,6 @@ fun medicineSceen(navController: NavHostController) {
                                         }
                                     }
                                 }
-
-
-
-//                                Column(
-//                                    modifier = Modifier
-//                                        .weight(7f) // Take 50% of the available width
-//                                        .fillMaxHeight()
-//                                ) {
-//                                    Text(
-//                                        text = "${medicineItem.medicineInfo?.medicineName.toString()}",
-//                                        textAlign = TextAlign.Start,
-//                                        fontSize = 25.sp,
-//                                        fontWeight = FontWeight.Bold
-//                                    )
-//                                    Text(
-//                                        text = "Daily Intake: ${medicineItem.dailyIntake.toString()}",
-//                                        textAlign = TextAlign.Start,
-//                                        fontSize = 20.sp
-//                                    )
-//                                    Text(
-//                                        text = "Each Intake: ${medicineItem.eachIntakeAmount.toString()}",
-//                                        textAlign = TextAlign.Start,
-//                                        fontSize = 20.sp
-//                                    )
-//
-//                                    if (medicineItem.selfNote != null) {
-//                                        Text(
-//                                            text = "Self note: ${medicineItem.selfNote}",
-//                                            textAlign = TextAlign.Start,
-//                                            fontSize = 20.sp
-//                                        )
-//                                    }
-////                                    Text( //not neccessary in medicine
-////                                        text = "Time: ${convertedDate[1]}",
-////                                        modifier = Modifier
-////                                            .padding(textPadding),
-////                                        textAlign = TextAlign.Start,
-////                                    )
-//                                }
-//
-//                                Column(
-////                                    modifier = Modifier
-////                                        .fillMaxWidth()
-////                                        .padding(end = 5.dp),
-////                                    verticalArrangement = Arrangement.Bottom,
-//                                    modifier = Modifier
-//                                        .weight(3f) // Take 50% of the available width
-//                                        .fillMaxHeight()
-//                                ) {
-//
-//                                    Box(  //labeling the class
-//                                        modifier = Modifier
-//                                            .size(100.dp, 40.dp)
-//                                            .background(Green20)
-//                                            .clip(RoundedCornerShape(25))
-//                                    ) {
-//                                        Text(
-//                                            medicineItem.medicineInfo?.medicineClass!!,
-//                                            fontSize = 12.sp,
-//                                            color = (Color.Black),
-//                                            textAlign = TextAlign.Center
-//                                        )
-//                                    }
-//
-//                                    AsyncImage(
-//                                        //fetch the backend directly, apiDomain is a global var from KtorClient
-//                                        model = apiDomain + "/images/MedApp_medicinePicture/" + medicineItem.medicineInfo?.medicineImageName + ".jpg",
-//                                        contentDescription = null,
-//                                        modifier = Modifier
-//                                            .size(100.dp)
-//                                            .clip(RoundedCornerShape(8))
-////                                            .padding(textPadding)
-//                                    )
-//
-//                                    Spacer(modifier = Modifier.width(5.dp))
-//                                    Text(
-//                                        text = "Issue Date: ${convertedDate[0]}",
-//                                        fontSize = 15.sp,
-//                                        textAlign = TextAlign.Start,
-//                                    )
-//                                }
                             }
                         }
                     }
