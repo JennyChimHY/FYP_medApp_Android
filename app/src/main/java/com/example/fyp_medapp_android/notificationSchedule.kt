@@ -12,40 +12,40 @@ import android.app.AlarmManager
 import android.app.PendingIntent
 import android.content.Intent
 import android.util.Log
-import com.example.fyp_medapp_android.AlarmReceiver
 import java.time.ZoneId
 
-data class AlarmItem(
+data class NotiAlarmItem(
     val alarmTime : LocalDateTime,
     val notiType: String,
     val message : String,
     val picture : String?
 )
 
-interface AlarmScheduler {
-    fun schedule(alarmItem: AlarmItem)
-    fun cancel(alarmItem: AlarmItem)
+interface NotiAlarmScheduler {
+    fun schedule(notiAlarmItem: NotiAlarmItem)
+    fun cancel(notiAlarmItem: NotiAlarmItem)
 }
 
 class AlarmSchedulerImpl(
     private val context: Context
-) : AlarmScheduler {
+) : NotiAlarmScheduler {
 
     private val alarmManager = context.getSystemService(AlarmManager::class.java)
 
-    override fun schedule(alarmItem: AlarmItem) {
-        val intent = Intent(context, AlarmReceiver::class.java).apply {
-            putExtra("EXTRA_NOTITYPE", alarmItem.notiType)
-            putExtra("EXTRA_MESSAGE", alarmItem.message)
-            putExtra("EXTRA_PICTURE", alarmItem.picture)
+    override fun schedule(notiAlarmItem: NotiAlarmItem) {
+        val intent = Intent(context, NotiAlarmReceiver::class.java).apply {
+            putExtra("EXTRA_NOTITYPE", notiAlarmItem.notiType)
+            putExtra("EXTRA_MESSAGE", notiAlarmItem.message)
+            putExtra("EXTRA_PICTURE", notiAlarmItem.picture)
         }
-        val alarmTime = alarmItem.alarmTime.atZone(ZoneId.systemDefault()).toEpochSecond()*1000L
-        alarmManager.setExactAndAllowWhileIdle(
+
+        val alarmTime = notiAlarmItem.alarmTime.atZone(ZoneId.systemDefault()).toEpochSecond()*1000L
+        alarmManager.setExactAndAllowWhileIdle(  //here
             AlarmManager.RTC_WAKEUP,
             alarmTime,
             PendingIntent.getBroadcast(
                 context,
-                alarmItem.hashCode(),
+                notiAlarmItem.hashCode(),
                 intent,
                 PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
             )
@@ -53,17 +53,20 @@ class AlarmSchedulerImpl(
         Log.e("Alarm", "Alarm set at $alarmTime")
     }
 
-    override fun cancel(alarmItem: AlarmItem) {
+    override fun cancel(notiAlarmItem: NotiAlarmItem) {
         alarmManager.cancel(
             PendingIntent.getBroadcast(
                 context,
-                alarmItem.hashCode(),
-                Intent(context, AlarmReceiver::class.java),
+                notiAlarmItem.hashCode(),
+                Intent(context, NotiAlarmReceiver::class.java),
                 PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
             )
         )
     }
 }
+
+//TODO: implement location service alarm, every 5 mins
+
 
 
 

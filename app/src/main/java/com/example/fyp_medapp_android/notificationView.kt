@@ -19,9 +19,10 @@ const val channelID = "channel1"
 const val titleExtra = "titleExtra"
 const val messageExtra = "messageExtra"
 
-class AlarmReceiver : BroadcastReceiver()
+class NotiAlarmReceiver : BroadcastReceiver()
 {
     override fun onReceive(context: Context?, intent: Intent?) {
+//        context?.unregisterReceiver(this)
         val notiType = intent?.getStringExtra("EXTRA_NOTITYPE") ?: return //string notification type
         val message = intent?.getStringExtra("EXTRA_MESSAGE") ?: return
         val picture = intent?.getStringExtra("EXTRA_PICTURE") ?: return  //string name of the picture
@@ -34,11 +35,6 @@ class AlarmReceiver : BroadcastReceiver()
                 .setSmallIcon(R.drawable.ic_launcher_foreground) //mandatory
                 .setContentTitle("Reminder") //mandatory
                 .setContentText(message)    //mandatory
-//                .setLargeIcon(apiDomain + "/images/MedApp_medicinePicture/" + picture + ".jpg")
-//                .setStyle(NotificationCompat.BigPictureStyle()
-//                    .bigPicture(myBitmap)
-//                    .bigLargeIcon(null))
-                    //Image: xml Image Loader
                 .setPriority(NotificationCompat.PRIORITY_HIGH)
 
             // inflate the layout and set the values to our UI IDs
@@ -51,7 +47,7 @@ class AlarmReceiver : BroadcastReceiver()
                     // Handle the result.
                     MainScope().launch {//launch UI coroutine
                         val remoteViews =
-                            RemoteViews(appContext.packageName, R.layout.notification_layout)
+                            RemoteViews(appContext.packageName, R.layout.notification_layout) //noti custom layout in xml
                         remoteViews.setTextViewText(R.id.title, "$notiType Reminder")  //reminder type
                         remoteViews.setTextViewText(R.id.text, message) //reminder message
                         remoteViews.setImageViewBitmap(R.id.image, drawable.toBitmap())

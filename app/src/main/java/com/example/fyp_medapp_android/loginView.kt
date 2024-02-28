@@ -21,6 +21,9 @@ import androidx.compose.ui.unit.sp
 import androidx.core.app.NotificationManagerCompat
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.launch
 import kotlinx.serialization.Serializable
 import java.time.LocalDateTime
@@ -124,7 +127,10 @@ fun Login(navController: NavHostController, snackbarHostState: SnackbarHostState
                 Spacer(Modifier.size(padding))
 
                 Button(onClick = {
-                    coroutineScope.launch {
+//                    CoroutineScope(Dispatchers.IO).launch {
+//                        navController.navigate("register")
+//                    }
+                    CoroutineScope(Dispatchers.IO).launch {
 
                         val info = Info(
                             usernameLocal,
@@ -133,12 +139,14 @@ fun Login(navController: NavHostController, snackbarHostState: SnackbarHostState
 
                         val loginResult: User =
                             KtorClient.postLogin(info) //not String message only, but User data class
-                        var message = ""
-                        if (loginResult.userID != null) {           //success
-                            message =
-                                "Login Success. Welcome ${loginResult.lastName ?: ""} ${loginResult.firstName ?: ""}." //null safety
+//
+                        coroutineScope.launch {
+                            var message = ""
+                            if (loginResult.userID != null) {           //success
+                                message =
+                                    "Login Success. Welcome ${loginResult.lastName ?: ""} ${loginResult.firstName ?: ""}." //null safety
 
-                            //call another API to take patient profile list
+                                //call another API to take patient profile list
                                 val patientProfileList = KtorClient.getPatientProfileList()
                                 println("patientProfileList: $patientProfileList")
                                 if (patientProfileList != null) {
@@ -147,67 +155,74 @@ fun Login(navController: NavHostController, snackbarHostState: SnackbarHostState
 
 
 
-                            globalLoginStatus = true; //redirected in HomeNav
-                            globalLoginInfo = loginResult;
-                            targetUserID = loginResult.userID.toString()
+                                globalLoginStatus = true; //redirected in HomeNav
+                                globalLoginInfo = loginResult;
+                                targetUserID = loginResult.userID.toString()
 
-                            val alarmScheduler: AlarmScheduler =
-                                AlarmSchedulerImpl(context.applicationContext)
+                                val alarmScheduler: NotiAlarmScheduler =
+                                    AlarmSchedulerImpl(context.applicationContext)
 
-                            //if allow notification --> take medicine record and add into notification channel
-                            if (loginResult.userRole == "patient" && NotificationManagerCompat.from(context).areNotificationsEnabled()
-                            ) {
-                                //check system noti enable or not
-                                val medicineList = KtorClient.getMedicine(loginResult.userID)
-                                println("medicineList: $medicineList")
-                                if (medicineList != null) {
+                                //if allow notification --> take medicine record and add into notification channel
+                                if (loginResult.userRole == "patient" && NotificationManagerCompat.from(
+                                        context
+                                    ).areNotificationsEnabled()
+                                ) {
+                                    //check system noti enable or not
+                                    val medicineList = KtorClient.getMedicine(loginResult.userID)
+                                    println("medicineList: $medicineList")
+                                    if (medicineList != null) {
 
-                                    val currentDateTime = LocalDateTime.now()
-                                    for (medicine in medicineList) {
-                                        var setHour = 9 //reset default daily intake = 1
+                                        val currentDateTime = LocalDateTime.now()
+                                        for (medicine in medicineList) {
+                                            var setHour = 9 //reset default daily intake = 1
 
-                                        for (i in 0 until medicine.dailyIntake!!) {
-                                            if(medicine.dailyIntake > 1) { //daily intake > 1
-                                                setHour = 9 + ((12/(medicine.dailyIntake-1)) * i)
+                                            for (i in 0 until medicine.dailyIntake!!) {
+                                                if (medicine.dailyIntake > 1) { //daily intake > 1
+                                                    setHour =
+                                                        9 + ((12 / (medicine.dailyIntake - 1)) * i)
+                                                }
+                                                val newDateTime = currentDateTime
+                                                    .withHour(setHour) //9, 13, 17, 21 if dailyIntake = 4
+                                                    .withMinute(0)
+                                                    .withSecond(0)
+                                                    .withNano(0)
+
+                                                Log.d(
+                                                    "${medicine.medicineInfo?.medicineName} Reminder newDateTime, $i time of ${medicine.dailyIntake}",
+                                                    newDateTime.toString()
+                                                )
+
+                                                val alarmItem = NotiAlarmItem(
+                                                    alarmTime = newDateTime//LocalDateTime.now().plusSeconds("10".toLong())
+                                                    , //medicine.dailyIntake
+                                                    notiType = "Medicine",
+                                                    message = "${medicine.medicineInfo?.medicineName}:\n ${medicine.dailyIntake} time(s) per day, ${medicine.eachIntakeAmount} dose(s) each time.",
+                                                    picture = medicine.medicineInfo?.medicineImageName
+                                                )
+                                                alarmItem?.let(alarmScheduler::schedule)
+
+                                                alarmScheduler.schedule(alarmItem) //use for loop to add each alarm item
                                             }
-                                            val newDateTime = currentDateTime
-                                                .withHour(setHour) //9, 13, 17, 21 if dailyIntake = 4
-                                                .withMinute(0)
-                                                .withSecond(0)
-                                                .withNano(0)
-
-                                            Log.d("${medicine.medicineInfo?.medicineName} Reminder newDateTime, $i time of ${medicine.dailyIntake}", newDateTime.toString())
-
-                                            val alarmItem = AlarmItem(
-                                                alarmTime = newDateTime//LocalDateTime.now().plusSeconds("10".toLong())
-                                                , //medicine.dailyIntake
-                                                notiType = "Medicine",
-                                                message = "${medicine.medicineInfo?.medicineName}:\n ${medicine.dailyIntake} time(s) per day, ${medicine.eachIntakeAmount} dose(s) each time.",
-                                                picture = medicine.medicineInfo?.medicineImageName
-                                            )
-                                            alarmItem?.let(alarmScheduler::schedule)
-
-                                            alarmScheduler.schedule(alarmItem) //use for loop to add each alarm item
                                         }
                                     }
                                 }
-                            }
 
+                                Log.d("loginView userProfile", message)
+                                snackbarHostState.showSnackbar(message)
+                                navController.navigate("home") //pass to home page
+
+
+                            } else {     //error
+                                //handle login false
+                                println("login false")
+                                println(loginResult)
+                                message =
+                                    "Login Failed. The email or password is incorrect, please input again."
+
+                            }
                             Log.d("loginView userProfile", message)
                             snackbarHostState.showSnackbar(message)
-                            navController.navigate("home") //pass to home page
-
-
-                        } else {     //error
-                            //handle login false
-                            println("login false")
-                            println(loginResult)
-                            message =
-                                "Login Failed. The email or password is incorrect, please input again."
-
                         }
-                        Log.d("loginView userProfile", message)
-                        snackbarHostState.showSnackbar(message)
                     }
                 },
                     elevation = ButtonDefaults.buttonElevation(

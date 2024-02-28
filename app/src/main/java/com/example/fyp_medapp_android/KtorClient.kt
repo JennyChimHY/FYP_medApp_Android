@@ -12,7 +12,7 @@ import io.ktor.http.*
 import io.ktor.serialization.kotlinx.json.*
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
-
+import io.ktor.http.ContentType.*
 
 @Serializable
 data class HttpBinResponse(
@@ -57,8 +57,8 @@ object KtorClient {
         }
         install(Logging)
         defaultRequest {
-            contentType(ContentType.Application.Json)
-            accept(ContentType.Application.Json)
+            contentType(Application.Json)
+            accept(Application.Json)
             header("Authorization", "Bearer ${token}")  //token for authorization in fetching api
         }
         expectSuccess = true
@@ -93,43 +93,54 @@ object KtorClient {
 //        }
 //    }
 
-    suspend fun postLogin(login: Info): User { //Login function, post the info to backend to authorize
+    suspend fun postLogin(login: com.example.fyp_medapp_android.Info): User { //Login function, post the info to backend to authorize
         Log.d("Enter postLogin", login.toString())
-        val response: LoginResult =
-            httpClient.post(apiDomain + "/login") {
-                setBody(login) //data class is fine in converting to json
-            }.body()
+        try {
+//            val response: LoginResult =
+//                httpClient.post(apiDomain + "/login") {
+//                    contentType(Application.Json)
+//                    setBody("{\"username\":\"${login.username}\",\"password\":\"${login.password}\"}") //data class is fine in converting to json
+//                }.body() //for testing
+            val response: LoginResult =
+                httpClient.post(apiDomain + "/login") {
+                    setBody(login) //data class is fine in converting to json
+                }.body()
 
-        if(response.resultCode == "200") {
+            if(response.resultCode == "200") {
 
-            token = response.token //for header in other api
-            val jwt = JWT(response.token)
+                token = response.token //for header in other api
+                val jwt = JWT(response.token)
 //            val issuer = jwt.issuer //get registered claims
 //            val isExpired = jwt.isExpired(10) // Do time validation with 10 seconds leeway
 
-            Log.d("JWT token getClaim", "id: ${jwt.getClaim("_id").asString()}")
-            Log.d("JWT token", "id: ${jwt.getClaim("_id").asString()}")
-            val _id = jwt.getClaim("_id").asString() //get custom claims
-            val userID = jwt.getClaim("userID").asString()
-            val firstName = jwt.getClaim("firstName").asString()
-            val lastName = jwt.getClaim("lastName").asString()
-            val gender = jwt.getClaim("gender").asString()
-            val age = jwt.getClaim("age").asInt()
-            val dob = jwt.getClaim("dob").asString()
-            val username = jwt.getClaim("username").asString()
-            val email = jwt.getClaim("email").asString()
-            val password = jwt.getClaim("password").asString()
-            val userRole = jwt.getClaim("userRole").asString()
-            val token = jwt.getClaim("token").asString()
-            val patientConnection = jwt.getClaim("patientConnection").asArray(PatientConnection::class.java) //String::class.java)
+                Log.d("JWT token getClaim", "id: ${jwt.getClaim("_id").asString()}")
+                Log.d("JWT token", "id: ${jwt.getClaim("_id").asString()}")
+                val _id = jwt.getClaim("_id").asString() //get custom claims
+                val userID = jwt.getClaim("userID").asString()
+                val firstName = jwt.getClaim("firstName").asString()
+                val lastName = jwt.getClaim("lastName").asString()
+                val gender = jwt.getClaim("gender").asString()
+                val age = jwt.getClaim("age").asInt()
+                val dob = jwt.getClaim("dob").asString()
+                val username = jwt.getClaim("username").asString()
+                val email = jwt.getClaim("email").asString()
+                val password = jwt.getClaim("password").asString()
+                val userRole = jwt.getClaim("userRole").asString()
+                val token = jwt.getClaim("token").asString()
+                val patientConnection = jwt.getClaim("patientConnection").asArray(PatientConnection::class.java) //String::class.java)
 //            val patientProfileList = jwt.getClaim("patientProfileList").asArray(User::class.java)
 
-            val user = User(token, _id, userID, firstName, lastName, gender, age, dob, username, email,
-                password, userRole, patientConnection, null)
-            println("return user")
-            return user
-        } else {
-            println("return null user")
+                val user = User(token, _id, userID, firstName, lastName, gender, age, dob, username, email,
+                    password, userRole, patientConnection, null)
+                println("return user")
+                return user
+            } else {
+                println("return null user")
+                return User(null, null, null, null, null, null, null, null, null,
+                    null, null, null, null, null)
+            }
+        } catch (e: Exception) {
+            Log.d("KtorClient postLogin", e.toString())
             return User(null, null, null, null, null, null, null, null, null,
                 null, null, null, null, null)
         }

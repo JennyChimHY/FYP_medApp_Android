@@ -26,8 +26,8 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         //create empty local notification channel
-        val alarmScheduler: AlarmScheduler = AlarmSchedulerImpl(this)
-        var alarmItem: AlarmItem? = null
+        val alarmScheduler: NotiAlarmScheduler = AlarmSchedulerImpl(this)
+        var alarmItem: NotiAlarmItem? = null
         setContent {
             FYP_medApp_AndroidTheme {
                 // A surface container using the 'background' color from the theme
@@ -36,7 +36,7 @@ class MainActivity : ComponentActivity() {
                     color = MaterialTheme.colorScheme.background
                 ) {
                     //alarm scheduling
-                    alarmItem = AlarmItem(  //empty list of time, type of reminder and photo?
+                    alarmItem = NotiAlarmItem(  //empty list of time, type of reminder and photo?
                         alarmTime = LocalDateTime.now().plusSeconds(
                             "8".toLong()
                         ),
