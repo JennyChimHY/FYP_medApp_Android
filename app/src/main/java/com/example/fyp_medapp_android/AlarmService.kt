@@ -164,7 +164,7 @@ class NotiAlarmReceiver : BroadcastReceiver()
                         remoteViews.setTextViewText(R.id.text, message) //reminder message
                         remoteViews.setImageViewBitmap(R.id.image, drawable.toBitmap())
 
-                        builder.setCustomContentView(remoteViews)
+                        builder.setCustomBigContentView(remoteViews)
                         notificationManager.notify(1, builder.build())
                     }
                 }

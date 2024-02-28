@@ -196,7 +196,7 @@ fun Login(navController: NavHostController, snackbarHostState: SnackbarHostState
                                                     alarmTime = newDateTime//LocalDateTime.now().plusSeconds("10".toLong())
                                                     , //medicine.dailyIntake
                                                     notiType = "Medicine",
-                                                    message = "${medicine.medicineInfo?.medicineName}:\n ${medicine.dailyIntake} time(s) per day, ${medicine.eachIntakeAmount} dose(s) each time.",
+                                                    message = "${medicine.medicineInfo?.medicineName}:\n${medicine.dailyIntake} time(s) per day,\n${medicine.eachIntakeAmount} dose(s) each time.",
                                                     picture = medicine.medicineInfo?.medicineImageName
                                                 )
                                                 alarmItem?.let(alarmScheduler::schedule)
