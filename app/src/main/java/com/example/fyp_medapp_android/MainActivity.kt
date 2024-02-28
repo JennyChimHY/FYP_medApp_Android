@@ -25,9 +25,15 @@ class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        //create empty local notification channel
-        val alarmScheduler: NotiAlarmScheduler = AlarmSchedulerImpl(this)
+
+        //create empty local notification alarm channel
+        val alarmScheduler: NotiAlarmScheduler = NotiAlarmSchedulerImpl(this)
         var alarmItem: NotiAlarmItem? = null
+
+        //create empty location alarm channel
+        val locationScheduler: LocationAlarmScheduler = LocationAlarmSchedulerImpl(this)
+        var locationItem: LocationAlarmItem? = null
+
         setContent {
             FYP_medApp_AndroidTheme {
                 // A surface container using the 'background' color from the theme

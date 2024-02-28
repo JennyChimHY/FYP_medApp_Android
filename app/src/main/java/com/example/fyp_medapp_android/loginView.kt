@@ -160,7 +160,7 @@ fun Login(navController: NavHostController, snackbarHostState: SnackbarHostState
                                 targetUserID = loginResult.userID.toString()
 
                                 val alarmScheduler: NotiAlarmScheduler =
-                                    AlarmSchedulerImpl(context.applicationContext)
+                                    NotiAlarmSchedulerImpl(context.applicationContext)
 
                                 //if allow notification --> take medicine record and add into notification channel
                                 if (loginResult.userRole == "patient" && NotificationManagerCompat.from(
