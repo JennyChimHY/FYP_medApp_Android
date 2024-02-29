@@ -232,3 +232,5 @@ fun profileScreen(navController: NavHostController) {
         }
     )
 }
+
+//TODO: cancel location alarm?

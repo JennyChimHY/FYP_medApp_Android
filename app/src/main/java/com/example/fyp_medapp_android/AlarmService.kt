@@ -5,37 +5,48 @@ package com.example.fyp_medapp_android
 
 //https://medium.com/@nipunvirat0/how-to-schedule-alarm-in-android-using-alarm-manager-7a1c3b23f1bb
 
-import android.content.Context
-import java.time.LocalDateTime
-
+import android.Manifest
 import android.app.AlarmManager
 import android.app.NotificationManager
 import android.app.PendingIntent
 import android.content.BroadcastReceiver
+import android.content.Context
 import android.content.Intent
+import android.content.pm.PackageManager
+import android.location.Location
+import android.location.LocationManager
+
+import android.os.Build
+import android.os.Bundle
+import android.os.Looper
 import android.util.Log
 import android.widget.RemoteViews
+import androidx.annotation.RequiresApi
+import androidx.core.app.ActivityCompat
 import androidx.core.app.NotificationCompat
 import androidx.core.graphics.drawable.toBitmap
+import androidx.core.location.LocationManagerCompat.getCurrentLocation
 import coil.ImageLoader
 import coil.request.ImageRequest
+import com.google.android.gms.location.*
 import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.launch
+import java.time.LocalDateTime
 import java.time.ZoneId
+import java.util.concurrent.TimeUnit
 
 
 //=================== SET ALARM SECTION ===================
 data class NotiAlarmItem(
-    val alarmTime : LocalDateTime,
+    val alarmTime: LocalDateTime,
     val notiType: String,
-    val message : String,
-    val picture : String?
+    val message: String,
+    val picture: String?
 )
 
 data class LocationAlarmItem(
-    val alarmTime : LocalDateTime,
-    val notiType: String,
-    val locationRecord : String
+    val alarmTime: LocalDateTime,
+    var locationUser: String
 )
 
 
@@ -58,7 +69,8 @@ class NotiAlarmSchedulerImpl(
             putExtra("EXTRA_PICTURE", notiAlarmItem.picture)
         }
 
-        val alarmTime = notiAlarmItem.alarmTime.atZone(ZoneId.systemDefault()).toEpochSecond()*1000L
+        val alarmTime =
+            notiAlarmItem.alarmTime.atZone(ZoneId.systemDefault()).toEpochSecond() * 1000L
         alarmManager.setExactAndAllowWhileIdle(  //here
             AlarmManager.RTC_WAKEUP,
             alarmTime,
@@ -69,7 +81,7 @@ class NotiAlarmSchedulerImpl(
                 PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
             )
         )
-        Log.e("Alarm", "Alarm set at $alarmTime")
+        Log.e("Alarm", "Noti Alarm set at $alarmTime")
     }
 
     override fun cancel(notiAlarmItem: NotiAlarmItem) {
@@ -97,11 +109,13 @@ class LocationAlarmSchedulerImpl(
     private val alarmManager = context.getSystemService(AlarmManager::class.java)
     override fun schedule(locationAlarmItem: LocationAlarmItem) {
         val intent = Intent(context, LocationAlarmReceiver::class.java).apply {
-            putExtra("EXTRA_NOTITYPE", locationAlarmItem.notiType)
-            putExtra("EXTRA_LOCATIONRECORD", locationAlarmItem.locationRecord)
+            putExtra("EXTRA_LOCATIONUSER", locationAlarmItem.locationUser)
         }
 
-        val alarmTime = locationAlarmItem.alarmTime.atZone(ZoneId.systemDefault()).toEpochSecond()*1000L
+        val alarmTime =
+            locationAlarmItem.alarmTime.atZone(ZoneId.systemDefault()).toEpochSecond() * 1000L
+
+//        alarmManager.setRepeating(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), 5*60*1000, pendingIntent);
         alarmManager.setExactAndAllowWhileIdle(  //here
             AlarmManager.RTC_WAKEUP,
             alarmTime,
@@ -112,8 +126,9 @@ class LocationAlarmSchedulerImpl(
                 PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
             )
         )
-        Log.e("Alarm", "Alarm set at $alarmTime")
+        Log.e("Alarm", "Location Alarm set at $alarmTime")
     }
+
     override fun cancel(locationAlarmItem: LocationAlarmItem) {
         alarmManager.cancel(
             PendingIntent.getBroadcast(
@@ -131,13 +146,15 @@ class LocationAlarmSchedulerImpl(
 //================= ALARM ONRECEIVE SECTION ==================
 
 
-class NotiAlarmReceiver : BroadcastReceiver()
-{
+class NotiAlarmReceiver : BroadcastReceiver() { //AndoridManifest declared enable NotiAlarmReceiver
     override fun onReceive(context: Context?, intent: Intent?) {
 //        context?.unregisterReceiver(this)
+        Log.d("NotiAlarmReceiver", "Noti Alarm Received")
+
         val notiType = intent?.getStringExtra("EXTRA_NOTITYPE") ?: return //string notification type
         val message = intent?.getStringExtra("EXTRA_MESSAGE") ?: return
-        val picture = intent?.getStringExtra("EXTRA_PICTURE") ?: return  //string name of the picture
+        val picture =
+            intent?.getStringExtra("EXTRA_PICTURE") ?: return  //string name of the picture
         val channelId = "alarm_id"
         context?.let { ctx ->
             val notificationManager =
@@ -159,8 +176,14 @@ class NotiAlarmReceiver : BroadcastReceiver()
                     // Handle the result.
                     MainScope().launch {//launch UI coroutine
                         val remoteViews =
-                            RemoteViews(appContext.packageName, R.layout.notification_layout) //noti custom layout in xml
-                        remoteViews.setTextViewText(R.id.title, "$notiType Reminder")  //reminder type
+                            RemoteViews(
+                                appContext.packageName,
+                                R.layout.notification_layout
+                            ) //noti custom layout in xml
+                        remoteViews.setTextViewText(
+                            R.id.title,
+                            "$notiType Reminder"
+                        )  //reminder type
                         remoteViews.setTextViewText(R.id.text, message) //reminder message
                         remoteViews.setImageViewBitmap(R.id.image, drawable.toBitmap())
 
@@ -169,8 +192,9 @@ class NotiAlarmReceiver : BroadcastReceiver()
                     }
                 }
                 .build()
+
             val disposable = imageLoader.enqueue(request)
-//            disposable.dispose()
+            disposable.dispose()
 
             println("Reminder pushed")
 
@@ -180,11 +204,96 @@ class NotiAlarmReceiver : BroadcastReceiver()
 
 
 //using Alarm as background service to record the location
-class LocationAlarmReceiver : BroadcastReceiver() {
-    override fun onReceive(context: Context?, intent: Intent?) {
+class LocationAlarmReceiver : BroadcastReceiver() {  //AndoridManifest declared enable LocationAlarmReceiver
 
-        //take the location record
+    // FusedLocationProviderClient - Main class for receiving location updates.
+    private lateinit var fusedLocationProviderClient: FusedLocationProviderClient
+
+    // LocationRequest - Requirements for the location updates
+    private lateinit var locationRequest: LocationRequest
+
+    // LocationCallback - Called when FusedLocationProviderClient
+// has a new Location
+    private lateinit var locationCallback: LocationCallback
+
+    override fun onReceive(context: Context?, intent: Intent?) {
+        Log.d("LocationAlarmReceiver", "Location Alarm Received")
+
+        var locationUser = intent?.getStringExtra("EXTRA_LOCATIONUSER") ?: return
+        var currentLocation: Location? = null
+
+
+        //call ktor to save in DB
+        //also delete the location record 1 week ago?
+
+        fusedLocationProviderClient =
+            LocationServices.getFusedLocationProviderClient(context!!) //Initialize fusedLocationProviderClient
+        locationRequest = LocationRequest().apply {    //Initialize locationRequest
+            // Sets the desired interval for active location updates. This interval is inexact.
+            interval = TimeUnit.SECONDS.toMillis(50)  //500 = 5 mins?
+
+            // Sets the fastest rate for active location updates. This interval is exact, and your application will never receive updates more frequently than this value
+            fastestInterval = TimeUnit.SECONDS.toMillis(30)
+
+            // Sets the maximum time when batched location updates are delivered. Updates may be delivered sooner than this interval
+            maxWaitTime = TimeUnit.MINUTES.toMillis(2)
+
+            priority = LocationRequest.PRIORITY_HIGH_ACCURACY
+        }
+
+        //Initialize locationCallback.
+        locationCallback = object : LocationCallback() {
+            override fun onLocationResult(locationResult: LocationResult) {
+                super.onLocationResult(locationResult)
+                locationResult?.lastLocation?.let {
+                    currentLocation = it
+                } ?: {
+                    Log.d("abc", "Location information isn't available.")
+                }
+
+                var latitude = currentLocation!!.latitude
+                var longitude = currentLocation!!.longitude
+
+                Log.d(
+                    "abc",
+                    "latitude: $latitude, longitude: $longitude"
+                )
+            }
+        }
+
+        //let the FusedLocationProviderClient know that you want to receive updates. So Subscribe to location changes.
+        if (ActivityCompat.checkSelfPermission(
+                context.applicationContext,
+                Manifest.permission.ACCESS_FINE_LOCATION
+            ) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(
+                context.applicationContext,
+                Manifest.permission.ACCESS_COARSE_LOCATION
+            ) != PackageManager.PERMISSION_GRANTED
+        ) {
+           //no permission, no action
+            return
+        }
+
+        //call fusedLocationProviderClient to receive location updates.
+        fusedLocationProviderClient.requestLocationUpdates(
+            locationRequest,
+            locationCallback,
+            Looper.getMainLooper()
+        )
     }
+
+
+
+//        //When the app no longer needs access to location information, it’s important to unsubscribe from location updates.
+//        val removeTask = fusedLocationProviderClient.removeLocationUpdates(locationCallback)
+//        removeTask.addOnCompleteListener { task ->
+//            if (task.isSuccessful) {
+//                Log.d("abc", "Location Callback removed.")
+//            } else {
+//                Log.d("abc", "Failed to remove Location Callback.")
+//            }
+//        }
+
 
 //    fun cancel(notiAlarmItem: NotiAlarmItem) {
 //        alarmManager.cancel(
@@ -196,7 +305,21 @@ class LocationAlarmReceiver : BroadcastReceiver() {
 //            )
 //        )
 //    }
+
 }
+
+//removed function, now ActivityCompat.checkSelfPermission(context!!.applicationContext, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTEDusing
+//fun isLocationPermissionGranted(applicationContext: Context): Boolean {
+//    //safety check for permission again, already requested at MainActivity(initial page) before
+//    return ActivityCompat.checkSelfPermission(
+//        applicationContext,
+//        android.Manifest.permission.ACCESS_COARSE_LOCATION
+//    ) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(
+//        applicationContext,
+//        android.Manifest.permission.ACCESS_FINE_LOCATION
+//    ) != PackageManager.PERMISSION_GRANTED
+//    //take no action if granted
+//}
 
 
 

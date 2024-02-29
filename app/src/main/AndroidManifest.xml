@@ -8,10 +8,8 @@
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS"/> <!-- For notifications -->
     <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM"/> <!-- For notifications -->
 
-    <!-- Always include this permission -->
-    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
-    <!-- Include only if your app benefits from precise location access. -->
-    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" /> <!-- Get location access -->
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />  <!-- Get precise location access -->
     <!-- Required only when requesting background location access on
        Android 10 (API level 29) and higher. -->
     <uses-permission android:name="android.permission.ACCESS_BACKGROUND_LOCATION" />
@@ -32,6 +30,11 @@
         <!--Local Notification-->
         <receiver
             android:name=".NotiAlarmReceiver"
+            android:enabled="true"/>
+
+        <!--Location Service-->
+        <receiver
+            android:name=".LocationAlarmReceiver"
             android:enabled="true"/>
 
         <!-- Recommended for Android 9 (API level 28) and lower. -->
