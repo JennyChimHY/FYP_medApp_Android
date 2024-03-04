@@ -47,7 +47,7 @@ data class addLocationRecordResult(  //for adding location history to MongoDB
 )
 
 //var apiDomain = "https://medappserver.f0226942.hkbu.app"
-var apiDomain = "http://rntip-158-182-110-122.a.free.pinggy.link"
+var apiDomain = "http://rncxg-158-182-110-122.a.free.pinggy.link"
 object KtorClient {
     var token: String = ""
 
@@ -221,11 +221,11 @@ object KtorClient {
         }
     }
 
-    suspend fun addHealthData(healthData: HealthData): addDeletehealthDataRecordResult {
+    suspend fun addHealthData(healthData: HealthData): addHealthDataRecordResult {
         Log.d("Enter addHealthData", "addHealthData:$healthData ")
 
         try {
-            val healthdata: addDeletehealthDataRecordResult =
+            val healthdata: addHealthDataRecordResult =
                 httpClient.post(apiDomain + "/addHealthDataRecord") {
                     setBody(healthData)
                 }.body()
@@ -233,13 +233,12 @@ object KtorClient {
             return healthdata
         } catch (e: Exception) {
             Log.d("KtorClient patchHealthData", e.toString()) //null or errors
-            return addDeletehealthDataRecordResult(false, "")
+            return addHealthDataRecordResult(false, "")
         }
     }
 
-    suspend fun deleteHealthData(recordID: String): addDeletehealthDataRecordResult {
+    suspend fun deleteHealthData(recordID: String): deleteHealthDataRecordResult {
         Log.d("Enter deleteHealthData", "deleteHealthData:$recordID ")
-
 
 //        query
 //        { _id: new ObjectId("65aa2cffb691f0fa4a90aa39") }
@@ -247,14 +246,14 @@ object KtorClient {
 //        { acknowledged: true, deletedCount: 1 }
 
         try {
-            val healthdata: addDeletehealthDataRecordResult =
+            val healthdata: deleteHealthDataRecordResult =
                 httpClient.delete(apiDomain + "/deleteHealthDataRecord/$recordID") {
                 }.body()
 
             return healthdata
         } catch (e: Exception) {
             Log.d("KtorClient deleteHealthData", e.toString()) //null or errors
-            return addDeletehealthDataRecordResult(false, "")
+            return deleteHealthDataRecordResult(false, 0)
         }
     }
 
@@ -271,6 +270,25 @@ object KtorClient {
         } catch (e: Exception) {
             Log.d("KtorClient addLocationData", e.toString()) //null or errors
             return addLocationRecordResult(false, "")
+        }
+    }
+
+    suspend fun getLocationData(userID: String?): List<LocationData> { //Login function, post the info to backend to authorize
+        Log.d("Enter getLocationData", "getLocationData:$userID ")
+
+        try {
+            val locationdata: List<LocationData> =
+                httpClient.get(apiDomain + "/getlocationRecord/$userID")
+                    .body() //.toString() vs .body()
+
+            Log.d("KtorClient getLocationData", locationdata.toString())
+
+            return locationdata
+        } catch (e: Exception) {  //catch 404 error from backend
+            Log.d("KtorClient getLocationData", e.toString())
+
+            //TODO check not null
+            return emptyList()
         }
     }
 }

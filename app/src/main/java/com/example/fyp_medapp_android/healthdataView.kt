@@ -37,7 +37,7 @@ import kotlin.math.round
 @Serializable
 data class HealthData(
     val _id: String?,
-    val userId: String?,
+    val userID: String?,
     var recordDateTime: String?,
     var recordTimeslot: String?,
     val recordType: String?,
@@ -49,9 +49,15 @@ data class HealthData(
 )
 
 @Serializable
-data class addDeletehealthDataRecordResult(
+data class addHealthDataRecordResult(
     val acknowledged: Boolean,
-    val insertedId: String
+    val insertedId: String?
+)
+
+@Serializable
+data class deleteHealthDataRecordResult(
+    val acknowledged: Boolean,
+    val deletedCount: Int?
 )
 
 //global variables, (or make function filterDataByDate_Type() return list of list?)
@@ -505,7 +511,7 @@ fun showDataInGraphTable_byType(
                         println("To delete... ${content._id}")  //recordID
                         coroutineScope.launch(Dispatchers.IO) { //define call KtorClient scope
 
-                            val deleteResult: addDeletehealthDataRecordResult =
+                            val deleteResult: deleteHealthDataRecordResult =
                                 KtorClient.deleteHealthData(content._id!!) //not String message only, but User data class
                             var message = ""
                             Log.d("deleteResult", "deleteResult: $deleteResult")
@@ -517,9 +523,11 @@ fun showDataInGraphTable_byType(
                             } else {     //error
                                 println("delete false")
                                 println(deleteResult)
-                                message = "Delete Failed"
+                                message = "Delete Failed."
                                 Log.d("Delete failed", message)
                             }
+
+                            snackbarHostState.showSnackbar(message)
                         }
                     }
 
@@ -569,7 +577,7 @@ fun addDataBlockDialog(
         mutableStateOf( //mutableStateOf
             HealthData(
                 _id = null,
-                userId = targetUserID,
+                userID = targetUserID,
                 recordDateTime = "",
                 recordTimeslot = "",
                 recordType = type,
@@ -821,15 +829,13 @@ fun addDataBlockDialog(
 
                             coroutineScope.launch {
 
-                                val addResult: addDeletehealthDataRecordResult =
+                                val addResult: addHealthDataRecordResult =
                                     KtorClient.addHealthData(checkAddhealthData) //not String message only, but User data class
                                 var message = ""
                                 Log.d("addResult", "addResult: $addResult")
                                 if (addResult.acknowledged) {           //success
                                     message =
                                         "Added Success."
-
-                                    snackbarHostState.showSnackbar(message)
 
                                     Log.d("Added Success", message)
 
@@ -840,6 +846,7 @@ fun addDataBlockDialog(
                                     Log.d("Added failed", message)
                                 }
 
+                                snackbarHostState.showSnackbar(message)
                                 updateDataBlock[type] = false //UI thread: close the block
                             }
                         } else {

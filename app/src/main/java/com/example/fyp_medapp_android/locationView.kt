@@ -1,20 +1,23 @@
 package com.example.fyp_medapp_android
 
+import android.util.Log
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.produceState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
+import kotlinx.coroutines.coroutineScope
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class LocationData(    //for getting location history from MongoDB
+data class LocationData(    //for storing and getting location history
     val _id: String?,
     val userID: String?,
     val datetime: Long?,
@@ -56,6 +59,14 @@ fun locationHistoryScreen(navHostController: NavHostController) {
                     text = "Location History View",
                     fontSize = 24.sp
                 )
+
+                val locationResult = produceState(
+                    initialValue = listOf<LocationData>(),
+                    producer = {
+                        value =
+                            KtorClient.getLocationData(targetUserID) //not String message only, but User data class
+                    })
+                Log.d("medicineScreen after calling API", "medicineResult: $locationResult")
             }
         }
     )

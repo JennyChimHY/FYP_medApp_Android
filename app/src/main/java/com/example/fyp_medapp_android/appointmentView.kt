@@ -63,7 +63,7 @@ fun appointmentScreen(navController: NavHostController) {
         snackbarHost = { },
         content = { innerPadding ->
             //display the content of the page
-            boxTextSize = 10.sp
+            boxTextSize = 15.sp
 
             Column(modifier = Modifier.padding(innerPadding)) {
                 val appointmentResult = produceState(
