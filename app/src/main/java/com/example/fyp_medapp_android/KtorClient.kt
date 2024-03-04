@@ -40,8 +40,14 @@ data class PatientProfile(
     val patientProfileList: List<User>?
 )
 
-var apiDomain = "https://medappserver.f0226942.hkbu.app"
-//var apiDomain = "http://rnnii-158-182-108-51.a.free.pinggy.link"
+@Serializable
+data class addLocationRecordResult(  //for adding location history to MongoDB
+    val acknowledged: Boolean,
+    val insertedId: String
+)
+
+//var apiDomain = "https://medappserver.f0226942.hkbu.app"
+var apiDomain = "http://rntip-158-182-110-122.a.free.pinggy.link"
 object KtorClient {
     var token: String = ""
 
@@ -249,6 +255,22 @@ object KtorClient {
         } catch (e: Exception) {
             Log.d("KtorClient deleteHealthData", e.toString()) //null or errors
             return addDeletehealthDataRecordResult(false, "")
+        }
+    }
+
+    suspend fun addLocationData(locationData: LocationData): addLocationRecordResult {
+        Log.d("Enter addLocationData", "addLocationData:$locationData ")
+
+        try {
+            val locationdata: addLocationRecordResult =
+                httpClient.post(apiDomain + "/addLocationRecord") {
+                    setBody(locationData)
+                }.body()
+
+            return locationdata
+        } catch (e: Exception) {
+            Log.d("KtorClient addLocationData", e.toString()) //null or errors
+            return addLocationRecordResult(false, "")
         }
     }
 }

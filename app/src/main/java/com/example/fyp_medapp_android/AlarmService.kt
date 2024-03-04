@@ -7,6 +7,7 @@ package com.example.fyp_medapp_android
 
 import android.Manifest
 import android.app.AlarmManager
+import android.app.Application
 import android.app.NotificationManager
 import android.app.PendingIntent
 import android.content.BroadcastReceiver
@@ -22,17 +23,25 @@ import android.os.Looper
 import android.util.Log
 import android.widget.RemoteViews
 import androidx.annotation.RequiresApi
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.ui.platform.LocalContext
 import androidx.core.app.ActivityCompat
 import androidx.core.app.NotificationCompat
 import androidx.core.graphics.drawable.toBitmap
 import androidx.core.location.LocationManagerCompat.getCurrentLocation
+import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.room.Entity
+import androidx.room.PrimaryKey
 import coil.ImageLoader
 import coil.request.ImageRequest
 import com.google.android.gms.location.*
-import kotlinx.coroutines.MainScope
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.*
+import java.text.SimpleDateFormat
+import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.ZoneId
+import java.util.*
 import java.util.concurrent.TimeUnit
 
 
@@ -193,8 +202,8 @@ class NotiAlarmReceiver : BroadcastReceiver() { //AndoridManifest declared enabl
                 }
                 .build()
 
-            val disposable = imageLoader.enqueue(request)
-            disposable.dispose()
+            val disposable = imageLoader.enqueue(request)  //must be called to start the request
+//            disposable.dispose()
 
             println("Reminder pushed")
 
@@ -204,6 +213,22 @@ class NotiAlarmReceiver : BroadcastReceiver() { //AndoridManifest declared enabl
 
 
 //using Alarm as background service to record the location
+
+//Local Room Database for LocationRecord
+@Entity(tableName = "rawLocationData")
+data class RawLocationData(
+    @PrimaryKey val datetime: Long?, val userID: String?, val latitude: Double?, val longitude: Double?
+) //{
+//    companion object {
+//        val data = listOf(
+//            Event(id = 1, title = "Career Talks", deptId = "COMS", saved = false),
+//            Event(id = 2, title = "Guided Tour", deptId = "COMS", saved = true),
+//            Event(id = 3, title = "MindDrive Demo", deptId = "COMP", saved = false),
+//            Event(id = 4, title = "Project Demo", deptId = "COMP", saved = false)
+//        )
+//  }
+//}
+
 class LocationAlarmReceiver : BroadcastReceiver() {  //AndoridManifest declared enable LocationAlarmReceiver
 
     // FusedLocationProviderClient - Main class for receiving location updates.
@@ -222,15 +247,11 @@ class LocationAlarmReceiver : BroadcastReceiver() {  //AndoridManifest declared 
         var locationUser = intent?.getStringExtra("EXTRA_LOCATIONUSER") ?: return
         var currentLocation: Location? = null
 
-
-        //call ktor to save in DB
-        //also delete the location record 1 week ago?
-
         fusedLocationProviderClient =
             LocationServices.getFusedLocationProviderClient(context!!) //Initialize fusedLocationProviderClient
         locationRequest = LocationRequest().apply {    //Initialize locationRequest
             // Sets the desired interval for active location updates. This interval is inexact.
-            interval = TimeUnit.SECONDS.toMillis(50)  //500 = 5 mins?
+            interval = TimeUnit.SECONDS.toMillis(50)  //50 seconds, 5 mins = 300 seconds
 
             // Sets the fastest rate for active location updates. This interval is exact, and your application will never receive updates more frequently than this value
             fastestInterval = TimeUnit.SECONDS.toMillis(30)
@@ -250,14 +271,49 @@ class LocationAlarmReceiver : BroadcastReceiver() {  //AndoridManifest declared 
                 } ?: {
                     Log.d("abc", "Location information isn't available.")
                 }
-
                 var latitude = currentLocation!!.latitude
                 var longitude = currentLocation!!.longitude
 
                 Log.d(
                     "abc",
-                    "latitude: $latitude, longitude: $longitude"
+                    "latitude: $latitude, longitude: $longitude at ${currentLocation!!.time} on ${LocalDateTime.now().year} ${LocalDateTime.now().month} ${LocalDateTime.now().dayOfMonth} ${LocalDateTime.now().hour}:${LocalDateTime.now().minute}:${LocalDateTime.now().second}"
                 )
+
+//                //store in room DB (local db) and push to server once reopen the app
+////                addLocationRecord(locationUser, latitude, longitude, currentLocation!!.time)
+////                val converted = SimpleDateFormat("yyyy MMMM dd, HH:mm:ss", Locale.ENGLISH).format(currentLocation!!.time)
+////                Log.d("abc", "converted time: $converted")
+//
+////                val rawlocationViewModel: RawlocationViewModel = viewModel(  //NO NEED ViewModel (UI stuff)
+////                    factory = RawLocationViewModelFactory(context.applicationContext as Application)
+////                )
+//
+                CoroutineScope(Dispatchers.IO).launch {
+//                    val rawlocationDao = RawLocationDatabase.getInstance(context.applicationContext).rawlocationDao()
+//                    rawlocationDao.update(
+//                        RawLocationData(
+//                            datetime = currentLocation!!.time,
+//                            userID = locationUser,
+//                            latitude = latitude,
+//                            longitude = longitude
+//                        )
+//                    )
+
+//                    Call KTor Client to push the location data to server
+                    val response = KtorClient.addLocationData(
+                        LocationData(
+                            _id = null,
+                            datetime = currentLocation!!.time,
+                            userID = locationUser,
+                            locationDetail = LocationDetail(
+                                latitude = latitude,
+                                longitude = longitude
+                            )
+                        )
+                    )
+
+                    Log.d("abc", "Push Location response: $response")
+                }
             }
         }
 

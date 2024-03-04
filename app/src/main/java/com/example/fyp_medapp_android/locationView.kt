@@ -11,6 +11,21 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
+import kotlinx.serialization.Serializable
+
+@Serializable
+data class LocationData(    //for getting location history from MongoDB
+    val _id: String?,
+    val userID: String?,
+    val datetime: Long?,
+    val locationDetail: LocationDetail?
+    )
+
+@Serializable
+data class LocationDetail(
+    val latitude: Double?,
+    val longitude: Double?,
+)
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -49,4 +64,6 @@ fun locationHistoryScreen(navHostController: NavHostController) {
 //TODO: create a data class for location history and return to UI Screen
 //fun getLocationHistory() : History {
 //
+//   val converted = SimpleDateFormat("yyyy MMMM dd, HH:mm:ss", Locale.ENGLISH).format(currentLocation!!.time)
+//   Log.d("abc", "converted time: $converted")
 //}

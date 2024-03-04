@@ -832,11 +832,6 @@ fun addDataBlockDialog(
                                     snackbarHostState.showSnackbar(message)
 
                                     Log.d("Added Success", message)
-//                                    Toast.makeText(
-//                                        LocalContext.current,
-//                                        message,
-//                                        Toast.LENGTH_SHORT
-//                                    ).show()
 
                                 } else {     //error
 //                                    println("add false")

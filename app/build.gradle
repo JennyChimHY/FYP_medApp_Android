@@ -5,6 +5,9 @@ plugins {
 
     // Add the Google services Gradle plugin Firebase push noti
     id "com.google.gms.google-services"
+
+    //Local Room Database
+    id 'kotlin-kapt'
 }
 
 android {
@@ -76,6 +79,15 @@ dependencies {
     implementation 'com.google.firebase:firebase-messaging-ktx:23.4.1' // Firebase Cloud Messaging
 
     implementation 'com.google.android.gms:play-services-location:21.1.0' //Google Play Location Services
+
+    //Local Room Database
+    def room_version = "2.5.0"
+    implementation "androidx.room:room-runtime:$room_version"
+    annotationProcessor "androidx.room:room-compiler:$room_version"
+// To use Kotlin annotation processing tool (kapt)
+    kapt "androidx.room:room-compiler:$room_version"
+// Kotlin Extensions and Coroutines support for Room
+    implementation "androidx.room:room-ktx:$room_version"
 
     testImplementation 'junit:junit:4.13.2'
     androidTestImplementation 'androidx.test.ext:junit:1.1.5'
