@@ -88,7 +88,7 @@ fun profileScreen(navController: NavHostController) {
                     color = sectionBorderColor
                 )  //section line
 
-                if (globalLoginInfo.userRole == "caregiver") {
+                if (globalLoginInfo.userRole == "caregiver" || globalLoginInfo.userRole == "doctorNavigatePatient") {
                     Row(
                         modifier = Modifier.padding(8.dp)
                     ) {
@@ -147,90 +147,105 @@ fun profileScreen(navController: NavHostController) {
                         )
                     }
 
-                    LazyColumn(
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                        modifier = Modifier.padding(8.dp)
-                    ) {
-
-                        items(globalLoginInfo?.patientConnection!!) { patient ->
-                            Card( //Select the card and get connected patient info in globalLoginInfo.patientProfileList
-                                colors = CardDefaults.cardColors(
-                                    containerColor = MaterialTheme.colorScheme.secondary,
-                                ),
-                                modifier = Modifier
-                                    .size(width = 400.dp, height = 120.dp)
-                                    .padding(8.dp),
-                                elevation = CardDefaults.cardElevation(
-                                    defaultElevation = 5.dp
-                                ),
-                                onClick = {
-                                    //call KtorClient to get patient info, using patient.patientID as parameter to call API
-                                    coroutineScope.launch {
-                                        Log.d("Click", "CardExample: ${patient.patientName}")
-                                        globalLoginInfo.userRole = "caregiver"
-
-                                        val getPatientDetail: (String) -> User = {
-                                            // lambda function to get the corresponding profile
-                                            var result =
-                                                globalLoginInfo.patientProfileList!!.filter { patient -> patient.userID == it }
-                                                    .first()  //get the target patient info from the stored connection list
-
-                                            var tmpPatientInfo: User? = User(
-                                                globalLoginInfo.token,
-                                                result!!._id,
-                                                result.userID,
-                                                result.firstName,
-                                                result.lastName,
-                                                result.gender,
-                                                result.age,
-                                                result.dob,
-                                                result.username,
-                                                result.email,
-                                                result.password,
-                                                result.userRole,
-                                                result.patientConnection,
-                                                result.patientProfileList
-                                            )
-
-                                            println("tmpPatientInfo: $tmpPatientInfo")
-
-                                            tmpPatientInfo!!
-
-                                        }
-
-                                        globalLoginPatientInfo =
-                                            getPatientDetail(patient.patientID!!)
-                                        targetUserID = globalLoginPatientInfo.userID!!
-
-                                        Log.d(
-                                            "GET",
-                                            "Patient info: ${globalLoginPatientInfo.userID}"
-                                        ) //.patientProfileList[0]!!.firstName
-                                        navController.navigate("home")
-                                    }
-                                }
-                            ) {
-                                Text(
-                                    text = "Name: ${patient.patientName}",
-                                    modifier = Modifier
-                                        .padding(8.dp),
-                                    textAlign = TextAlign.Center,
-                                    color = (Color.Black)
-                                )
-                                Text(
-                                    text = "HKID: ${patient.patientID}",
-                                    modifier = Modifier
-                                        .padding(8.dp),
-                                    textAlign = TextAlign.Center,
-                                    color = (Color.Black)
-                                )
-                            }
-                        }
-                    }
+                    patientConnection(navController)
                 }
+
             }
         }
     )
 }
+
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun patientConnection(navController: NavHostController) {
+
+    var coroutineScope = rememberCoroutineScope()
+
+    LazyColumn(
+        horizontalAlignment = Alignment.CenterHorizontally,
+        modifier = Modifier.padding(8.dp)
+    ) {
+
+        items(globalLoginInfo?.patientConnection!!) { patient ->
+            Card( //Select the card and get connected patient info in globalLoginInfo.patientProfileList
+                colors = CardDefaults.cardColors(
+                    containerColor = MaterialTheme.colorScheme.secondary,
+                ),
+                modifier = Modifier
+                    .size(width = 400.dp, height = 120.dp)
+                    .padding(8.dp),
+                elevation = CardDefaults.cardElevation(
+                    defaultElevation = 5.dp
+                ),
+                onClick = {
+                    //call KtorClient to get patient info, using patient.patientID as parameter to call API
+                    coroutineScope.launch {
+                        Log.d("Click", "CardExample: ${patient.patientName}")
+
+                        if (globalLoginInfo.userRole == "patient") {
+                            globalLoginInfo.userRole = "caregiver"
+                        } else if (globalLoginInfo.userRole == "doctor") {
+                            globalLoginInfo.userRole = "doctorNavigatePatient"
+                        }
+
+                        val getPatientDetail: (String) -> User = {
+                            // lambda function to get the corresponding profile
+                            var result =
+                                globalLoginInfo.patientProfileList!!.filter { patient -> patient.userID == it }
+                                    .first()  //get the target patient info from the stored connection list
+
+                            var tmpPatientInfo: User? = User(
+                                globalLoginInfo.token,
+                                result!!._id,
+                                result.userID,
+                                result.firstName,
+                                result.lastName,
+                                result.gender,
+                                result.age,
+                                result.dob,
+                                result.username,
+                                result.email,
+                                result.password,
+                                result.userRole,
+                                result.patientConnection,
+                                result.patientProfileList
+                            )
+
+                            tmpPatientInfo!!
+
+                        }
+
+                        globalLoginPatientInfo =
+                            getPatientDetail(patient.patientID!!)
+                        targetUserID = globalLoginPatientInfo.userID!!
+
+                        Log.d(
+                            "GET",
+                            "Patient info: ${globalLoginPatientInfo.userID}"
+                        ) //.patientProfileList[0]!!.firstName
+                        navController.navigate("home")
+                    }
+                }
+            ) {
+                Text(
+                    text = "Name: ${patient.patientName}",
+                    modifier = Modifier
+                        .padding(8.dp),
+                    textAlign = TextAlign.Center,
+                    color = (Color.Black)
+                )
+                Text(
+                    text = "HKID: ${patient.patientID}",
+                    modifier = Modifier
+                        .padding(8.dp),
+                    textAlign = TextAlign.Center,
+                    color = (Color.Black)
+                )
+            }
+        }
+    }
+}
+
 
 //TODO: cancel location alarm?

@@ -30,7 +30,7 @@ import androidx.navigation.compose.rememberNavController
 import coil.compose.AsyncImage
 import com.example.fyp_medapp_android.ui.theme.Green40
 
-var modifierPadding = 16.dp
+var modifierPadding = 10.dp
 var sectionBorderColor = Green40
 
 @Composable
@@ -193,7 +193,7 @@ fun logoutButton(navController: NavHostController) {
 }
 
 @Composable
-fun switchToPatientMode(navController: NavHostController) {
+fun switchToPatientDoctorMode(navController: NavHostController) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -202,7 +202,11 @@ fun switchToPatientMode(navController: NavHostController) {
     ) {
         Button(
             onClick = {
-                globalLoginInfo.userRole = "patient"
+                if (globalLoginInfo.userRole == "caregiver") {
+                    globalLoginInfo.userRole = "patient"
+                    } else if (globalLoginInfo.userRole == "doctorNavigatePatient") {
+                    globalLoginInfo.userRole = "doctor"
+                }
                 targetUserID = globalLoginInfo.userID!!
                 //clear the patient info globalPatientInfo
                 globalLoginPatientInfo = User(null, null, null, null, null, null, null, null, null, null, null, null, null, null)
@@ -215,7 +219,11 @@ fun switchToPatientMode(navController: NavHostController) {
                 contentColor = Color.White
             )
         ) {
-            Text(text = "Patient Mode")
+            if (globalLoginInfo.userRole == "caregiver") {
+                Text(text = "Caregiver Mode")
+            } else if (globalLoginInfo.userRole == "doctorNavigatePatient") {
+                Text(text = "Choose Patient")
+            }
         }
     }
 }
@@ -228,6 +236,20 @@ fun welcomeSection(navController: NavHostController) {
 
             Text(
                 text = "Caregiver Mode\n ${globalLoginPatientInfo.firstName} ${globalLoginPatientInfo.lastName}",
+                modifier = Modifier
+                    .padding(
+                        start = 10.dp,
+                        top = 10.dp,
+                        end = 10.dp,
+                        bottom = 20.dp
+                    ),
+                fontSize = 20.sp,
+                fontWeight = FontWeight.Bold,
+                lineHeight = 1.em
+            )
+        } else if (globalLoginInfo.userRole == "doctor") {
+            Text(
+                text = "Welcome Dr. \n ${globalLoginInfo.firstName} ${globalLoginInfo.lastName}",
                 modifier = Modifier
                     .padding(
                         start = 10.dp,
@@ -337,7 +359,33 @@ fun selectFunctionSection(navController: NavHostController) {
             }
         }
     }
+}
 
+@Composable
+fun selectPatientSection(navController: NavHostController) {
+    Row(modifier = Modifier.padding(modifierPadding)) {
+        Text(
+            text = "Please choose the Patient:",
+            modifier = Modifier.padding(
+                start = 5.dp,
+                top = 20.dp,
+                end = 5.dp,
+                bottom = 10.dp
+            ),
+            fontSize = 30.sp,
+            fontWeight = FontWeight.Bold,
+            lineHeight = 1.em,
+        )
+    }
+
+    Row(
+        modifier = Modifier.padding(modifierPadding),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+
+        patientConnection(navController)
+
+    }
 }
 
 //after login home page, 3rd section: navigate to news feeds
@@ -394,9 +442,9 @@ fun HomeScreen(navController: NavHostController, snackbarHostState: SnackbarHost
 //            //add logout button the the bar
 //            logoutButton(navController)
 
-            //caregiver switch mode
-            if (globalLoginInfo.userRole == "caregiver") {
-                switchToPatientMode(navController)
+            //caregiver or doctorNavigatePatient switch mode
+            if (globalLoginInfo.userRole == "caregiver" || globalLoginInfo.userRole == "doctorNavigatePatient") {
+                switchToPatientDoctorMode(navController)
             }
         },
         snackbarHost = { SnackbarHost(snackbarHostState) },  //lab11
@@ -415,7 +463,12 @@ fun HomeScreen(navController: NavHostController, snackbarHostState: SnackbarHost
 
 //        ========= Section 2: Select functions ===========
 
-                selectFunctionSection(navController)
+                if (globalLoginInfo.userRole != "doctor") {  //patient, caregiver, doctorNavigatePatient role
+                    selectFunctionSection(navController)
+                } else {
+                    //Doctor
+                    selectPatientSection(navController)
+                }
 
 //        ========= Section 3: newsFeed  ===========
                 newsFeedCardSection()

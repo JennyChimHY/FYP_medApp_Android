@@ -36,7 +36,7 @@ import kotlin.math.log
 
 var globalLoginStatus: Boolean = false
 lateinit var globalLoginInfo: User
-lateinit var globalLoginPatientInfo: User //for patient profile view, in caregiver mode
+lateinit var globalLoginPatientInfo: User //for patient profile view, in caregiver and doctor mode
 lateinit var targetUserID: String
 
 @Serializable
