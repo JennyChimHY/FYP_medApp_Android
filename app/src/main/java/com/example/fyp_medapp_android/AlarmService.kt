@@ -31,8 +31,8 @@ import androidx.core.app.NotificationCompat
 import androidx.core.graphics.drawable.toBitmap
 import androidx.core.location.LocationManagerCompat.getCurrentLocation
 import androidx.lifecycle.viewmodel.compose.viewModel
-import androidx.room.Entity
-import androidx.room.PrimaryKey
+//import androidx.room.Entity
+//import androidx.room.PrimaryKey
 import coil.ImageLoader
 import coil.request.ImageRequest
 import com.google.android.gms.location.*
@@ -213,22 +213,6 @@ class NotiAlarmReceiver : BroadcastReceiver() { //AndoridManifest declared enabl
 
 
 //using Alarm as background service to record the location
-
-//Local Room Database for LocationRecord
-@Entity(tableName = "rawLocationData")
-data class RawLocationData(
-    @PrimaryKey val datetime: Long?, val userID: String?, val latitude: Double?, val longitude: Double?
-) //{
-//    companion object {
-//        val data = listOf(
-//            Event(id = 1, title = "Career Talks", deptId = "COMS", saved = false),
-//            Event(id = 2, title = "Guided Tour", deptId = "COMS", saved = true),
-//            Event(id = 3, title = "MindDrive Demo", deptId = "COMP", saved = false),
-//            Event(id = 4, title = "Project Demo", deptId = "COMP", saved = false)
-//        )
-//  }
-//}
-
 class LocationAlarmReceiver : BroadcastReceiver() {  //AndoridManifest declared enable LocationAlarmReceiver
 
     // FusedLocationProviderClient - Main class for receiving location updates.
@@ -279,26 +263,7 @@ class LocationAlarmReceiver : BroadcastReceiver() {  //AndoridManifest declared 
                     "latitude: $latitude, longitude: $longitude at ${currentLocation!!.time} on ${LocalDateTime.now().year} ${LocalDateTime.now().month} ${LocalDateTime.now().dayOfMonth} ${LocalDateTime.now().hour}:${LocalDateTime.now().minute}:${LocalDateTime.now().second}"
                 )
 
-//                //store in room DB (local db) and push to server once reopen the app
-////                addLocationRecord(locationUser, latitude, longitude, currentLocation!!.time)
-////                val converted = SimpleDateFormat("yyyy MMMM dd, HH:mm:ss", Locale.ENGLISH).format(currentLocation!!.time)
-////                Log.d("abc", "converted time: $converted")
-//
-////                val rawlocationViewModel: RawlocationViewModel = viewModel(  //NO NEED ViewModel (UI stuff)
-////                    factory = RawLocationViewModelFactory(context.applicationContext as Application)
-////                )
-//
                 CoroutineScope(Dispatchers.IO).launch {
-//                    val rawlocationDao = RawLocationDatabase.getInstance(context.applicationContext).rawlocationDao()
-//                    rawlocationDao.update(
-//                        RawLocationData(
-//                            datetime = currentLocation!!.time,
-//                            userID = locationUser,
-//                            latitude = latitude,
-//                            longitude = longitude
-//                        )
-//                    )
-
 //                    Call KTor Client to push the location data to server
                     val response = KtorClient.addLocationData(
                         LocationData(
@@ -311,7 +276,6 @@ class LocationAlarmReceiver : BroadcastReceiver() {  //AndoridManifest declared 
                             )
                         )
                     )
-
                     Log.d("abc", "Push Location response: $response")
                 }
             }

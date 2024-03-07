@@ -1,10 +1,7 @@
 package com.example.fyp_medapp_android
 
 import android.util.Log
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.produceState
@@ -13,8 +10,16 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
+import com.google.android.gms.maps.model.CameraPosition
+import com.google.android.gms.maps.model.LatLng
+import com.google.maps.android.compose.GoogleMap
+import com.google.maps.android.compose.Marker
+import com.google.maps.android.compose.MarkerState
+import com.google.maps.android.compose.rememberCameraPositionState
 import kotlinx.coroutines.coroutineScope
 import kotlinx.serialization.Serializable
+import java.text.SimpleDateFormat
+import java.util.*
 
 @Serializable
 data class LocationData(    //for storing and getting location history
@@ -22,12 +27,18 @@ data class LocationData(    //for storing and getting location history
     val userID: String?,
     val datetime: Long?,
     val locationDetail: LocationDetail?
-    )
+)
 
 @Serializable
 data class LocationDetail(
     val latitude: Double?,
     val longitude: Double?,
+)
+
+data class History(
+    val formattedDatetime: String,
+    val latitude: Double,
+    val longitude: Double
 )
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -66,7 +77,47 @@ fun locationHistoryScreen(navHostController: NavHostController) {
                         value =
                             KtorClient.getLocationData(targetUserID) //not String message only, but User data class
                     })
-                Log.d("medicineScreen after calling API", "medicineResult: $locationResult")
+                Log.d("locationScreen after calling API", "locationResult: $locationResult")
+
+                if (locationResult.value.isEmpty()) {
+                    Text(
+                        text = "No location history found",
+                        fontSize = 24.sp
+                    )
+                } else {
+
+                    var locationList: List<LocationData> = locationResult.value
+
+                    //shown in Map view
+                    val firstLocation = LatLng(
+                        locationList[0].locationDetail!!.latitude!!,
+                        locationList[0].locationDetail!!.longitude!!
+                    )
+
+                    val cameraPositionState = rememberCameraPositionState {
+                        position = CameraPosition.fromLatLngZoom(firstLocation, 17f)
+                    }
+
+                    GoogleMap(
+                        modifier = Modifier.fillMaxSize(),
+                        cameraPositionState = cameraPositionState
+                    ) {
+
+                        locationList.forEach { location ->
+
+                            Marker(
+                                state = MarkerState(
+                                    position = LatLng(
+                                        location.locationDetail!!.latitude!!,
+                                        location.locationDetail!!.longitude!!
+                                    )
+                                ),
+                                title = SimpleDateFormat("yyyy MMMM dd, HH:mm:ss", Locale.ENGLISH).format(location.datetime), //Formatted Datetime formattedDatetime
+                                snippet = "${location.locationDetail!!.latitude!!}, ${location.locationDetail!!.longitude!!}"
+                            )
+                        }
+                    }
+                }
             }
         }
     )

@@ -521,7 +521,7 @@ fun showDataInGraphTable_byType(
 
                                 Log.d("Delete Success", message)
                             } else {     //error
-                                println("delete false")
+                                println("delete false")  //TODO: BUG channel timeout and auto return false
                                 println(deleteResult)
                                 message = "Delete Failed."
                                 Log.d("Delete failed", message)

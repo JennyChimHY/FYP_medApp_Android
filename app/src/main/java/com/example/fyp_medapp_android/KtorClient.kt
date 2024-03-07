@@ -46,8 +46,8 @@ data class addLocationRecordResult(  //for adding location history to MongoDB
     val insertedId: String
 )
 
-//var apiDomain = "https://medappserver.f0226942.hkbu.app"
-var apiDomain = "http://rncxg-158-182-110-122.a.free.pinggy.link"
+var apiDomain = "https://medappserver.f0226942.hkbu.app"
+//var apiDomain = "http://rncxg-158-182-110-122.a.free.pinggy.link"
 object KtorClient {
     var token: String = ""
 
