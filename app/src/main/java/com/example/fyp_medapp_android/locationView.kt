@@ -1,13 +1,18 @@
 package com.example.fyp_medapp_android
 
 import android.util.Log
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.produceState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import com.google.android.gms.maps.model.CameraPosition
@@ -35,12 +40,6 @@ data class LocationDetail(
     val longitude: Double?,
 )
 
-data class History(
-    val formattedDatetime: String,
-    val latitude: Double,
-    val longitude: Double
-)
-
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun locationHistoryScreen(navHostController: NavHostController) {
@@ -66,10 +65,22 @@ fun locationHistoryScreen(navHostController: NavHostController) {
             Column(
                 Modifier.padding(innerPadding)
             ) {
-                Text(
-                    text = "Location History View",
-                    fontSize = 24.sp
-                )
+                Row() {
+                    Text(
+                        text = "Location History View",
+                        fontSize = 24.sp
+                    )
+
+                    Button(colors = ButtonDefaults.buttonColors(
+                        containerColor = Color.Transparent,
+                    ), onClick = { navHostController.navigate("locationHistory") }) {//call function to pop up add record (overlay)
+                        Image(
+                            painter = painterResource(id = R.drawable.refresh),
+                            contentDescription = "Refresh History",
+                            modifier = Modifier.size(20.dp)
+                        )
+                    }
+                }
 
                 val locationResult = produceState(
                     initialValue = listOf<LocationData>(),
