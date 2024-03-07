@@ -222,6 +222,24 @@ fun appointmentScreen(navController: NavHostController) {
                                         textAlign = TextAlign.Start,
                                         fontSize = 20.sp
                                     )
+
+                                    Button (
+                                        onClick = {
+                                            navController.navigate("appointmentChange/${appointItem.appointID}")
+                                        },
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .padding(8.dp),
+                                        colors = ButtonDefaults.buttonColors(
+                                            containerColor = MaterialTheme.colorScheme.secondary,
+                                            contentColor = Color.Black
+                                        ),
+                                        elevation = ButtonDefaults.buttonElevation(
+                                            defaultElevation = 10.dp
+                                        )
+                                    ) {
+                                        Text("Change")  //Change Datetime
+                                    }
                                 }
                             }
                         }

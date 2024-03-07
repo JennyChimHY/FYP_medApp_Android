@@ -77,11 +77,10 @@ fun HomeNav(navController: NavHostController, snackbarHostState: SnackbarHostSta
             locationHistoryScreen(navController)
         }
 
-//            composable("event/{deptId}") { backStackEntry -> //FROM  navController.navigate("details/123")
-//                EventScreen(snackbarHostState, backStackEntry.arguments?.getString("deptId"))
-//            }
+        composable("appointmentChange/{appointID}") { backStackEntry ->
+            appointmentPatientChangeView(appointID = backStackEntry.arguments?.getString("appointID"))
+        }
     }
-
 }
 
 
