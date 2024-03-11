@@ -47,7 +47,7 @@ data class addLocationRecordResult(  //for adding location history to MongoDB
 )
 
 var apiDomain = "https://medappserver.f0226942.hkbu.app"
-//var apiDomain = "https://rnqah-158-182-108-154.a.free.pinggy.link"
+//var apiDomain = "http://rnoli-158-182-111-235.a.free.pinggy.link"
 object KtorClient {
     var token: String = ""
 
@@ -189,22 +189,27 @@ object KtorClient {
         }
     }
 
+
+    //ID for verify token? so that it cannot be the appoint ID
     suspend fun getAppointment(userAppointID: String?): List<Appointment> { //Login function, post the info to backend to authorize
         Log.d("Enter getAppointment", "getAppointment:$userAppointID ")
 
-        try {
+//        try {
             val appointment: List<Appointment> =
                 httpClient.get(apiDomain + "/appointmentRecord/$userAppointID")
                     .body()
-
+            Log.d("KtorClient getAppointment", appointment.toString())
             return appointment
-        } catch (e: Exception) {
-            Log.d("KtorClient getAppointment", e.toString())
-
-            //null or errors
-            return emptyList()
-        }
+//        } catch (e: Exception) {
+//            Log.d("KtorClient getAppointment", e.toString())
+//
+//            //null or errors
+//            return emptyList()
+//        }
     }
+
+    //TODO: PATCH? appointment record
+
 
     suspend fun getHealthData(userID: String?): List<HealthData> { //Login function, post the info to backend to authorize
 

@@ -29,6 +29,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.serialization.Serializable
 import java.time.Instant
+import java.time.LocalDate
 import java.time.OffsetDateTime
 import java.time.ZoneOffset
 import java.util.*
@@ -631,7 +632,7 @@ fun addDataBlockDialog(
             )
 
             Text(text = "Date: ", modifier = Modifier.align(Alignment.Start))
-            addDate = datePickerComponent()
+            addDate = datePickerComponent("healthData")
 //            println("addDate: $addDate")
 
             Spacer(modifier = Modifier.height(8.dp))
@@ -1086,51 +1087,4 @@ fun displayLineChart(targetList: List<HealthData>) {
             .height(300.dp), lineChartData = lineChartData
     )
 
-}
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun datePickerComponent(): String {
-    val addDateState = rememberDatePickerState(
-        initialSelectedDateMillis = Instant.now().toEpochMilli()
-    ) //**user input
-    var selectedDate: OffsetDateTime? = null
-
-    DatePicker(
-        state = addDateState,
-        modifier = Modifier
-            .width(300.dp)
-            .height(500.dp)
-    )
-    selectedDate = addDateState.selectedDateMillis?.let {
-        Instant.ofEpochMilli(it).atOffset(ZoneOffset.UTC)
-    }
-
-//    println("selectedDate: $selectedDate")
-
-    return selectedDate.toString().split("T")[0]
-}
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun timePickerComponent(): String {
-
-    val addTimeState = rememberTimePickerState()
-    var selectedTime = ""
-
-    TimePicker(
-        state = addTimeState,
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(400.dp),
-        colors = TimePickerDefaults.colors(
-            clockDialColor = Color.Transparent,
-            timeSelectorSelectedContainerColor = Green40,
-            selectorColor = Green50,
-        )
-    )
-//    Text(text = "Time is ${addTimeState.hour} : ${addTimeState.minute}")
-    selectedTime = "${addTimeState.hour}:${addTimeState.minute}"
-
-    return selectedTime
 }

@@ -36,7 +36,9 @@ data class Appointment(
     val appointClass: String?,
     val appointType: String?,
     val appointStatus: String?,
-    val appointRemark: String?
+    val appointRemark: String?,
+    val appointUpdateDateTime: String?,
+    val doctorUpdateStatus: String?
 )
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -206,19 +208,19 @@ fun appointmentScreen(navController: NavHostController) {
                                         fontSize = 20.sp
                                     )
                                     Text(
-                                        text = "${appointItem.appointPlace.toString()}",
+                                        text = "${appointItem.appointPlace}",
                                         textAlign = TextAlign.Start,
                                         fontSize = 20.sp
                                     )
                                     if (appointItem.appointRemark != null) {
                                         Text(
-                                            text = "${appointItem.appointRemark.toString()}",
+                                            text = "${appointItem.appointRemark}",
                                             textAlign = TextAlign.Start,
                                             fontSize = 20.sp
                                         )
                                     }
                                     Text(
-                                        text = "${appointItem.appointStatus.toString()}", //TODO: change to icon
+                                        text = "${appointItem.appointStatus}", //TODO: change to icon
                                         textAlign = TextAlign.Start,
                                         fontSize = 20.sp
                                     )
