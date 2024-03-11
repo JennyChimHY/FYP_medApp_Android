@@ -62,8 +62,11 @@ fun appointmentPatientChangeView(appointID: String?) {
         snackbarHost = { },
         content = { innerPadding ->
 
-            Column(modifier = Modifier.padding(innerPadding)
-                .verticalScroll(rememberScrollState())) {
+            Column(
+                modifier = Modifier
+                    .padding(innerPadding)
+                    .verticalScroll(rememberScrollState())
+            ) {
 
                 if (changeAppointmentResult.size > 0) {
                     var appointItem = changeAppointmentResult.get(0)
@@ -207,34 +210,34 @@ fun appointmentPatientChangeView(appointID: String?) {
                                 fontSize = 20.sp
                             )
 
-                                Text(text = "New Date:")
+                            Text(text = "New Date:")
 
-                                addAppointmentDate = datePickerComponent("applyChangeInAppointment")
+                            addAppointmentDate = datePickerComponent("applyChangeInAppointment")
 
-                                Text(text = "New Time:")
-                                addAppointmentTime = timePickerComponent()
-                                //drop down list to select the timeslot
+                            Text(text = "New Time:")
+                            addAppointmentTime = timePickerComponent()
+                            //drop down list to select the timeslot
                         }
+                    }
 
-                        Row() {
-                            //submit edit record
-                            Button(
-                                onClick = {
-                                    //validation and call API to PATCH
-                                },
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(8.dp),
-                                colors = ButtonDefaults.buttonColors(
-                                    containerColor = MaterialTheme.colorScheme.secondary,
-                                    contentColor = Color.Black
-                                ),
-                                elevation = ButtonDefaults.buttonElevation(
-                                    defaultElevation = 10.dp
-                                )
-                            ) {
-                                Text("Submit Application")  //Change Datetime
-                            }
+                    Row() {
+                        //submit edit record
+                        Button(
+                            onClick = {
+                                //TODO: validation and call API to PATCH
+                            },
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(8.dp),
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = MaterialTheme.colorScheme.secondary,
+                                contentColor = Color.Black
+                            ),
+                            elevation = ButtonDefaults.buttonElevation(
+                                defaultElevation = 10.dp
+                            )
+                        ) {
+                            Text("Submit Application")  //Change Datetime
                         }
                     }
                 }

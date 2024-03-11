@@ -168,9 +168,23 @@ fun healthDataScreen(navController: NavHostController) {
 //                Log.d("healthdata screen after calling API", "healthdataResult: $healthdataResult")
 
 
-                Row() {
-                    Text(text = "View Health Data Record")
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()  //BUG: right padding not working, Column innerPadding?
+                        .padding(10.dp)
+                ) {
+                    Text(
+                        text = "Health Data Record",
+                        fontSize = 24.sp,
+                        fontWeight = FontWeight.Bold,
+                        textAlign = TextAlign.Center
+                    )
                 }
+
+                    HorizontalDivider(
+                        thickness = 2.dp,
+                        color = sectionBorderColor
+                    )  //section line
 
 //                //dropdown menu to filter the health data type
 //                Row() {

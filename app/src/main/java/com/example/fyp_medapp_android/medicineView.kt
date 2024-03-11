@@ -108,12 +108,24 @@ fun medicineSceen(navController: NavHostController) {
                     })
                 Log.d("medicineScreen after calling API", "medicineResult: $medicineResult")
 
-                Row() {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()  //BUG: right padding not working, Column innerPadding?
+                        .padding(10.dp)
+                ) {
                     Text(
-                        text = "View In-taking Medicine Record",
-                        modifier = Modifier.padding(textPadding)
+                        text = "In-taking Medicine",
+                        fontSize = 24.sp,
+                        fontWeight = FontWeight.Bold,
+                        textAlign = TextAlign.Center
                     )
                 }
+
+                HorizontalDivider(
+                    thickness = 2.dp,
+                    color = sectionBorderColor
+                )  //section line
+
                 //Display records card-by card
                 LazyColumn(
                     horizontalAlignment = Alignment.CenterHorizontally,

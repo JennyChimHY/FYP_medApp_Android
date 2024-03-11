@@ -76,9 +76,24 @@ fun appointmentScreen(navController: NavHostController) {
                     })
                 Log.d("appointScreen after calling API", "appointmentResult: $appointmentResult")
 
-                Row() {
-                    Text(text = "View Appointment Record")
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()  //BUG: right padding not working, Column innerPadding?
+                        .padding(10.dp)
+                ) {
+                    Text(
+                        text = "Appointment Record",
+                        fontSize = 24.sp,
+                        fontWeight = FontWeight.Bold,
+                        textAlign = TextAlign.Center
+                    )
                 }
+
+                HorizontalDivider(
+                    thickness = 2.dp,
+                    color = sectionBorderColor
+                )  //section line
+
                 //Display records card-by card
                 LazyColumn(
                     horizontalAlignment = Alignment.CenterHorizontally,

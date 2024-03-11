@@ -12,6 +12,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
@@ -65,11 +66,25 @@ fun locationHistoryScreen(navHostController: NavHostController) {
             Column(
                 Modifier.padding(innerPadding)
             ) {
-                Row() {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()  //BUG: right padding not working, Column innerPadding?
+                        .padding(10.dp)
+                ) {
                     Text(
-                        text = "Location History View",
-                        fontSize = 24.sp
+                        text = "Location History",
+                        fontSize = 24.sp,
+                        fontWeight = FontWeight.Bold,
+                        textAlign = TextAlign.Center
                     )
+                }
+
+                HorizontalDivider(
+                    thickness = 2.dp,
+                    color = sectionBorderColor
+                )  //section line
+
+                Row() {
 
                     Button(colors = ButtonDefaults.buttonColors(
                         containerColor = Color.Transparent,
