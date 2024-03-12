@@ -78,7 +78,7 @@ fun locationHistoryScreen(navHostController: NavHostController) {
                         textAlign = TextAlign.Center
                     )
                 }
-
+                
                 HorizontalDivider(
                     thickness = 2.dp,
                     color = sectionBorderColor
