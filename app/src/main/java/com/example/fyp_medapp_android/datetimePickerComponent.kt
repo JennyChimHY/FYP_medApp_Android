@@ -56,7 +56,7 @@ fun datePickerComponent(canlendarType: String): String {
 
     if (canlendarType == "applyChangeInAppointment") {
         selectedDate = addDateState2.selectedDateMillis?.let {
-            Instant.ofEpochMilli(it).atOffset(ZoneOffset.UTC).plusDays(1)  //not for today
+            Instant.ofEpochMilli(it).atOffset(ZoneOffset.UTC)
         }
     }
     DatePicker(
