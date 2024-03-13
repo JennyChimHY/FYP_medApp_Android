@@ -19,6 +19,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
@@ -28,6 +29,7 @@ import androidx.core.content.ContextCompat
 import androidx.navigation.compose.rememberNavController
 import com.example.fyp_medapp_android.ui.theme.FYP_medApp_AndroidTheme
 import com.example.fyp_medapp_android.ui.theme.Green20
+import com.example.fyp_medapp_android.ui.theme.Green40
 import java.time.LocalDateTime
 
 
@@ -145,7 +147,7 @@ fun BasicSetting() {
     Scaffold(
         //only the location of bottom bar is fixed in all pages
         bottomBar = {
-            //ToDO: colour (Green40)
+            //ToDO: colour (Green80)
             if (navController.currentDestination?.route != "home") { //home page no bottom bar
                 NavigationBar {
                     NavigationBarItem(
@@ -153,7 +155,6 @@ fun BasicSetting() {
                             Icon(
                                 Icons.Default.Home,
                                 contentDescription = "Back to Home Page",
-//                                tint = Color.Transparent //failed
                             )
                         },
                         label = { Text("Home") },

@@ -6,6 +6,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.modifier.modifierLocalConsumer
@@ -20,11 +21,11 @@ import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun appointmentPatientChangeView(appointID: String?) { //snackbarHostState: SnackbarHostState,
+fun appointmentPatientChangeView(appointID: String?) {
 
     val changeAppointmentResult = remember { mutableStateListOf<Appointment>() }
     val coroutineScope = rememberCoroutineScope() //for apply record
-//    var appointItem: Appointment? = null
+    val snackbarHostState = remember { SnackbarHostState() }
 
     //call KTor client to get the latest appointment details
     if (changeAppointmentResult.size == 0) {
@@ -66,7 +67,9 @@ fun appointmentPatientChangeView(appointID: String?) { //snackbarHostState: Snac
             Column(
                 modifier = Modifier
                     .padding(innerPadding)
-                    .verticalScroll(rememberScrollState())
+                    .fillMaxSize()
+                    .verticalScroll(rememberScrollState()),
+                horizontalAlignment = Alignment.CenterHorizontally
             ) {
 
                 if (changeAppointmentResult.size > 0) {
@@ -82,14 +85,13 @@ fun appointmentPatientChangeView(appointID: String?) { //snackbarHostState: Snac
 
                     Row(
                         modifier = Modifier
-                            .fillMaxWidth()  //BUG: right padding not working, Column innerPadding?
-                            .padding(10.dp)
+                            .fillMaxWidth()
+                            .padding(start = 20.dp, top = 10.dp, end = 10.dp, bottom = 10.dp)
                     ) {
                         Text(
-                            text = "Application of\nChange in Appointment",
+                            text = "Change in Appointment",
                             fontSize = 24.sp,
-                            fontWeight = FontWeight.Bold,
-                            textAlign = TextAlign.Center
+                            fontWeight = FontWeight.Bold
                         )
                     }
 
@@ -101,7 +103,7 @@ fun appointmentPatientChangeView(appointID: String?) { //snackbarHostState: Snac
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(10.dp)
+                            .padding(start = 20.dp, top = 10.dp, end = 10.dp, bottom = 10.dp)
                     ) {
                         Text(
                             text = "Current Appointment Record",
@@ -113,7 +115,7 @@ fun appointmentPatientChangeView(appointID: String?) { //snackbarHostState: Snac
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(10.dp)
+                            .padding(start = 20.dp, top = 10.dp, end = 10.dp, bottom = 10.dp)
                     ) {
                         Column(
                             modifier = Modifier
@@ -191,15 +193,9 @@ fun appointmentPatientChangeView(appointID: String?) { //snackbarHostState: Snac
                         color = sectionBorderColor
                     )  //section line
 
-                    Row(
-//                        modifier = Modifier
-//                            .fillMaxWidth()
-//                            .padding(10.dp)
-                    ) {
+                    Row() {
                         Column(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(10.dp)
+                            modifier = Modifier.padding(start = 10.dp, top = 10.dp, end = 60.dp, bottom = 10.dp),
                         ) {
                             Text(
                                 text = "New Appointment Date and Time",
@@ -207,6 +203,21 @@ fun appointmentPatientChangeView(appointID: String?) { //snackbarHostState: Snac
                             )
 
                             Text(text = "New Date:")
+                        }
+                    }
+
+                    Row(
+//                        modifier = Modifier
+//                            .fillMaxWidth()
+//                            .padding(10.dp)
+                    ) {
+                        Column(
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .padding(10.dp),
+                            verticalArrangement = Arrangement.Center,
+                            horizontalAlignment = Alignment.CenterHorizontally
+                        ) {
 
                             addAppointmentDate = datePickerComponent("applyChangeInAppointment")
 
@@ -233,18 +244,16 @@ fun appointmentPatientChangeView(appointID: String?) { //snackbarHostState: Snac
                                     Log.d("patchResult", "patchResult: $applyResult")
                                     if (applyResult.acknowledged) {           //success
                                         message =
-                                            "Applied Successfully."  //The reference code is: ${patchResult.referenceCode}"
+                                            "Applied Success, pending for the Doctor's Approval."  //The reference code is: ${patchResult.referenceCode}"
 
                                         Log.d("Applied Success", message)
 
                                     } else {     //error
-//                                    println("add false")
-//                                    println(addResult)
-                                        message = "Apply Failed"
+                                        message = "Apply Failed, please try again later."
                                         Log.d("Apply failed", message)
                                     }
 
-//                                    snackbarHostState.showSnackbar(message)
+                                    snackbarHostState.showSnackbar(message)
                                 }
                             },
                             modifier = Modifier

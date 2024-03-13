@@ -23,6 +23,7 @@ import androidx.navigation.NavHostController
 import coil.compose.AsyncImage
 import com.example.fyp_medapp_android.ui.theme.Green20
 import com.example.fyp_medapp_android.ui.theme.Green50
+import com.example.fyp_medapp_android.ui.theme.yellow40
 import kotlinx.serialization.Serializable
 
 @Serializable
@@ -43,7 +44,7 @@ data class Appointment(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun appointmentScreen(navController: NavHostController, snackbarHostState: SnackbarHostState) {
+fun appointmentScreen(navController: NavHostController) {
     Scaffold(
         //diaplay the header of each page
         topBar = {
@@ -118,19 +119,21 @@ fun appointmentScreen(navController: NavHostController, snackbarHostState: Snack
                             Row(
                                 modifier = Modifier
                                     .fillMaxWidth()
-                                    .padding(10.dp)
+                                    .padding(10.dp),
+                                horizontalArrangement = Arrangement.SpaceBetween
                             ) {
                                 Column(
                                     modifier = Modifier
                                         .weight(5f) // Take 50% of the available width
                                         .fillMaxHeight()
                                 ) {
-                                    Box(  //Class Label
+                                    Box(  //Appointment type Label
                                         modifier = Modifier
                                             .size(120.dp, 40.dp)
                                             .background(
-                                                color = Green20,
-                                                shape = RoundedCornerShape(8.dp))
+                                                color = yellow40,
+                                                shape = RoundedCornerShape(8.dp)
+                                            )
                                     ) {
                                         Text(
                                             appointItem.appointType.toString(),
@@ -144,15 +147,19 @@ fun appointmentScreen(navController: NavHostController, snackbarHostState: Snack
 
                                 Column(
                                     modifier = Modifier
-                                        .weight(5f) // Take 50% of the available width
+//                                        .weight(5f) // Take 50% of the available width
                                         .fillMaxHeight()
                                 ) {
-                                    Box(  //Class Label
+                                    Box(
+                                        //Class Label
                                         modifier = Modifier
                                             .size(120.dp, 40.dp)
                                             .background(
                                                 color = Green20,
-                                                shape = RoundedCornerShape(8.dp))
+                                                shape = RoundedCornerShape(8.dp)
+                                            ),
+                                        contentAlignment = Alignment.TopEnd
+
                                     ) {
                                         Text(
                                             appointItem.appointClass.toString(),
@@ -240,7 +247,7 @@ fun appointmentScreen(navController: NavHostController, snackbarHostState: Snack
                                         fontSize = 20.sp
                                     )
 
-                                    Button (
+                                    Button(
                                         onClick = {
                                             navController.navigate("appointmentChange/${appointItem.appointID}")
                                         },

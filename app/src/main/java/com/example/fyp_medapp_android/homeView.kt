@@ -66,7 +66,7 @@ fun HomeNav(navController: NavHostController, snackbarHostState: SnackbarHostSta
         }
 
         composable("appointment") {
-            appointmentScreen(navController, snackbarHostState)
+            appointmentScreen(navController)
         }
 
         composable("healthData") {

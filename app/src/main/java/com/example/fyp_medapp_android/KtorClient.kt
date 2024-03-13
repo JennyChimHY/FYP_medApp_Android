@@ -71,6 +71,12 @@ object KtorClient {
             ) // enable the client to perform JSON serialization
         }
         install(Logging)
+        install(HttpTimeout) {
+            requestTimeoutMillis = 70000
+            connectTimeoutMillis = 70000
+            socketTimeoutMillis = 70000
+        }
+
         defaultRequest {
             contentType(Application.Json)
             accept(Application.Json)
@@ -278,6 +284,8 @@ object KtorClient {
             val healthdata: deleteHealthDataRecordResult =
                 httpClient.delete(apiDomain + "/deleteHealthDataRecord/$recordID") {
                 }.body()
+
+            Log.d("KtorClient deleteHealthData RETURN", healthdata.toString())
 
             return healthdata
         } catch (e: Exception) {

@@ -97,10 +97,22 @@ fun Login(navController: NavHostController, snackbarHostState: SnackbarHostState
 
             //Login UI
             Column(
-                Modifier.padding(innerPadding),
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(innerPadding),
                 verticalArrangement = Arrangement.Center,
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
+
+                Row(
+                    Modifier.padding(16.dp)
+                ) {
+                    Text(
+                        text = "Login",
+                        fontSize = 38.sp,
+                        fontWeight = FontWeight.Bold
+                    )
+                }
 
                 Row(
                     Modifier.padding(16.dp),
@@ -129,13 +141,12 @@ fun Login(navController: NavHostController, snackbarHostState: SnackbarHostState
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password)
                     )
                 }
+
                 Spacer(Modifier.size(padding))
 
                 Button(
                     onClick = {
-//                    CoroutineScope(Dispatchers.IO).launch {
-//                        navController.navigate("register")
-//                    }
+
                         CoroutineScope(Dispatchers.IO).launch {
 
                             val info = Info(
@@ -217,10 +228,15 @@ fun Login(navController: NavHostController, snackbarHostState: SnackbarHostState
                                         val locationScheduler: LocationAlarmScheduler =
                                             LocationAlarmSchedulerImpl(context.applicationContext)
 
-                                        if (loginResult.userRole == "patient" && ActivityCompat.checkSelfPermission(context!!.applicationContext, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+                                        if (loginResult.userRole == "patient" && ActivityCompat.checkSelfPermission(
+                                                context!!.applicationContext,
+                                                Manifest.permission.ACCESS_FINE_LOCATION
+                                            ) == PackageManager.PERMISSION_GRANTED
+                                        ) {
                                             //set location alarm with user id
 
-                                            val currentDateTime = LocalDateTime.now().plusSeconds("10".toLong())
+                                            val currentDateTime =
+                                                LocalDateTime.now().plusSeconds("10".toLong())
                                             val locationItem = LocationAlarmItem(
                                                 alarmTime = currentDateTime,
                                                 locationUser = loginResult.userID.toString()
@@ -228,7 +244,10 @@ fun Login(navController: NavHostController, snackbarHostState: SnackbarHostState
 
                                             locationItem?.let(locationScheduler::schedule)
                                             locationScheduler.schedule(locationItem) //An Alarm trigger a fusedLocationProviderClient with looper to get locations
-                                            Log.d("loginView userProfile", "Location alarm scheduled.")
+                                            Log.d(
+                                                "loginView userProfile",
+                                                "Location alarm scheduled."
+                                            )
 
                                         }
                                     }

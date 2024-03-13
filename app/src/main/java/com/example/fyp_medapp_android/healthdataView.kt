@@ -25,6 +25,7 @@ import co.yml.charts.ui.linechart.model.*
 import com.example.fyp_medapp_android.ui.theme.Green20
 import com.example.fyp_medapp_android.ui.theme.Green40
 import com.example.fyp_medapp_android.ui.theme.Green50
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.serialization.Serializable
@@ -267,6 +268,7 @@ fun healthDataScreen(navController: NavHostController) {
                                 println("item: $item")
                                 showDataInGraphTable_byType(
                                     item,
+                                    navController,
                                     snackbarHostState,
                                     updateDataBlock
                                 )
@@ -334,11 +336,15 @@ fun RowScope.StatusCell(
     )
 }
 
+
+//REQUIRED coroutineScope
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun showDataInGraphTable_byType(
     targetList: List<HealthData>,
-    snackbarHostState: SnackbarHostState, updateDataBlock: MutableMap<String, Boolean>
+    navController: NavHostController,
+    snackbarHostState: SnackbarHostState,
+    updateDataBlock: MutableMap<String, Boolean>
 ) {
 
     // Each cell of a column must have the same weight.
@@ -349,9 +355,8 @@ fun showDataInGraphTable_byType(
 
     var type = targetList[0].recordType.toString() //for update record block
 
-    val coroutineScope = rememberCoroutineScope()  //for delete record
-//    var localContext = LocalContext.current
     var openDialog = remember { mutableStateOf(false) }
+    val coroutineScope = rememberCoroutineScope()
 
     if (!targetList.isEmpty()) { //sortDataFlag &&
 
@@ -397,7 +402,7 @@ fun showDataInGraphTable_byType(
 
             //update record block
             if (updateDataBlock[type] == true) {
-                addDataBlockDialog(type, snackbarHostState, updateDataBlock)
+                addDataBlockDialog(type, navController, snackbarHostState, coroutineScope, updateDataBlock)
             }
 
             //Graph presentation, pass targetList
@@ -473,7 +478,9 @@ fun showDataInGraphTable_byType(
                                     .background(
                                         color = Green20, shape = RoundedCornerShape(8.dp)
                                     )
-                                    .padding(start = 5.dp, end = 5.dp)
+                                    .padding(start = 5.dp, end = 5.dp),
+                                horizontalAlignment = Alignment.CenterHorizontally
+
                             ) {
                                 Text(
                                     text = "Are you sure to delete this record?",
@@ -482,7 +489,7 @@ fun showDataInGraphTable_byType(
                                 )
 
                                 Divider(
-                                    color = Color.LightGray,
+                                    color = sectionBorderColor,
                                     modifier = Modifier
                                         .height(1.dp)
                                         .fillMaxHeight()
@@ -530,23 +537,22 @@ fun showDataInGraphTable_byType(
                                 KtorClient.deleteHealthData(content._id!!) //not String message only, but User data class
                             var message = ""
                             Log.d("deleteResult", "deleteResult: $deleteResult")
+
                             if (deleteResult.acknowledged) {           //success
                                 message =
                                     "Delete Success."
 
                                 Log.d("Delete Success", message)
                             } else {     //error
-                                println("delete false")  //TODO: BUG channel timeout and auto return false
-                                println(deleteResult)
                                 message = "Delete Failed."
                                 Log.d("Delete failed", message)
                             }
 
                             snackbarHostState.showSnackbar(message)
+                            navController.navigate("healthData")  //refresh the page
+
                         }
                     }
-
-
                 }
 
                 Divider(
@@ -579,11 +585,15 @@ fun valueStringConvertor(item: HealthData): String {
 
 }
 
+
+//REQUIRED coroutineScope
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun addDataBlockDialog(
     type: String,
+    navController: NavHostController,
     snackbarHostState: SnackbarHostState,
+    coroutineScope: CoroutineScope,
     updateDataBlock: MutableMap<String, Boolean>
 ) {
 
@@ -611,7 +621,7 @@ fun addDataBlockDialog(
     var addValue by remember { mutableStateOf("") } //data class
     var addValue2 by remember { mutableStateOf("") }
     var addSelfNotes by remember { mutableStateOf("") }
-    val coroutineScope = rememberCoroutineScope()
+//    val coroutineScope = rememberCoroutineScope()
 
     //Method 1: Simple hidden Row --> press "ok" to close the row, validate and update to server
     Row(
@@ -863,6 +873,8 @@ fun addDataBlockDialog(
 
                                 snackbarHostState.showSnackbar(message)
                                 updateDataBlock[type] = false //UI thread: close the block
+
+                                navController.navigate("healthData")
                             }
                         } else {
                             println("validation check failed")

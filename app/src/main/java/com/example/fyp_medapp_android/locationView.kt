@@ -8,8 +8,10 @@ import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.produceState
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.modifier.modifierLocalConsumer
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -71,12 +73,31 @@ fun locationHistoryScreen(navHostController: NavHostController) {
                         .fillMaxWidth()  //BUG: right padding not working, Column innerPadding?
                         .padding(10.dp)
                 ) {
-                    Text(
-                        text = "Location History",
-                        fontSize = 24.sp,
-                        fontWeight = FontWeight.Bold,
-                        textAlign = TextAlign.Center
-                    )
+                    Column(
+                        modifier = Modifier
+                            .weight(9f)
+                            .align(Alignment.CenterVertically)
+                    ) {
+                        Text(
+                            text = "Location History",
+                            fontSize = 24.sp,
+                            fontWeight = FontWeight.Bold,
+                        )
+                    }
+                    Column() {
+                        Button(
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = Color.Transparent,
+                            ),
+                            onClick = { navHostController.navigate("locationHistory") }
+                        ) {
+                            Image(
+                                painter = painterResource(id = R.drawable.refresh),
+                                contentDescription = "Refresh History",
+                                modifier = Modifier.size(20.dp)
+                            )
+                        }
+                    }
                 }
                 
                 HorizontalDivider(
@@ -84,18 +105,6 @@ fun locationHistoryScreen(navHostController: NavHostController) {
                     color = sectionBorderColor
                 )  //section line
 
-                Row() {
-
-                    Button(colors = ButtonDefaults.buttonColors(
-                        containerColor = Color.Transparent,
-                    ), onClick = { navHostController.navigate("locationHistory") }) {//call function to pop up add record (overlay)
-                        Image(
-                            painter = painterResource(id = R.drawable.refresh),
-                            contentDescription = "Refresh History",
-                            modifier = Modifier.size(20.dp)
-                        )
-                    }
-                }
 
                 val locationResult = produceState(
                     initialValue = listOf<LocationData>(),
