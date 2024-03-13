@@ -46,8 +46,17 @@ data class addLocationRecordResult(  //for adding location history to MongoDB
     val insertedId: String
 )
 
-var apiDomain = "https://medappserver.f0226942.hkbu.app"
-//var apiDomain = "http://rnoli-158-182-111-235.a.free.pinggy.link"
+@Serializable
+data class putApplyAppointmentRecordResult(  //for deleting health data from MongoDB
+    val acknowledged: Boolean,
+    val modifiedCount: Int,
+    val upsertedId: String?,
+    val upsertedCount: Int,
+    val matchedCount: Int
+)
+
+//var apiDomain = "https://medappserver.f0226942.hkbu.app"
+var apiDomain = "http://rnidu-158-182-8-76.a.free.pinggy.link"
 object KtorClient {
     var token: String = ""
 
@@ -208,7 +217,24 @@ object KtorClient {
 //        }
     }
 
-    //TODO: PATCH? appointment record
+    //PUT patient apply appointment record
+    suspend fun putApplyAppointment(appointID: String, appointment: Appointment): putApplyAppointmentRecordResult {
+        Log.d("Enter putApplyAppointment", "putApplyAppointment:$appointID ")
+
+        try {
+            val appointmentApplyRecord: putApplyAppointmentRecordResult =
+                httpClient.put(apiDomain + "/patientApplyAppointment/$appointID") {
+                    setBody(appointment)
+                }.body()
+
+            Log.d("KtorClient putAppointment", appointmentApplyRecord.toString())
+
+            return appointmentApplyRecord
+        } catch (e: Exception) {
+            Log.d("KtorClient putAppointment", e.toString()) //null or errors
+            return putApplyAppointmentRecordResult(false, 0, null, 0, 0)
+        }
+    }
 
 
     suspend fun getHealthData(userID: String?): List<HealthData> { //Login function, post the info to backend to authorize
@@ -235,7 +261,7 @@ object KtorClient {
 
             return healthdata
         } catch (e: Exception) {
-            Log.d("KtorClient patchHealthData", e.toString()) //null or errors
+            Log.d("KtorClient addHealthData", e.toString()) //null or errors
             return addHealthDataRecordResult(false, "")
         }
     }

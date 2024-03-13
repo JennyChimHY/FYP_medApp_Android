@@ -585,7 +585,7 @@ fun addDataBlockDialog(
     type: String,
     snackbarHostState: SnackbarHostState,
     updateDataBlock: MutableMap<String, Boolean>
-) { //
+) {
 
 //        var newRecordTimeslot: String = "abc"  //OLD DATA, to delete
     var addhealthData by remember {
@@ -647,7 +647,7 @@ fun addDataBlockDialog(
 
             Text(text = "Date: ", modifier = Modifier.align(Alignment.Start))
             addDate = datePickerComponent("healthData")
-//            println("addDate: $addDate")
+//            Log.d("addDate", "addDate: $addDate")
 
             Spacer(modifier = Modifier.height(8.dp))
 

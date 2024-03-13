@@ -37,13 +37,13 @@ data class Appointment(
     val appointType: String?,
     val appointStatus: String?,
     val appointRemark: String?,
-    val appointUpdateDateTime: String?,
-    val doctorUpdateStatus: String?
+    var appointUpdateDateTime: String?,
+    var doctorUpdateStatus: String?
 )
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun appointmentScreen(navController: NavHostController) {
+fun appointmentScreen(navController: NavHostController, snackbarHostState: SnackbarHostState) {
     Scaffold(
         //diaplay the header of each page
         topBar = {

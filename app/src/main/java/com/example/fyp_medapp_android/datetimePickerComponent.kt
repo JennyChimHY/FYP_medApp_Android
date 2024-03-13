@@ -11,41 +11,56 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import com.example.fyp_medapp_android.ui.theme.Green40
 import com.example.fyp_medapp_android.ui.theme.Green50
-import java.time.Instant
-import java.time.LocalDate
-import java.time.OffsetDateTime
+import java.time.*
 
 
 @OptIn(ExperimentalMaterial3Api::class)
-object FutureSelectableDates: SelectableDates {
+object FutureSelectableDates : SelectableDates {
+//    override fun isSelectableDate(utcTimeMillis: Long): Boolean {
+//        return utcTimeMillis > System.currentTimeMillis()  //not for today
+//    }
+
     override fun isSelectableDate(utcTimeMillis: Long): Boolean {
-        return utcTimeMillis > System.currentTimeMillis()  //not for today
+        // Convert utcTimeMillis to LocalDate and compare with today's date
+        val date = Instant.ofEpochMilli(utcTimeMillis)
+            .atZone(ZoneId.systemDefault())
+            .toLocalDate()
+        val today = LocalDate.now()
+        return date.isAfter(today)  // Return true if the date is after today
     }
 
     override fun isSelectableYear(year: Int): Boolean {
         return year >= LocalDate.now().year
     }
 }
+
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun datePickerComponent(canlendarType : String): String {
+fun datePickerComponent(canlendarType: String): String {
 
-    lateinit var addDateState: DatePickerState
-    if(canlendarType == "healthData") {
-        addDateState = rememberDatePickerState(
-            initialSelectedDateMillis = Instant.now().toEpochMilli()
-        ) //**user input
-    } else if (canlendarType == "applyChangeInAppointment") {
-        addDateState = rememberDatePickerState(
-            initialSelectedDateMillis = Instant.now().toEpochMilli(),
-            selectableDates = FutureSelectableDates //disable previous date
-        ) //**user input
+    val addDateState: DatePickerState = rememberDatePickerState(
+        initialSelectedDateMillis = Instant.now().toEpochMilli()
+    ) //initialize
+
+    val addDateState2: DatePickerState = rememberDatePickerState(
+        initialSelectedDateMillis = Instant.now().toEpochMilli(),
+        selectableDates = FutureSelectableDates
+    ) //for apply appointment
+
+    var selectedDate: OffsetDateTime? = addDateState.selectedDateMillis?.let {
+        Instant.ofEpochMilli(it).atOffset(ZoneOffset.UTC)
     }
 
-    var selectedDate: OffsetDateTime? = null
+//    var selectedDate2: OffsetDateTime? = null
 
+    if (canlendarType == "applyChangeInAppointment") {
+        selectedDate = addDateState2.selectedDateMillis?.let {
+            Instant.ofEpochMilli(it).atOffset(ZoneOffset.UTC).plusDays(1)  //not for today
+        }
+    }
     DatePicker(
-        state = addDateState,
+        state = if (canlendarType == "applyChangeInAppointment") addDateState2 else addDateState,
         modifier = Modifier
             .width(300.dp)
             .height(500.dp)

@@ -20,9 +20,10 @@ import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun appointmentPatientChangeView(appointID: String?) {
+fun appointmentPatientChangeView(appointID: String?) { //snackbarHostState: SnackbarHostState,
 
     val changeAppointmentResult = remember { mutableStateListOf<Appointment>() }
+    val coroutineScope = rememberCoroutineScope() //for apply record
 //    var appointItem: Appointment? = null
 
     //call KTor client to get the latest appointment details
@@ -76,12 +77,8 @@ fun appointmentPatientChangeView(appointID: String?) {
                     var appointDate = appointDateTimeArr?.get(0)
                     var appointTime = appointDateTimeArr?.get(1)?.substring(0, 5) //24hr format
 
-                    lateinit var appointUpdateDateTime: String
-                    var doctorUpdateStatus = "Pending"
-
                     var addAppointmentDate by remember { mutableStateOf("") }
                     var addAppointmentTime by remember { mutableStateOf("") }
-
 
                     Row(
                         modifier = Modifier
@@ -118,7 +115,6 @@ fun appointmentPatientChangeView(appointID: String?) {
                             .fillMaxWidth()
                             .padding(10.dp)
                     ) {
-
                         Column(
                             modifier = Modifier
                                 .weight(3f) // Take 50% of the available width
@@ -225,6 +221,31 @@ fun appointmentPatientChangeView(appointID: String?) {
                         Button(
                             onClick = {
                                 //TODO: validation and call API to PATCH
+                                appointItem.appointUpdateDateTime =
+                                    "${addAppointmentDate}T${addAppointmentTime}:00.000Z" //2021-09-01T12:00:00.000Z, todo: timeStamp data type
+                                appointItem.doctorUpdateStatus = "pending"
+
+                                coroutineScope.launch {
+
+                                    val applyResult: putApplyAppointmentRecordResult =
+                                        KtorClient.putApplyAppointment(appointItem.appointID!!, appointItem) //not String message only, but User data class
+                                    var message = ""
+                                    Log.d("patchResult", "patchResult: $applyResult")
+                                    if (applyResult.acknowledged) {           //success
+                                        message =
+                                            "Applied Successfully."  //The reference code is: ${patchResult.referenceCode}"
+
+                                        Log.d("Applied Success", message)
+
+                                    } else {     //error
+//                                    println("add false")
+//                                    println(addResult)
+                                        message = "Apply Failed"
+                                        Log.d("Apply failed", message)
+                                    }
+
+//                                    snackbarHostState.showSnackbar(message)
+                                }
                             },
                             modifier = Modifier
                                 .fillMaxWidth()

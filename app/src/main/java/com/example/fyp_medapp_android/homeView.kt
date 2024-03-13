@@ -66,7 +66,7 @@ fun HomeNav(navController: NavHostController, snackbarHostState: SnackbarHostSta
         }
 
         composable("appointment") {
-            appointmentScreen(navController)
+            appointmentScreen(navController, snackbarHostState)
         }
 
         composable("healthData") {
@@ -78,7 +78,7 @@ fun HomeNav(navController: NavHostController, snackbarHostState: SnackbarHostSta
         }
 
         composable("appointmentChange/{appointID}") { backStackEntry ->
-            appointmentPatientChangeView(appointID = backStackEntry.arguments?.getString("appointID"))
+            appointmentPatientChangeView(appointID = backStackEntry.arguments?.getString("appointID"))  //snackbarHostState
         }
     }
 }
