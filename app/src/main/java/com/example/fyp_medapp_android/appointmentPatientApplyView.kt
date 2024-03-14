@@ -1,8 +1,10 @@
 package com.example.fyp_medapp_android
 
 import android.util.Log
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -14,6 +16,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.fyp_medapp_android.ui.theme.Green20
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.MainScope
@@ -26,6 +29,8 @@ fun appointmentPatientChangeView(appointID: String?) {
     val changeAppointmentResult = remember { mutableStateListOf<Appointment>() }
     val coroutineScope = rememberCoroutineScope() //for apply record
     val snackbarHostState = remember { SnackbarHostState() }
+    var openDialog = remember { mutableStateOf(false) } //for success dialog
+
 
     //call KTor client to get the latest appointment details
     if (changeAppointmentResult.size == 0) {
@@ -195,7 +200,12 @@ fun appointmentPatientChangeView(appointID: String?) {
 
                     Row() {
                         Column(
-                            modifier = Modifier.padding(start = 10.dp, top = 10.dp, end = 60.dp, bottom = 10.dp),
+                            modifier = Modifier.padding(
+                                start = 10.dp,
+                                top = 10.dp,
+                                end = 60.dp,
+                                bottom = 10.dp
+                            ),
                         ) {
                             Text(
                                 text = "New Appointment Date and Time",
@@ -231,29 +241,49 @@ fun appointmentPatientChangeView(appointID: String?) {
                         //submit edit record
                         Button(
                             onClick = {
-                                //TODO: validation and call API to PATCH
+                                //call KtorClient API to update record
+                                var checkTimeFormat = addAppointmentTime.split(":")
+                                //TODO: Improve the logic
+                                if (checkTimeFormat[0].length == 1) {
+                                    if (checkTimeFormat[1].length == 1) {
+                                        addAppointmentTime = "0${checkTimeFormat[0]}:0${checkTimeFormat[1]}"
+                                    } else {
+                                        addAppointmentTime = "0${checkTimeFormat[0]}:${checkTimeFormat[1]}"
+                                    }
+                                } else if (checkTimeFormat[1].length == 1) {
+                                    addAppointmentTime = "${checkTimeFormat[0]}:0${checkTimeFormat[1]}"
+                                }
+
                                 appointItem.appointUpdateDateTime =
                                     "${addAppointmentDate}T${addAppointmentTime}:00.000Z" //2021-09-01T12:00:00.000Z, todo: timeStamp data type
                                 appointItem.doctorUpdateStatus = "pending"
 
-                                coroutineScope.launch {
+                                CoroutineScope(Dispatchers.IO).launch {
 
                                     val applyResult: putApplyAppointmentRecordResult =
-                                        KtorClient.putApplyAppointment(appointItem.appointID!!, appointItem) //not String message only, but User data class
+                                        KtorClient.putApplyAppointment(
+                                            appointItem.appointID!!,
+                                            appointItem
+                                        ) //not String message only, but User data class
                                     var message = ""
                                     Log.d("patchResult", "patchResult: $applyResult")
-                                    if (applyResult.acknowledged) {           //success
-                                        message =
-                                            "Applied Success, pending for the Doctor's Approval."  //The reference code is: ${patchResult.referenceCode}"
 
-                                        Log.d("Applied Success", message)
+                                    MainScope().launch {
+                                        if (applyResult.acknowledged) {           //success
+                                            message =
+                                                "Applied Success, pending for the Doctor's Approval."  //The reference code is: ${patchResult.referenceCode}"
 
-                                    } else {     //error
-                                        message = "Apply Failed, please try again later."
-                                        Log.d("Apply failed", message)
+                                            Log.d("Applied Success", message)
+//                                            snackbarHostState.showSnackbar(message)
+
+                                            openDialog.value = true
+
+                                        } else {     //error
+                                            message = "Apply Failed, please try again later."
+                                            Log.d("Apply failed", message)
+//                                            snackbarHostState.showSnackbar(message)
+                                        }
                                     }
-
-                                    snackbarHostState.showSnackbar(message)
                                 }
                             },
                             modifier = Modifier
@@ -269,6 +299,68 @@ fun appointmentPatientChangeView(appointID: String?) {
                         ) {
                             Text("Submit Application")  //Change Datetime
                         }
+
+                        if (openDialog.value) {
+                            AlertDialog(
+                                onDismissRequest = {
+                                    openDialog.value = false
+                                }) {
+                                Column(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .background(
+                                            color = Green20, shape = RoundedCornerShape(8.dp)
+                                        )
+                                        .padding(15.dp),
+                                    horizontalAlignment = Alignment.CenterHorizontally
+                                ) {
+
+                                    Text(
+                                        text = "Apply Success!",
+                                        modifier = Modifier
+                                            .align(Alignment.CenterHorizontally)
+                                            .padding(10.dp),
+                                        fontWeight = FontWeight.Bold,
+                                        fontSize = 24.sp
+                                    )
+
+                                    HorizontalDivider(
+                                        color = sectionBorderColor,
+                                        modifier = Modifier
+                                            .height(1.dp)
+                                            .fillMaxHeight()
+                                            .fillMaxWidth()
+                                    )
+
+                                    Text(
+                                        text = "Your appointment has been successfully applied. It is pending for the Doctor's Approval.",
+                                        modifier = Modifier
+                                            .align(Alignment.CenterHorizontally)
+                                            .padding(10.dp),
+                                    )
+
+                                    HorizontalDivider(
+                                        color = sectionBorderColor,
+                                        modifier = Modifier
+                                            .height(1.dp)
+                                            .fillMaxHeight()
+                                            .fillMaxWidth()
+                                    )
+
+                                    Button(
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .padding(8.dp),
+                                        onClick = {
+                                            openDialog.value = false
+                                        }
+                                    ) {
+                                        Text("OK")
+                                    }
+                                }
+                            }
+                        }
+
                     }
                 }
             }

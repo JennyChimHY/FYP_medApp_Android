@@ -80,6 +80,10 @@ fun HomeNav(navController: NavHostController, snackbarHostState: SnackbarHostSta
         composable("appointmentChange/{appointID}") { backStackEntry ->
             appointmentPatientChangeView(appointID = backStackEntry.arguments?.getString("appointID"))  //snackbarHostState
         }
+
+        composable("doctorApproval") {
+            doctorApprovalScreen(navController)
+        }
     }
 }
 
@@ -111,12 +115,14 @@ fun InitialScreen(navController: NavHostController, snackbarHostState: SnackbarH
         },
         snackbarHost = { SnackbarHost(snackbarHostState) },  //lab11
         content = { innerPadding ->
-            Column(modifier = Modifier.padding(innerPadding)) {
+            Column(modifier = Modifier
+                .padding(innerPadding)) {
 
                 if (!globalLoginStatus) {  // not login
 
                     Column(
                         Modifier.padding(modifierPadding),
+                        verticalArrangement = Arrangement.Center,
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
 
@@ -203,12 +209,27 @@ fun switchToPatientDoctorMode(navController: NavHostController) {
             onClick = {
                 if (globalLoginInfo.userRole == "caregiver") {
                     globalLoginInfo.userRole = "patient"
-                    } else if (globalLoginInfo.userRole == "doctorNavigatePatient") {
+                } else if (globalLoginInfo.userRole == "doctorNavigatePatient") {
                     globalLoginInfo.userRole = "doctor"
                 }
                 targetUserID = globalLoginInfo.userID!!
                 //clear the patient info globalPatientInfo
-                globalLoginPatientInfo = User(null, null, null, null, null, null, null, null, null, null, null, null, null, null)
+                globalLoginPatientInfo = User(
+                    null,
+                    null,
+                    null,
+                    null,
+                    null,
+                    null,
+                    null,
+                    null,
+                    null,
+                    null,
+                    null,
+                    null,
+                    null,
+                    null
+                )
 
                 Log.d("Button", "Switch Mode: ${globalLoginInfo.userRole}")
                 navController.navigate("home")
@@ -219,9 +240,9 @@ fun switchToPatientDoctorMode(navController: NavHostController) {
             )
         ) {
             if (globalLoginInfo.userRole == "caregiver") {
-                Text(text = "Caregiver Mode")
+                Text(text = "Patient Mode")
             } else if (globalLoginInfo.userRole == "doctorNavigatePatient") {
-                Text(text = "Choose Patient")
+                Text(text = "Choose Another Patient")
             }
         }
     }
@@ -277,30 +298,68 @@ fun welcomeSection(navController: NavHostController) {
             )
         }
 
-        // User Profile Icon -> navigate
-        Column() {
-            Text(
-                text = "User\nProfile",
-                modifier = Modifier.padding(
-                    start = 10.dp,
-                    top = 10.dp,
-                    end = 10.dp,
-                    bottom = 20.dp
-                ),
-                fontSize = 20.sp,
-                fontWeight = FontWeight.Normal
-            )
+
+        Row() {
+            // User Profile Icon -> navigate
+
+            if (globalLoginInfo.userRole == "patient") {
+                Column() {
+                    Text(
+                        text = "User\nProfile",
+                        modifier = Modifier.padding(
+                            start = 10.dp,
+                            top = 10.dp,
+                            end = 10.dp,
+                            bottom = 20.dp
+                        ),
+                        fontSize = 20.sp,
+                        fontWeight = FontWeight.Normal
+                    )
+                }
+            }
+
+            Column() {
+                IconButton(onClick = {
+                    navController.navigate("profile")
+                }) {
+                    Icon(
+                        imageVector = Icons.Default.Person,
+                        contentDescription = "View User Profile",
+                        modifier = Modifier.size(100.dp),
+                    )
+                }
+            }
         }
 
-        Column() {
-            IconButton(onClick = {
-                navController.navigate("profile")
-            }) {
-                Icon(
-                    imageVector = Icons.Default.Person,
-                    contentDescription = "View User Profile",
-                    modifier = Modifier.size(80.dp)
-                )
+        if (globalLoginInfo.userRole == "doctor") {
+            Column() {
+                Row() {
+                    Button(
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = Color.Transparent,
+                        ),
+                        onClick = { navController.navigate("appointment") }) {
+                        //IconButton failed to load paintResource
+                        Image(
+                            painter = painterResource(id = R.drawable.calendar),
+                            contentDescription = "Appointment List",
+                            modifier = Modifier.size(40.dp)
+                        )
+                    }
+
+                    Button(
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = Color.Transparent,
+                        ),
+                        onClick = { navController.navigate("doctorApproval") }) {
+                        //IconButton failed to load paintResource
+                        Image(
+                            painter = painterResource(id = R.drawable.approval),
+                            contentDescription = "Appointment List",
+                            modifier = Modifier.size(40.dp)
+                        )
+                    }
+                }
             }
         }
     }
@@ -319,7 +378,12 @@ fun welcomeSection(navController: NavHostController) {
 @Composable
 fun selectFunctionSection(navController: NavHostController) {
     var functionIconList =
-        mutableVectorOf(R.drawable.medicine, R.drawable.calendar, R.drawable.health, R.drawable.location)
+        mutableVectorOf(
+            R.drawable.medicine,
+            R.drawable.calendar,
+            R.drawable.health,
+            R.drawable.location
+        )
     var functionContentDescriptionList =
         mutableListOf<String>("medicine", "appointment", "healthData", "locationHistory")
 

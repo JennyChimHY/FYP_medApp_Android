@@ -8,6 +8,8 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -95,7 +97,6 @@ fun Login(navController: NavHostController, snackbarHostState: SnackbarHostState
         snackbarHost = { SnackbarHost(snackbarHostState) },  //lab11
         content = { innerPadding ->
 
-            //Login UI
             Column(
                 modifier = Modifier
                     .fillMaxSize()
@@ -104,15 +105,23 @@ fun Login(navController: NavHostController, snackbarHostState: SnackbarHostState
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
 
-                Row(
-                    Modifier.padding(16.dp)
-                ) {
-                    Text(
-                        text = "Login",
-                        fontSize = 38.sp,
-                        fontWeight = FontWeight.Bold
-                    )
-                }
+
+                Image(
+                    modifier = Modifier
+                        .size(125.dp),
+                    imageVector = Icons.Default.Person,
+                    contentDescription = "Login Icon"
+                )
+
+//                Row(
+//                    Modifier.padding(bottom = 16.dp)
+//                ) {
+//                    Text(
+//                        text = "Login",
+//                        fontSize = 38.sp,
+//                        fontWeight = FontWeight.Bold
+//                    )
+//                }
 
                 Row(
                     Modifier.padding(16.dp),

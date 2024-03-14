@@ -177,8 +177,7 @@ fun healthDataScreen(navController: NavHostController) {
                     Text(
                         text = "Health Data Record",
                         fontSize = 24.sp,
-                        fontWeight = FontWeight.Bold,
-                        textAlign = TextAlign.Center
+                        fontWeight = FontWeight.Bold
                     )
                 }
 

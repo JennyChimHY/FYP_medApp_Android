@@ -60,8 +60,6 @@ fun appointmentScreen(navController: NavHostController) {
                 colors = TopAppBarDefaults.smallTopAppBarColors(containerColor = MaterialTheme.colorScheme.primary)
             )
 
-//            //add logout button the the bar
-//            logoutButton(navController)
         },
         snackbarHost = { },
         content = { innerPadding ->
@@ -73,7 +71,7 @@ fun appointmentScreen(navController: NavHostController) {
                     initialValue = listOf<Appointment>(),
                     producer = {
                         value =
-                            KtorClient.getAppointment(globalLoginInfo.userID) //not String message only, but User data class
+                            KtorClient.getAppointment(targetUserID) //not String message only, but User data class
                     })
                 Log.d("appointScreen after calling API", "appointmentResult: $appointmentResult")
 
@@ -85,8 +83,7 @@ fun appointmentScreen(navController: NavHostController) {
                     Text(
                         text = "Appointment Record",
                         fontSize = 24.sp,
-                        fontWeight = FontWeight.Bold,
-                        textAlign = TextAlign.Center
+                        fontWeight = FontWeight.Bold
                     )
                 }
 
@@ -184,6 +181,14 @@ fun appointmentScreen(navController: NavHostController) {
                                         .fillMaxHeight()
                                 ) {
 
+                                    if(globalLoginInfo.userRole == "doctor") {
+                                        Text(
+                                            text = "Patient ID:",
+                                            textAlign = TextAlign.Start,
+                                            fontSize = 20.sp
+                                        )
+                                    }
+
                                     Text(
                                         text = "Date:",
                                         textAlign = TextAlign.Start,
@@ -199,6 +204,7 @@ fun appointmentScreen(navController: NavHostController) {
                                         textAlign = TextAlign.Start,
                                         fontSize = 20.sp
                                     )
+
                                     if (appointItem.appointRemark != null) {
                                         Text(
                                             text = "Remark:",
@@ -207,10 +213,24 @@ fun appointmentScreen(navController: NavHostController) {
                                         )
                                     }
                                     Text(
-                                        text = "Status:", //TODO: change to icon
+                                        text = "Status:",
                                         textAlign = TextAlign.Start,
                                         fontSize = 20.sp
                                     )
+
+                                    if (appointItem.appointStatus == "Future" && globalLoginInfo.userRole != "doctor" && appointItem.appointUpdateDateTime != null) {
+                                        Text(
+                                            text = "Applied Change Date:",
+                                            textAlign = TextAlign.Start,
+                                            fontSize = 20.sp
+                                        )
+
+                                        Text(
+                                            text = "Applied Change Time:",
+                                            textAlign = TextAlign.Start,
+                                            fontSize = 20.sp
+                                        )
+                                    }
                                 }
 
                                 Column(
@@ -218,6 +238,14 @@ fun appointmentScreen(navController: NavHostController) {
                                         .weight(7f) // Take 50% of the available width
                                         .fillMaxHeight()
                                 ) {
+
+                                    if(globalLoginInfo.userRole == "doctor") {
+                                        Text(
+                                            text = "${appointItem.patientID}",
+                                            textAlign = TextAlign.Start,
+                                            fontSize = 20.sp
+                                        )
+                                    }
 
                                     Text(
                                         text = "$appointDate",
@@ -234,6 +262,7 @@ fun appointmentScreen(navController: NavHostController) {
                                         textAlign = TextAlign.Start,
                                         fontSize = 20.sp
                                     )
+
                                     if (appointItem.appointRemark != null) {
                                         Text(
                                             text = "${appointItem.appointRemark}",
@@ -241,29 +270,51 @@ fun appointmentScreen(navController: NavHostController) {
                                             fontSize = 20.sp
                                         )
                                     }
+
                                     Text(
-                                        text = "${appointItem.appointStatus}", //TODO: change to icon
+                                        text = "${appointItem.appointStatus}",
                                         textAlign = TextAlign.Start,
                                         fontSize = 20.sp
                                     )
 
-                                    Button(
-                                        onClick = {
-                                            navController.navigate("appointmentChange/${appointItem.appointID}")
-                                        },
-                                        modifier = Modifier
-                                            .fillMaxWidth()
-                                            .padding(8.dp),
-                                        colors = ButtonDefaults.buttonColors(
-                                            containerColor = MaterialTheme.colorScheme.secondary,
-                                            contentColor = Color.Black
-                                        ),
-                                        elevation = ButtonDefaults.buttonElevation(
-                                            defaultElevation = 10.dp
+                                    if (appointItem.appointStatus == "Future" && globalLoginInfo.userRole != "doctor" && appointItem.appointUpdateDateTime != null) {
+                                        var appointUpdateDateTimeArr = appointItem.appointUpdateDateTime?.split("T")
+                                        var appointUpdateDate = appointUpdateDateTimeArr?.get(0)
+                                        var appointUpdateTime = appointUpdateDateTimeArr?.get(1)?.substring(0, 5)
+
+                                        Text(
+                                            text = "$appointUpdateDate",
+                                            textAlign = TextAlign.Start,
+                                            fontSize = 20.sp
                                         )
-                                    ) {
-                                        Text("Change")  //Change Datetime
+
+                                        Text(
+                                            text = "$appointUpdateTime",
+                                            textAlign = TextAlign.Start,
+                                            fontSize = 20.sp
+                                        )
                                     }
+
+                                    if (appointItem.appointStatus == "Future" && globalLoginInfo.userRole != "doctor" && globalLoginInfo.userRole != "doctorNavigatePatient") {
+                                        Button(
+                                            onClick = {
+                                                navController.navigate("appointmentChange/${appointItem.appointID}")
+                                            },
+                                            modifier = Modifier
+                                                .fillMaxWidth()
+                                                .padding(8.dp),
+                                            colors = ButtonDefaults.buttonColors(
+                                                containerColor = MaterialTheme.colorScheme.secondary,
+                                                contentColor = Color.Black
+                                            ),
+                                            elevation = ButtonDefaults.buttonElevation(
+                                                defaultElevation = 10.dp
+                                            )
+                                        ) {
+                                            Text("Change")  //Change Datetime
+                                        }
+                                    }
+
                                 }
                             }
                         }

@@ -49,7 +49,24 @@ fun profileScreen(navController: NavHostController) {
                 Modifier.padding(innerPadding)
             ) {
                 Row() {
-                    Column() {
+                    Column(
+                        modifier = Modifier.padding(8.dp)
+                    ) {
+
+                        Text(
+                            text = "Personal Information",
+                            modifier = Modifier
+                                .padding(textPadding),
+                            fontSize = 24.sp,
+                            fontWeight = FontWeight.Bold,
+                            textAlign = TextAlign.Start
+                        )
+
+                        HorizontalDivider(
+                            thickness = 4.dp,
+                            color = sectionBorderColor
+                        )  //section line
+
                         Text(
                             text = "Name: ${globalLoginInfo.username}",
                             modifier = Modifier
@@ -96,7 +113,9 @@ fun profileScreen(navController: NavHostController) {
                             text = "Patient Profile:",
                             modifier = Modifier
                                 .padding(textPadding),
-                            textAlign = TextAlign.Start,
+                            fontSize = 24.sp,
+                            fontWeight = FontWeight.Bold,
+                            textAlign = TextAlign.Start
                         )
                     }
 
@@ -143,7 +162,9 @@ fun profileScreen(navController: NavHostController) {
                             text = "Patient Connection:",
                             modifier = Modifier
                                 .padding(textPadding),
-                            textAlign = TextAlign.Start,
+                            fontSize = 24.sp,
+                            fontWeight = FontWeight.Bold,
+                            textAlign = TextAlign.Start
                         )
                     }
 
@@ -181,7 +202,6 @@ fun patientConnection(navController: NavHostController) {
                 onClick = {
                     //call KtorClient to get patient info, using patient.patientID as parameter to call API
                     coroutineScope.launch {
-                        Log.d("Click", "CardExample: ${patient.patientName}")
 
                         if (globalLoginInfo.userRole == "patient") {
                             globalLoginInfo.userRole = "caregiver"

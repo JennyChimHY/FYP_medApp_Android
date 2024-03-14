@@ -116,8 +116,7 @@ fun medicineSceen(navController: NavHostController) {
                     Text(
                         text = "In-taking Medicine",
                         fontSize = 24.sp,
-                        fontWeight = FontWeight.Bold,
-                        textAlign = TextAlign.Center
+                        fontWeight = FontWeight.Bold
                     )
                 }
 
