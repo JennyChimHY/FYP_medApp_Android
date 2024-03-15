@@ -47,7 +47,7 @@ data class addLocationRecordResult(  //for adding location history to MongoDB
 )
 
 @Serializable
-data class putApplyAppointmentRecordResult(  //for deleting health data from MongoDB
+data class putApplyApproveAppointmentRecordResult(  //for deleting health data from MongoDB
     val acknowledged: Boolean,
     val modifiedCount: Int,
     val upsertedId: String?,
@@ -55,8 +55,8 @@ data class putApplyAppointmentRecordResult(  //for deleting health data from Mon
     val matchedCount: Int
 )
 
-var apiDomain = "https://medappserver.f0226942.hkbu.app"
-//var apiDomain = "http://rnidu-158-182-8-76.a.free.pinggy.link"
+//var apiDomain = "https://medappserver.f0226942.hkbu.app"
+var apiDomain = "http://rnlce-124-217-189-227.a.free.pinggy.link"
 object KtorClient {
     var token: String = ""
 
@@ -224,11 +224,11 @@ object KtorClient {
     }
 
     //PUT patient apply appointment record
-    suspend fun putApplyAppointment(appointID: String, appointment: Appointment): putApplyAppointmentRecordResult {
+    suspend fun putApplyAppointment(appointID: String, appointment: Appointment): putApplyApproveAppointmentRecordResult {
         Log.d("Enter putApplyAppointment", "putApplyAppointment:$appointID ")
 
         try {
-            val appointmentApplyRecord: putApplyAppointmentRecordResult =
+            val appointmentApplyRecord: putApplyApproveAppointmentRecordResult =
                 httpClient.put(apiDomain + "/patientApplyAppointment/$appointID") {
                     setBody(appointment)
                 }.body()
@@ -238,7 +238,26 @@ object KtorClient {
             return appointmentApplyRecord
         } catch (e: Exception) {
             Log.d("KtorClient putAppointment", e.toString()) //null or errors
-            return putApplyAppointmentRecordResult(false, 0, null, 0, 0)
+            return putApplyApproveAppointmentRecordResult(false, 0, null, 0, 0)
+        }
+    }
+
+    //PUT doctor approve appointment record
+    suspend fun putApproveRejectAppointment(appointID: String, approveReject: ApproveRejectAppointRecord): putApplyApproveAppointmentRecordResult {
+        Log.d("Enter putApplyAppointment", "putApplyAppointment:$appointID ")
+
+        try {
+            val appointmentApplyRecord: putApplyApproveAppointmentRecordResult =
+                httpClient.put(apiDomain + "/doctorApproveAppointment/$appointID") {
+                    setBody(approveReject)
+                }.body()
+
+            Log.d("KtorClient putAppointment", appointmentApplyRecord.toString())
+
+            return appointmentApplyRecord
+        } catch (e: Exception) {
+            Log.d("KtorClient putAppointment", e.toString()) //null or errors
+            return putApplyApproveAppointmentRecordResult(false, 0, null, 0, 0)
         }
     }
 

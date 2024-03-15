@@ -21,6 +21,8 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.launch
+import java.text.SimpleDateFormat
+import java.util.*
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -163,6 +165,9 @@ fun appointmentPatientChangeView(appointID: String?) {
                                 .fillMaxHeight()
                         ) {
 
+                            Log.d("Appointment Patient Apply Simple Date Format" , SimpleDateFormat("yyyy MMMM dd, HH:mm:ss", Locale.ENGLISH).format(appointItem.appointTimestamp))
+
+
                             Text(
                                 text = "$appointDate",
                                 textAlign = TextAlign.Start,
@@ -256,11 +261,11 @@ fun appointmentPatientChangeView(appointID: String?) {
 
                                 appointItem.appointUpdateDateTime =
                                     "${addAppointmentDate}T${addAppointmentTime}:00.000Z" //2021-09-01T12:00:00.000Z, todo: timeStamp data type
-                                appointItem.doctorUpdateStatus = "pending"
+                                appointItem.doctorUpdateStatus = "Pending"
 
                                 CoroutineScope(Dispatchers.IO).launch {
 
-                                    val applyResult: putApplyAppointmentRecordResult =
+                                    val applyResult: putApplyApproveAppointmentRecordResult =
                                         KtorClient.putApplyAppointment(
                                             appointItem.appointID!!,
                                             appointItem

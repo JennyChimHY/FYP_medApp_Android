@@ -25,6 +25,8 @@ import com.example.fyp_medapp_android.ui.theme.Green20
 import com.example.fyp_medapp_android.ui.theme.Green50
 import com.example.fyp_medapp_android.ui.theme.yellow40
 import kotlinx.serialization.Serializable
+import java.text.SimpleDateFormat
+import java.util.*
 
 @Serializable
 data class Appointment(
@@ -32,13 +34,15 @@ data class Appointment(
     val appointID: String?,
     val patientID: String?,
     val doctorID: String?,
-    val appointDateTime: String?,
+    var appointDateTime: String?,
+    var appointTimestamp: Long?,
     val appointPlace: String?,
     val appointClass: String?,
     val appointType: String?,
-    val appointStatus: String?,
+    var appointStatus: String?,
     val appointRemark: String?,
     var appointUpdateDateTime: String?,
+    var appointUpdateTimestamp: Long?,
     var doctorUpdateStatus: String?
 )
 
@@ -97,13 +101,15 @@ fun appointmentScreen(navController: NavHostController) {
                     horizontalAlignment = Alignment.CenterHorizontally,
                     modifier = Modifier.padding(16.dp)
                 ) {
-                    //TODO scrollable Modifier.verticalScroll(rememberScrollState())
 
                     items(appointmentResult.value) { appointItem ->
                         var appointDateTimeArr = appointItem.appointDateTime?.split("T")
                         var appointDate = appointDateTimeArr?.get(0)
                         var appointTime = appointDateTimeArr?.get(1)?.substring(0, 5) //24hr format
                         //TODO: 12 hrs conversion
+
+                        Log.d("Appointment View", "appointTimestamp: ${appointItem.appointTimestamp}")
+                        Log.d("Appointment View Simple Date Format" , SimpleDateFormat("yyyy MMMM dd, HH:mm:ss", Locale.ENGLISH).format(appointItem.appointTimestamp))
 
                         Card(
                             colors = CardDefaults.cardColors(
@@ -185,7 +191,8 @@ fun appointmentScreen(navController: NavHostController) {
                                         Text(
                                             text = "Patient ID:",
                                             textAlign = TextAlign.Start,
-                                            fontSize = 20.sp
+                                            fontSize = 20.sp,
+                                            modifier = Modifier.padding(bottom = 15.dp)
                                         )
                                     }
 
@@ -243,7 +250,8 @@ fun appointmentScreen(navController: NavHostController) {
                                         Text(
                                             text = "${appointItem.patientID}",
                                             textAlign = TextAlign.Start,
-                                            fontSize = 20.sp
+                                            fontSize = 20.sp,
+                                            modifier = Modifier.padding(bottom = 15.dp)
                                         )
                                     }
 
