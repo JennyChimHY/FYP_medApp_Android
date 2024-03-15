@@ -18,10 +18,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
-import com.example.fyp_medapp_android.ui.theme.Green20
-import com.example.fyp_medapp_android.ui.theme.Green30
-import com.example.fyp_medapp_android.ui.theme.Green50
-import com.example.fyp_medapp_android.ui.theme.yellow40
+import com.example.fyp_medapp_android.ui.theme.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.MainScope
@@ -31,12 +28,12 @@ import java.text.SimpleDateFormat
 import java.util.*
 
 @Serializable
-data class ApproveRejectAppointRecord (
+data class ApproveRejectAppointRecord(
     var appointID: String,
     var doctorUpdateStatus: String,
     var appointUpdateDateTime: String,
     var appointUpdateTimestamp: Long
-    )
+)
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -44,7 +41,6 @@ fun doctorApprovalScreen(navController: NavController) {
 
     val appointmentDoctorResult = remember { mutableStateListOf<Appointment>() }
     var openDialog = remember { mutableStateOf(false) } //for success dialog
-    //TODO open dialog
 
     //call Ktor Client to get the appointment record list, use condition to show the applied appointment only
     if (appointmentDoctorResult.size == 0) {
@@ -124,7 +120,13 @@ fun doctorApprovalScreen(navController: NavController) {
                                 var updateAppointTime =
                                     updateAppointDateTimeArr?.get(1)?.substring(0, 5) //24hr format
 
-                                Log.d("Appointment Doctor Simple Date Format" , SimpleDateFormat("yyyy MMMM dd, HH:mm:ss", Locale.ENGLISH).format(appointItem.appointTimestamp))
+                                Log.d(
+                                    "Appointment Doctor Simple Date Format",
+                                    SimpleDateFormat(
+                                        "yyyy MMMM dd, HH:mm:ss",
+                                        Locale.ENGLISH
+                                    ).format(appointItem.appointTimestamp)
+                                )
 
 
                                 Card(
@@ -291,115 +293,200 @@ fun doctorApprovalScreen(navController: NavController) {
                                                 textAlign = TextAlign.Start,
                                                 modifier = Modifier.padding(start = textPadding)
                                             )
+                                        }
+                                    }
 
-                                            Row() {
+                                    Row(
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .padding(10.dp),
+                                        horizontalArrangement = Arrangement.SpaceBetween
+                                    ) {
+                                        Column(
+                                            modifier = Modifier
+                                                .weight(5f) // Take 50% of the available width
+                                                .fillMaxHeight()
+                                        ) {
 
-                                                Button( //approve
-                                                    onClick = {
-                                                        //add update date time to formal record ; change the appointment status to approved
-//                                                        approveRejectStatus = "Approved"
+                                            Button( //approve
+                                                onClick = {
 
-                                                        approveRejectRecord = ApproveRejectAppointRecord(
+                                                    approveRejectRecord =
+                                                        ApproveRejectAppointRecord(
                                                             appointItem.appointID!!,
                                                             "Approved",
                                                             appointItem.appointUpdateDateTime!!,
                                                             appointItem.appointTimestamp!!
                                                         )
 
-                                                        Log.d("Approve", "Approve: $approveRejectRecord")
-
-                                                        callKtor.value = true
-                                                    },
-                                                    modifier = Modifier
-                                                        .fillMaxWidth()
-                                                        .padding(8.dp),
-                                                    colors = ButtonDefaults.buttonColors(
-                                                        containerColor = MaterialTheme.colorScheme.secondary,
-                                                        contentColor = Color.Black
-                                                    ),
-                                                    elevation = ButtonDefaults.buttonElevation(
-                                                        defaultElevation = 10.dp
+                                                    Log.d(
+                                                        "Approve",
+                                                        "Approve: $approveRejectRecord"
                                                     )
-                                                ) {
-                                                    Text("Approve")
-                                                }
 
-                                                Button( //reject
-                                                    onClick = {
+                                                    callKtor.value = true
+                                                },
+                                                modifier = Modifier
+                                                    .fillMaxWidth()
+                                                    .padding(8.dp),
+                                                colors = ButtonDefaults.buttonColors(
+                                                    containerColor = Green20,
+                                                    contentColor = Color.Black
+                                                ),
+                                                elevation = ButtonDefaults.buttonElevation(
+                                                    defaultElevation = 10.dp
+                                                )
+                                            ) {
+                                                Text("Approve")
+                                            }
+                                        }
+
+                                        Column(
+                                            modifier = Modifier
+                                                .weight(5f) // Take 50% of the available width
+                                                .fillMaxHeight()
+                                        ) {
+
+                                            Button( //reject
+                                                onClick = {
 //                                                        approveRejectStatus = "Rejected"
 
-                                                        approveRejectRecord = ApproveRejectAppointRecord(
+                                                    approveRejectRecord =
+                                                        ApproveRejectAppointRecord(
                                                             appointItem.appointID!!,
                                                             "Rejected",
                                                             appointItem.appointUpdateDateTime!!,
                                                             0
                                                         )
 
-                                                        callKtor.value = true
-                                                    },
-                                                    modifier = Modifier
-                                                        .fillMaxWidth()
-                                                        .padding(8.dp),
-                                                    colors = ButtonDefaults.buttonColors(
-                                                        containerColor = MaterialTheme.colorScheme.secondary,
-                                                        contentColor = Color.Black
-                                                    ),
-                                                    elevation = ButtonDefaults.buttonElevation(
-                                                        defaultElevation = 10.dp
-                                                    )
-                                                ) {
-                                                    Text("Reject")
-                                                }
+                                                    callKtor.value = true
+                                                },
+                                                modifier = Modifier
+                                                    .fillMaxWidth()
+                                                    .padding(8.dp),
+                                                colors = ButtonDefaults.buttonColors(
+                                                    containerColor = Red10,
+                                                    contentColor = Color.Black
+                                                ),
+                                                elevation = ButtonDefaults.buttonElevation(
+                                                    defaultElevation = 10.dp
+                                                )
+                                            ) {
+                                                Text("Reject")
+                                            }
+                                        }
 
-                                                if (callKtor.value) {
-                                                    //call Ktor Client to update the appointment record
-                                                    CoroutineScope(Dispatchers.IO).launch {
+                                        if (callKtor.value) {
+                                            //call Ktor Client to update the appointment record
+                                            CoroutineScope(Dispatchers.IO).launch {
 
-                                                        val approveResult: putApplyApproveAppointmentRecordResult =
-                                                            KtorClient.putApproveRejectAppointment(
-                                                                appointItem.appointID!!, approveRejectRecord
-                                                            ) //not String message only, but User data class
-                                                        var message = ""
+                                                val approveResult: putApplyApproveAppointmentRecordResult =
+                                                    KtorClient.putApproveRejectAppointment(
+                                                        appointItem.appointID!!,
+                                                        approveRejectRecord
+                                                    ) //not String message only, but User data class
+                                                var message = ""
+                                                Log.d(
+                                                    "putResult",
+                                                    "putResult approveResult: $approveResult"
+                                                )
+
+                                                MainScope().launch {
+                                                    if (approveResult.acknowledged) {           //success
+                                                        message =
+                                                            "Approve Success! The record is updated just now."  //The reference code is: ${patchResult.referenceCode}"
+
                                                         Log.d(
-                                                            "putResult",
-                                                            "putResult approveResult: $approveResult"
+                                                            "Approved Success",
+                                                            message
                                                         )
 
-                                                        MainScope().launch {
-                                                            if (approveResult.acknowledged) {           //success
-                                                                message =
-                                                                    "Approve Success! The record is updated just now."  //The reference code is: ${patchResult.referenceCode}"
+                                                        callKtor.value = false
+                                                        openDialog.value = true
 
-                                                                Log.d(
-                                                                    "Approved Success",
-                                                                    message
-                                                                )
+                                                    } else {     //error
+                                                        message =
+                                                            "Approve Failed, please try again later."
+                                                        Log.d("Approve failed", message)
 
-                                                                callKtor.value = false
-
-//                                                                openDialog.value = true
-
-                                                            } else {     //error
-                                                                message =
-                                                                    "Approve Failed, please try again later."
-                                                                Log.d("Approve failed", message)
-
-                                                                callKtor.value = false
-                                                            }
-                                                        }
+                                                        callKtor.value = false
                                                     }
                                                 }
                                             }
+                                        }
 
+
+                                        if (openDialog.value) {
+                                            AlertDialog(
+                                                onDismissRequest = {
+                                                    openDialog.value = false
+                                                }) {
+                                                Column(
+                                                    modifier = Modifier
+                                                        .fillMaxWidth()
+                                                        .background(
+                                                            color = Green20,
+                                                            shape = RoundedCornerShape(8.dp)
+                                                        )
+                                                        .padding(15.dp),
+                                                    horizontalAlignment = Alignment.CenterHorizontally
+                                                ) {
+
+                                                    Text(
+                                                        text = "Approve Success!",
+                                                        modifier = Modifier
+                                                            .align(Alignment.CenterHorizontally)
+                                                            .padding(10.dp),
+                                                        fontWeight = FontWeight.Bold,
+                                                        color = Color.Black,
+                                                        fontSize = 24.sp
+                                                    )
+
+                                                    HorizontalDivider(
+                                                        color = sectionBorderColor,
+                                                        modifier = Modifier
+                                                            .height(1.dp)
+                                                            .fillMaxHeight()
+                                                            .fillMaxWidth()
+                                                    )
+
+                                                    Text(
+                                                        text = "Approve Success! The record is updated just now.",
+                                                        color = Color.Black,
+                                                        modifier = Modifier
+                                                            .align(Alignment.CenterHorizontally)
+                                                            .padding(10.dp),
+                                                    )
+
+                                                    HorizontalDivider(
+                                                        color = sectionBorderColor,
+                                                        modifier = Modifier
+                                                            .height(1.dp)
+                                                            .fillMaxHeight()
+                                                            .fillMaxWidth()
+                                                    )
+
+                                                    Button(
+                                                        modifier = Modifier
+                                                            .fillMaxWidth()
+                                                            .padding(8.dp),
+                                                        onClick = {
+                                                            openDialog.value = false
+                                                        }
+                                                    ) {
+                                                        Text("OK")
+                                                    }
+                                                }
+                                            }
                                         }
                                     }
 
-                                    Row() {
-                                        HorizontalDivider(
-                                            thickness = 1.dp,
-                                            color = Green30
-                                        )  //section line
-                                    }
+                                }
+                                Row() {
+                                    HorizontalDivider(
+                                        thickness = 1.dp,
+                                        color = Green30
+                                    )  //section line
                                 }
                             }
                         }
