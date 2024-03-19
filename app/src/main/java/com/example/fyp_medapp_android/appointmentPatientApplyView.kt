@@ -281,8 +281,6 @@ fun appointmentPatientChangeView(appointID: String?) {
                                     var appointDateTimeArr = it.appointDateTime?.split("T")
                                     var appointTime = appointDateTimeArr?.get(1)?.substring(0, 5) //24hr format
 
-                                    Log.d("appointTime", "appointTime: $appointTime")
-
                                     doctorAppointmentTimeOnThatDay.add(appointTime!!)
                                 }
                             }

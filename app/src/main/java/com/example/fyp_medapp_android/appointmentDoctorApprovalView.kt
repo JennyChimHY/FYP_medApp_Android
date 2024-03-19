@@ -78,6 +78,8 @@ fun doctorApprovalScreen(navController: NavController) {
             var callKtor = remember { mutableStateOf(false) }
             var approveRejectRecord = ApproveRejectAppointRecord("", "", "", 0)
 
+            var doctorApprove = false
+
             Column(
                 modifier = Modifier
                     .padding(innerPadding),
@@ -324,6 +326,7 @@ fun doctorApprovalScreen(navController: NavController) {
                                                         "Approve: $approveRejectRecord"
                                                     )
 
+                                                    doctorApprove = true
                                                     callKtor.value = true
                                                 },
                                                 modifier = Modifier
@@ -359,6 +362,7 @@ fun doctorApprovalScreen(navController: NavController) {
                                                             0
                                                         )
 
+                                                    doctorApprove = false
                                                     callKtor.value = true
                                                 },
                                                 modifier = Modifier
@@ -417,6 +421,10 @@ fun doctorApprovalScreen(navController: NavController) {
 
 
                                         if (openDialog.value) {
+
+                                            var dialogTitle = if (doctorApprove) "Approve Success!" else "Reject Success!"
+                                            var dialogContent = if (doctorApprove) "Approve Success! The record is updated just now." else "Reject Success! The record is updated just now."
+
                                             AlertDialog(
                                                 onDismissRequest = {
                                                     openDialog.value = false
@@ -433,7 +441,7 @@ fun doctorApprovalScreen(navController: NavController) {
                                                 ) {
 
                                                     Text(
-                                                        text = "Approve Success!",
+                                                        text = "$dialogTitle",
                                                         modifier = Modifier
                                                             .align(Alignment.CenterHorizontally)
                                                             .padding(10.dp),
@@ -451,7 +459,7 @@ fun doctorApprovalScreen(navController: NavController) {
                                                     )
 
                                                     Text(
-                                                        text = "Approve Success! The record is updated just now.",
+                                                        text = "$dialogContent",
                                                         color = Color.Black,
                                                         modifier = Modifier
                                                             .align(Alignment.CenterHorizontally)
@@ -478,6 +486,9 @@ fun doctorApprovalScreen(navController: NavController) {
                                                     }
                                                 }
                                             }
+
+                                            //Set up Firebase Cloud Messaging
+
                                         }
                                     }
 

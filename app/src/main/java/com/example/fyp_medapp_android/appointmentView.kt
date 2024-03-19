@@ -183,7 +183,7 @@ fun appointmentScreen(navController: NavHostController) {
 
                                 Column(
                                     modifier = Modifier
-                                        .weight(3f) // Take 50% of the available width
+                                        .weight(4f) // Take 50% of the available width
                                         .fillMaxHeight()
                                 ) {
 
@@ -227,13 +227,13 @@ fun appointmentScreen(navController: NavHostController) {
 
                                     if (appointItem.appointStatus == "Future" && globalLoginInfo.userRole != "doctor" && appointItem.appointUpdateDateTime != null) {
                                         Text(
-                                            text = "Applied Change Date:",
+                                            text = "Applied Date:",
                                             textAlign = TextAlign.Start,
                                             fontSize = 20.sp
                                         )
 
                                         Text(
-                                            text = "Applied Change Time:",
+                                            text = "Applied Time:",
                                             textAlign = TextAlign.Start,
                                             fontSize = 20.sp
                                         )
@@ -242,7 +242,7 @@ fun appointmentScreen(navController: NavHostController) {
 
                                 Column(
                                     modifier = Modifier
-                                        .weight(7f) // Take 50% of the available width
+                                        .weight(6f) // Take 50% of the available width
                                         .fillMaxHeight()
                                 ) {
 
