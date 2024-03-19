@@ -8,6 +8,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -90,134 +91,156 @@ fun appointmentPatientChangeView(appointID: String?) {
                     var addAppointmentDate by remember { mutableStateOf("") }
                     var addAppointmentTime by remember { mutableStateOf("") }
 
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(start = 20.dp, top = 10.dp, end = 10.dp, bottom = 10.dp)
-                    ) {
-                        Text(
-                            text = "Change in Appointment",
-                            fontSize = 24.sp,
-                            fontWeight = FontWeight.Bold
-                        )
+                    //call KTor client to get the doctor available time slots
+
+                    var doctorAppointmentList = remember { mutableStateListOf<Appointment>() }
+
+                    if (doctorAppointmentList.size == 0) {
+                        CoroutineScope(Dispatchers.IO).launch {
+                            val docList = KtorClient.getAppointment(appointItem.doctorID)
+                            CoroutineScope(Dispatchers.Main).launch {
+                                doctorAppointmentList.clear()
+                                doctorAppointmentList.addAll(docList)
+                            }
+                        }
                     }
+                    if (doctorAppointmentList.size > 0) {
+                        //get the doctor's available time slots by select the date -> compare
 
-                    HorizontalDivider(
-                        thickness = 2.dp,
-                        color = sectionBorderColor
-                    )  //section line
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(start = 20.dp, top = 10.dp, end = 10.dp, bottom = 10.dp)
+                        ) {
+                            Text(
+                                text = "Change in Appointment",
+                                fontSize = 24.sp,
+                                fontWeight = FontWeight.Bold
+                            )
+                        }
 
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(start = 20.dp, top = 10.dp, end = 10.dp, bottom = 10.dp)
-                    ) {
-                        Text(
-                            text = "Current Appointment Record",
-                            fontSize = 20.sp,
+                        HorizontalDivider(
+                            thickness = 2.dp,
+                            color = sectionBorderColor
+                        )  //section line
+
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(start = 20.dp, top = 10.dp, end = 10.dp, bottom = 10.dp)
+                        ) {
+                            Text(
+                                text = "Current Appointment Record",
+                                fontSize = 20.sp,
 //                            fontStyle = androidx.compose.ui.text.font.FontStyle.Italic,
-                        )
-                    }
+                            )
+                        }
 
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(start = 20.dp, top = 10.dp, end = 10.dp, bottom = 10.dp)
-                    ) {
-                        Column(
+                        Row(
                             modifier = Modifier
-                                .weight(3f) // Take 50% of the available width
-                                .fillMaxHeight()
+                                .fillMaxWidth()
+                                .padding(start = 20.dp, top = 10.dp, end = 10.dp, bottom = 10.dp)
                         ) {
+                            Column(
+                                modifier = Modifier
+                                    .weight(3f) // Take 50% of the available width
+                                    .fillMaxHeight()
+                            ) {
 
-                            Text(
-                                text = "Date:",
-                                textAlign = TextAlign.Start,
-                                fontSize = 20.sp
-                            )
-                            Text(
-                                text = "Time:",
-                                textAlign = TextAlign.Start,
-                                fontSize = 20.sp
-                            )
-                            Text(
-                                text = "Place:",
-                                textAlign = TextAlign.Start,
-                                fontSize = 20.sp
-                            )
-                            if (appointItem.appointRemark != null) {
                                 Text(
-                                    text = "Remark:",
+                                    text = "Date:",
+                                    textAlign = TextAlign.Start,
+                                    fontSize = 20.sp
+                                )
+                                Text(
+                                    text = "Time:",
+                                    textAlign = TextAlign.Start,
+                                    fontSize = 20.sp
+                                )
+                                Text(
+                                    text = "Place:",
+                                    textAlign = TextAlign.Start,
+                                    fontSize = 20.sp
+                                )
+                                if (appointItem.appointRemark != null) {
+                                    Text(
+                                        text = "Remark:",
+                                        textAlign = TextAlign.Start,
+                                        fontSize = 20.sp
+                                    )
+                                }
+                                Text(
+                                    text = "Status:", //TODO: change to icon
                                     textAlign = TextAlign.Start,
                                     fontSize = 20.sp
                                 )
                             }
-                            Text(
-                                text = "Status:", //TODO: change to icon
-                                textAlign = TextAlign.Start,
-                                fontSize = 20.sp
-                            )
-                        }
 
-                        Column(
-                            modifier = Modifier
-                                .weight(7f) // Take 50% of the available width
-                                .fillMaxHeight()
-                        ) {
+                            Column(
+                                modifier = Modifier
+                                    .weight(7f) // Take 50% of the available width
+                                    .fillMaxHeight()
+                            ) {
 
-                            Log.d("Appointment Patient Apply Simple Date Format" , SimpleDateFormat("yyyy MMMM dd, HH:mm:ss", Locale.ENGLISH).format(appointItem.appointTimestamp))
+                                Log.d(
+                                    "Appointment Patient Apply Simple Date Format",
+                                    SimpleDateFormat(
+                                        "yyyy MMMM dd, HH:mm:ss",
+                                        Locale.ENGLISH
+                                    ).format(appointItem.appointTimestamp)
+                                )
 
-
-                            Text(
-                                text = "$appointDate",
-                                textAlign = TextAlign.Start,
-                                fontSize = 20.sp
-                            )
-                            Text(
-                                text = "$appointTime",
-                                textAlign = TextAlign.Start,
-                                fontSize = 20.sp
-                            )
-                            Text(
-                                text = "${appointItem.appointPlace}",
-                                textAlign = TextAlign.Start,
-                                fontSize = 20.sp
-                            )
-                            if (appointItem.appointRemark != null) {
                                 Text(
-                                    text = "${appointItem.appointRemark}",
+                                    text = "$appointDate",
+                                    textAlign = TextAlign.Start,
+                                    fontSize = 20.sp
+                                )
+                                Text(
+                                    text = "$appointTime",
+                                    textAlign = TextAlign.Start,
+                                    fontSize = 20.sp
+                                )
+                                Text(
+                                    text = "${appointItem.appointPlace}",
+                                    textAlign = TextAlign.Start,
+                                    fontSize = 20.sp
+                                )
+                                if (appointItem.appointRemark != null) {
+                                    Text(
+                                        text = "${appointItem.appointRemark}",
+                                        textAlign = TextAlign.Start,
+                                        fontSize = 20.sp
+                                    )
+                                }
+                                Text(
+                                    text = "${appointItem.appointStatus}", //TODO: change to icon
                                     textAlign = TextAlign.Start,
                                     fontSize = 20.sp
                                 )
                             }
-                            Text(
-                                text = "${appointItem.appointStatus}", //TODO: change to icon
-                                textAlign = TextAlign.Start,
-                                fontSize = 20.sp
-                            )
                         }
-                    }
 
-                    HorizontalDivider(
-                        thickness = 2.dp,
-                        color = sectionBorderColor
-                    )  //section line
+                        HorizontalDivider(
+                            thickness = 2.dp,
+                            color = sectionBorderColor
+                        )  //section line
 
-                    Row() {
-                        Column(
-                            modifier = Modifier.padding(
-                                start = 10.dp,
-                                top = 10.dp,
-                                end = 60.dp,
-                                bottom = 10.dp
-                            ),
-                        ) {
-                            Text(
-                                text = "New Appointment Date and Time",
-                                fontSize = 20.sp
-                            )
+                        Row() {
+                            Column(
+                                modifier = Modifier.padding(
+                                    start = 10.dp,
+                                    top = 10.dp,
+                                    end = 60.dp,
+                                    bottom = 10.dp
+                                ),
+                            ) {
+                                Text(
+                                    text = "New Appointment Date and Time",
+                                    fontSize = 20.sp
+                                )
 
-                            Text(text = "New Date:")
+                                Text(text = "New Date:")
+                            }
                         }
                     }
 
@@ -236,9 +259,42 @@ fun appointmentPatientChangeView(appointID: String?) {
 
                             addAppointmentDate = datePickerComponent("applyChangeInAppointment")
 
+                            Log.d("addAppointmentDate", "addAppointmentDate: $addAppointmentDate")
+
+
+                            var allAvailableTimeslotList = listOf<String>(
+                                "08:15", "08:30", "08:45", "09:00", "09:15", "09:30", "09:45", "10:00",
+                                "10:15", "10:30", "10:45", "11:00", "11:15", "11:30", "11:45", "14:00",
+                                "14:15", "14:30", "14:45", "15:00", "15:15", "15:30", "15:45", "16:00"
+                            )
+
+                            var doctorAppointmentTimeOnThatDay = mutableStateListOf<String>()
+                            doctorAppointmentList.forEach {
+                                var doctorDate = it.appointDateTime?.split("T")?.get(0)
+
+                                Log.d("doctorDate", "doctorDate: $doctorDate")
+
+                                if (addAppointmentDate == doctorDate) {
+
+                                    Log.d("doctorDate", "Enter true condition: $doctorDate")
+
+                                    var appointDateTimeArr = it.appointDateTime?.split("T")
+                                    var appointTime = appointDateTimeArr?.get(1)?.substring(0, 5) //24hr format
+
+                                    Log.d("appointTime", "appointTime: $appointTime")
+
+                                    doctorAppointmentTimeOnThatDay.add(appointTime!!)
+                                }
+                            }
+
+                            Log.d("doctorAppointmentTimeOnThatDay", "doctorAppointmentTimeOnThatDay: ${doctorAppointmentTimeOnThatDay}")
+
+
+
                             Text(text = "New Time:")
-                            addAppointmentTime = timePickerComponent()
-                            //drop down list to select the timeslot
+//                            addAppointmentTime = timePickerComponent()
+                            addAppointmentTime = timeRadioComponent(allAvailableTimeslotList, doctorAppointmentTimeOnThatDay)
+                            //drop down list / radio button to select the timeslot
                         }
                     }
 
@@ -251,16 +307,20 @@ fun appointmentPatientChangeView(appointID: String?) {
                                 //TODO: Improve the logic
                                 if (checkTimeFormat[0].length == 1) {
                                     if (checkTimeFormat[1].length == 1) {
-                                        addAppointmentTime = "0${checkTimeFormat[0]}:0${checkTimeFormat[1]}"
+                                        addAppointmentTime =
+                                            "0${checkTimeFormat[0]}:0${checkTimeFormat[1]}"
                                     } else {
-                                        addAppointmentTime = "0${checkTimeFormat[0]}:${checkTimeFormat[1]}"
+                                        addAppointmentTime =
+                                            "0${checkTimeFormat[0]}:${checkTimeFormat[1]}"
                                     }
                                 } else if (checkTimeFormat[1].length == 1) {
-                                    addAppointmentTime = "${checkTimeFormat[0]}:0${checkTimeFormat[1]}"
+                                    addAppointmentTime =
+                                        "${checkTimeFormat[0]}:0${checkTimeFormat[1]}"
                                 }
 
                                 appointItem.appointUpdateDateTime =
-                                    "${addAppointmentDate}T${addAppointmentTime}:00.000Z" //2021-09-01T12:00:00.000Z, todo: timeStamp data type
+                                    "${addAppointmentDate}T${addAppointmentTime}:00.000Z" //2021-09-01T12:00:00.000Z,
+                                // todo: store timeStamp data type
                                 appointItem.doctorUpdateStatus = "Pending"
 
                                 CoroutineScope(Dispatchers.IO).launch {
@@ -365,10 +425,76 @@ fun appointmentPatientChangeView(appointID: String?) {
                                 }
                             }
                         }
-
                     }
                 }
             }
         }
     )
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun timeRadioComponent(allAvailableTimeslotList: List<String>, doctorAppointmentTimeOnThatDay: List<String>) : String {
+    var selectedTime by remember { mutableStateOf("") }
+
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(10.dp),
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+
+        val availableTimeslots = allAvailableTimeslotList.filter { timeslot ->
+            doctorAppointmentTimeOnThatDay.none { it == timeslot }
+        }
+
+        Log.d("availableTimeslots", "availableTimeslots: $availableTimeslots")
+
+        availableTimeslots.forEach {
+
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(10.dp)
+            ) {
+                RadioButton(
+                    selected = selectedTime == it,
+                    onClick = {
+                        selectedTime = it
+                    }
+                )
+                Text(
+                    text = it,
+                    modifier = Modifier.padding(start = 10.dp)
+                )
+            }
+        }
+    }
+
+//    LazyColumn(
+//        modifier = Modifier.padding(16.dp)
+//    ) {
+//        items(doctorAvailableTimeslotList.chunked(3)) { chunkedTimeslots ->
+//            Row(
+//                modifier = Modifier
+//                    .fillMaxWidth()
+//                    .padding(10.dp)
+//            ) {
+//                chunkedTimeslots.forEach { timeslot ->
+//                    RadioButton(
+//                        selected = selectedTime == timeslot,
+//                        onClick = { selectedTime = timeslot }
+//                    )
+//                    Text(
+//                        text = timeslot,
+//                        modifier = Modifier.padding(start = 10.dp)
+//                    )
+//                    Spacer(modifier = Modifier.width(16.dp)) // Adjust the spacing as needed
+//                }
+//            }
+//        }
+//    }
+
+    return selectedTime
 }
