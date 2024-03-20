@@ -37,13 +37,14 @@
             android:name=".LocationAlarmReceiver"
             android:enabled="true"/>
 
-        <!-- Recommended for Android 9 (API level 28) and lower. -->
-        <!-- Required for Android 10 (API level 29) and higher. -->
-<!--        <service-->
-<!--            android:name=".MyLocationService"-->
-<!--            android:foregroundServiceType="location" >-->
-<!--        &lt;!&ndash; Any inner elements would go here. &ndash;&gt;-->
-<!--        </service>-->
+        <!--Firebase Messaging Service-->
+        <service
+            android:name=".MyFirebaseMessagingService"
+            android:directBootAware="true" android:exported="false">
+            <intent-filter>
+                <action android:name="com.google.firebase.MESSAGING_EVENT" />
+            </intent-filter>
+        </service>
 
         <!--Google Map-->
         <meta-data

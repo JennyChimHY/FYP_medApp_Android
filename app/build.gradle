@@ -76,7 +76,9 @@ dependencies {
     implementation 'com.google.accompanist:accompanist-permissions:0.31.1-alpha'  //Local notification
 
     implementation platform('com.google.firebase:firebase-bom:32.7.0') // Firebase BoM
+    implementation 'com.google.firebase:firebase-analytics-ktx:21.5.1' // Firebase Analytics
     implementation 'com.google.firebase:firebase-messaging-ktx:23.4.1' // Firebase Cloud Messaging
+    implementation 'androidx.datastore:datastore-preferences:1.0.0' //Preference Datastore
 
     implementation 'com.google.android.gms:play-services-location:21.2.0' //Google Play Location Services
     implementation 'com.google.maps.android:maps-compose:2.7.2' //Google Maps
