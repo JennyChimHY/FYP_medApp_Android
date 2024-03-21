@@ -15,6 +15,22 @@ import com.google.firebase.ktx.Firebase
 import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
 import kotlinx.coroutines.launch
+import kotlinx.serialization.Serializable
+
+
+//for appointmentDoctorApprovalView.kt
+@Serializable
+data class FirebaseSendNotification(
+    val patientID: String,
+    val notificationMsg: String
+)
+
+//for appointmentDoctorApprovalView.kt
+@Serializable
+data class FirebaseNotification(
+    val title: String,
+    val message: String
+)
 
 class MyFirebaseMessagingService : FirebaseMessagingService() {
     /**
@@ -57,7 +73,7 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
         var builder: NotificationCompat.Builder =
             NotificationCompat.Builder(applicationContext, channelId)
                 //set icons,autoCancel , OnlyAlertOnce
-                .setSmallIcon(R.drawable.calendar)
+                .setSmallIcon(R.drawable.icon)
                 .setAutoCancel(true)
                 .setOnlyAlertOnce(true)
                 .setContentIntent(pendingIntent)
@@ -83,48 +99,4 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
         //get notify
         notificationManager.notify(0, builder.build())
     }
-
-    //    //create an method remoteView
-//    fun getRemoteView(title: String, message: String): RemoteViews {
-//        val remoteView =
-//            RemoteViews("com.company0ne.pushnotification_firebase_kotlin", R.layout.notification)
-//
-//        remoteView.setTextViewText(R.id.title, title)
-//        remoteView.setTextViewText(R.id.message, message)
-//        remoteView.setImageViewResource(R.id.app_logo, R.drawable.notification_icon)
-//        return remoteView
-//    }
-
-//    override fun onNewToken(token: String) {
-//        Log.d(TAG, "Refreshed token: $token")
-//
-//        // If you want to send messages to this application instance or
-//        // manage this apps subscriptions on the server side, send the
-//        // FCM registration token to your app server.
-//        sendTokenToServer(token)
-//    }
-
-//    /**
-//     * Persist token to third-party servers.
-//     *
-//     * Modify this method to associate the user's FCM registration token with any server-side account
-//     * maintained by your application.
-//     *
-//     * @param token The new token.
-//     */
-//    private fun sendTokenToServer(token: String?) {
-//        // If you're running your own server, call API to send token and today's date for the user
-//
-//        // Example shown below with Firestore
-//        // Add token and timestamp to Firestore for this user
-//        val deviceToken = hashMapOf(
-//            "token" to token,
-//            "timestamp" to FieldValue.serverTimestamp(),
-//        )
-//        // Get user ID from Firebase Auth or your own server
-//        Firebase.firestore.collection("fcmTokens").document("myuserid")
-//            .set(deviceToken)
-//    }
-
-
 }

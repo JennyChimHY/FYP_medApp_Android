@@ -56,7 +56,7 @@ data class putApplyApproveAppointmentRecordResult(  //for deleting health data f
 )
 
 var apiDomain = "https://medappserver.f0226942.hkbu.app"
-//var apiDomain = "http://rnlce-124-217-189-227.a.free.pinggy.link"
+//var apiDomain = "http://rnjjh-158-182-8-76.a.free.pinggy.link"
 object KtorClient {
     var token: String = ""
 
@@ -346,6 +346,26 @@ object KtorClient {
             //TODO check not null
             return emptyList()
         }
+    }
+
+    suspend fun sendFirebaseNotification(patientID: String, notificationMsg: String) : FirebaseNotification {
+       //send notification to server for sending FCM noti to firebase
+        try {
+            val response: FirebaseNotification =
+                httpClient.post(apiDomain + "/sendFirebaseNotificationToCloud") {
+                    setBody(
+                        FirebaseSendNotification(patientID, notificationMsg)
+                    )
+                }.body()
+
+            Log.d("KtorClient sendFirebaseNotification", response.toString())
+
+            return response
+        } catch (e: Exception) {
+            Log.d("KtorClient sendFirebaseNotification", e.toString()) //null or errors
+            return FirebaseNotification("", "")
+        }
+
     }
 }
 

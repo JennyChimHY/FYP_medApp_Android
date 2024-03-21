@@ -44,7 +44,8 @@ lateinit var targetUserID: String
 @Serializable
 data class Info(  //for frontend input and send to backend
     val username: String,
-    val password: String
+    val password: String,
+    val patientFCM_token: String
 )
 
 @Serializable
@@ -160,7 +161,8 @@ fun Login(navController: NavHostController, snackbarHostState: SnackbarHostState
 
                             val info = Info(
                                 usernameLocal,
-                                pwdLocal
+                                pwdLocal,
+                                patientFCM_token
                             ) //create an object based on Info data class
 
                             val loginResult: User =

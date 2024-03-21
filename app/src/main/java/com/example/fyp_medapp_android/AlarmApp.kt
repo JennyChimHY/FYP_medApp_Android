@@ -18,6 +18,7 @@ import com.google.firebase.messaging.FirebaseMessaging
 //Alarm Function and Firebase Initialization
 
 val Context.dataStore : DataStore<Preferences> by preferencesDataStore(name = "LocalStore")
+var patientFCM_token = ""
 class AlarmApp : Application() {
 
     override fun onCreate() {
@@ -32,8 +33,9 @@ class AlarmApp : Application() {
             NotificationManager.IMPORTANCE_HIGH
         )
         notificationManager.createNotificationChannel(channel)
-        FirebaseApp.initializeApp(this) //Firebase Initialization
 
+
+        FirebaseApp.initializeApp(this) //Firebase Initialization
         //https://medappserver.f0226942.hkbu.app/images/MedApp_utilities/success.png
         //https://firebase.google.com/docs/cloud-messaging/android/first-message?hl=zh&authuser=0
         FirebaseMessaging.getInstance().token.addOnCompleteListener(OnCompleteListener { task ->
@@ -43,8 +45,9 @@ class AlarmApp : Application() {
             }
 
             // Get new FCM registration token
-            val token = task.result
-            Log.e("myToken", "" + token)
+            patientFCM_token = task.result
+            Log.e("myToken", "" + patientFCM_token)
+
 
 
 //            // Log and toast

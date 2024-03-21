@@ -170,7 +170,7 @@ class NotiAlarmReceiver : BroadcastReceiver() { //AndoridManifest declared enabl
                 ctx.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
 
             val builder = NotificationCompat.Builder(ctx, channelId)
-                .setSmallIcon(R.drawable.ic_launcher_foreground) //mandatory
+                .setSmallIcon(R.drawable.icon) //mandatory
                 .setContentTitle("Reminder") //mandatory
                 .setContentText(message)    //mandatory
                 .setPriority(NotificationCompat.PRIORITY_HIGH)

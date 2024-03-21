@@ -19,6 +19,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.fyp_medapp_android.ui.theme.*
+import com.google.firebase.messaging.Constants.MessagePayloadKeys.SENDER_ID
+import com.google.firebase.messaging.FirebaseMessaging
+import com.google.firebase.messaging.RemoteMessage
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.MainScope
@@ -121,6 +124,8 @@ fun doctorApprovalScreen(navController: NavController) {
                                 var updateAppointDate = updateAppointDateTimeArr?.get(0)
                                 var updateAppointTime =
                                     updateAppointDateTimeArr?.get(1)?.substring(0, 5) //24hr format
+
+                                var patientID = appointItem.patientID //for firebase notification
 
                                 Log.d(
                                     "Appointment Doctor Simple Date Format",
@@ -422,8 +427,10 @@ fun doctorApprovalScreen(navController: NavController) {
 
                                         if (openDialog.value) {
 
-                                            var dialogTitle = if (doctorApprove) "Approve Success!" else "Reject Success!"
-                                            var dialogContent = if (doctorApprove) "Approve Success! The record is updated just now." else "Reject Success! The record is updated just now."
+                                            var dialogTitle =
+                                                if (doctorApprove) "Approve Success!" else "Reject Success!"
+                                            var dialogContent =
+                                                if (doctorApprove) "Approve Success! The record is updated just now." else "Reject Success! The record is updated just now."
 
                                             AlertDialog(
                                                 onDismissRequest = {
@@ -487,8 +494,17 @@ fun doctorApprovalScreen(navController: NavController) {
                                                 }
                                             }
 
-                                            //Set up Firebase Cloud Messaging
+                                            //Generate a Firebase Notification to the Patient
+                                            //call api to send the notification to the backend server, and backend to patient
+                                            CoroutineScope(Dispatchers.IO).launch {
+                                                val sendFirebaseNotificationResult: FirebaseNotification =
+                                                    KtorClient.sendFirebaseNotification(patientID!!, "Approve") //Approve or Reject
 
+                                                Log.d(
+                                                    "sendFirebaseNotificationResult",
+                                                    "sendFirebaseNotificationResult: $sendFirebaseNotificationResult"
+                                                )
+                                            }
                                         }
                                     }
 
