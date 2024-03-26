@@ -55,8 +55,8 @@ data class putApplyApproveAppointmentRecordResult(  //for deleting health data f
     val matchedCount: Int
 )
 
-var apiDomain = "https://medappserver.f0226942.hkbu.app"
-//var apiDomain = "http://rnjjh-158-182-8-76.a.free.pinggy.link"
+//var apiDomain = "https://medappserver.f0226942.hkbu.app"
+var apiDomain = "https://rnaiw-158-182-199-92.a.free.pinggy.link"
 object KtorClient {
     var token: String = ""
 
@@ -260,7 +260,23 @@ object KtorClient {
             return putApplyApproveAppointmentRecordResult(false, 0, null, 0, 0)
         }
     }
+    suspend fun sendFirebaseNotification(toSend: FirebaseSendNotification) : FirebaseNotificationResponse {
+        //send notification to server for sending FCM noti to firebase
+        try {
+            val response: FirebaseNotificationResponse =
+                httpClient.post(apiDomain + "/sendFirebaseNotificationToCloud") {
+                    setBody(toSend)
+                }.body()
 
+            Log.d("KtorClient sendFirebaseNotification", response.toString())
+
+            return response
+        } catch (e: Exception) {
+            Log.d("KtorClient sendFirebaseNotification", e.toString()) //null or errors
+            return FirebaseNotificationResponse(0, 0, 0, 0, null)
+        }
+
+    }
 
     suspend fun getHealthData(userID: String?): List<HealthData> { //Login function, post the info to backend to authorize
 
@@ -346,26 +362,6 @@ object KtorClient {
             //TODO check not null
             return emptyList()
         }
-    }
-
-    suspend fun sendFirebaseNotification(patientID: String, notificationMsg: String) : FirebaseNotification {
-       //send notification to server for sending FCM noti to firebase
-        try {
-            val response: FirebaseNotification =
-                httpClient.post(apiDomain + "/sendFirebaseNotificationToCloud") {
-                    setBody(
-                        FirebaseSendNotification(patientID, notificationMsg)
-                    )
-                }.body()
-
-            Log.d("KtorClient sendFirebaseNotification", response.toString())
-
-            return response
-        } catch (e: Exception) {
-            Log.d("KtorClient sendFirebaseNotification", e.toString()) //null or errors
-            return FirebaseNotification("", "")
-        }
-
     }
 }
 

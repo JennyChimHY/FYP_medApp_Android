@@ -1,5 +1,6 @@
 package com.example.fyp_medapp_android
 
+import android.annotation.SuppressLint
 import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -31,13 +32,30 @@ import java.text.SimpleDateFormat
 import java.util.*
 
 @Serializable
-data class ApproveRejectAppointRecord(
+data class ApproveRejectAppointRecord(  //for sending msg to backend server and update the database
     var appointID: String,
     var doctorUpdateStatus: String,
     var appointUpdateDateTime: String,
     var appointUpdateTimestamp: Long
 )
 
+@Serializable
+data class FirebaseSendNotification(  //send to backend server and to Firebase Cloud Messaging (FCM)
+    val patientID: String,
+    val notificationStatus: String,
+    val notificationMsg: String
+)
+
+@Serializable
+data class FirebaseNotificationResponse( //from backend server to review the FCM service
+    var multicast_id: Long,
+    var success: Int,
+    var failure: Int,
+    var canonical_ids: Int,
+    var results: List<Map<String, String>>?
+)
+
+@SuppressLint("SuspiciousIndentation")
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun doctorApprovalScreen(navController: NavController) {
@@ -80,8 +98,9 @@ fun doctorApprovalScreen(navController: NavController) {
 
             var callKtor = remember { mutableStateOf(false) }
             var approveRejectRecord = ApproveRejectAppointRecord("", "", "", 0)
-
             var doctorApprove = false
+
+            var notiToPatientID = ""  //firebase noti response
 
             Column(
                 modifier = Modifier
@@ -318,6 +337,8 @@ fun doctorApprovalScreen(navController: NavController) {
                                             Button( //approve
                                                 onClick = {
 
+                                                    Log.d("Approve", "Approve: ${appointItem.appointID}")
+
                                                     approveRejectRecord =
                                                         ApproveRejectAppointRecord(
                                                             appointItem.appointID!!,
@@ -357,7 +378,6 @@ fun doctorApprovalScreen(navController: NavController) {
 
                                             Button( //reject
                                                 onClick = {
-//                                                        approveRejectStatus = "Rejected"
 
                                                     approveRejectRecord =
                                                         ApproveRejectAppointRecord(
@@ -399,6 +419,7 @@ fun doctorApprovalScreen(navController: NavController) {
                                                     "putResult",
                                                     "putResult approveResult: $approveResult"
                                                 )
+//                                                callKtor.value = false
 
                                                 MainScope().launch {
                                                     if (approveResult.acknowledged) {           //success
@@ -410,18 +431,40 @@ fun doctorApprovalScreen(navController: NavController) {
                                                             message
                                                         )
 
-                                                        callKtor.value = false
                                                         openDialog.value = true
 
                                                     } else {     //error
                                                         message =
                                                             "Approve Failed, please try again later."
                                                         Log.d("Approve failed", message)
-
-                                                        callKtor.value = false
                                                     }
                                                 }
                                             }
+
+                                            //Generate a Firebase Notification to the Patient
+                                            //call api to send the notification to the backend server, and backend to patient
+                                            CoroutineScope(Dispatchers.IO).launch {
+
+                                                var doctorStatus = if (doctorApprove) "Approve" else "Reject"
+                                                var doctorMsg = if (doctorApprove) "Doctor has approved the appointment change: ${appointItem.appointClass}, on ${updateAppointDate} ${updateAppointTime} at ${appointItem.appointPlace}."
+                                                else "Doctor rejected the appointment change: ${appointItem.appointClass}, on ${originalAppointDate} ${originalAppointTime} at ${appointItem.appointPlace}."
+
+                                                var toSend = FirebaseSendNotification(patientID!!, doctorStatus, doctorMsg)
+                                                val sendFirebaseNotificationResult: FirebaseNotificationResponse =
+                                                    KtorClient.sendFirebaseNotification(toSend) //Approve or Reject
+
+                                                Log.d(
+                                                    "sendFirebaseNotificationResult",
+                                                    "sendFirebaseNotificationResult: $sendFirebaseNotificationResult"
+                                                )
+
+                                                if (sendFirebaseNotificationResult.success != 0)
+                                                notiToPatientID = sendFirebaseNotificationResult.results?.get(0)?.get(SENDER_ID).toString()
+
+                                            }
+
+                                            callKtor.value = false
+
                                         }
 
 
@@ -430,7 +473,7 @@ fun doctorApprovalScreen(navController: NavController) {
                                             var dialogTitle =
                                                 if (doctorApprove) "Approve Success!" else "Reject Success!"
                                             var dialogContent =
-                                                if (doctorApprove) "Approve Success! The record is updated just now." else "Reject Success! The record is updated just now."
+                                                if (doctorApprove) "Approve Success! The record is updated just now. The notification ID to patient: $notiToPatientID ." else "Reject Success! The record is updated just now."
 
                                             AlertDialog(
                                                 onDismissRequest = {
@@ -492,18 +535,6 @@ fun doctorApprovalScreen(navController: NavController) {
                                                         Text("OK")
                                                     }
                                                 }
-                                            }
-
-                                            //Generate a Firebase Notification to the Patient
-                                            //call api to send the notification to the backend server, and backend to patient
-                                            CoroutineScope(Dispatchers.IO).launch {
-                                                val sendFirebaseNotificationResult: FirebaseNotification =
-                                                    KtorClient.sendFirebaseNotification(patientID!!, "Approve") //Approve or Reject
-
-                                                Log.d(
-                                                    "sendFirebaseNotificationResult",
-                                                    "sendFirebaseNotificationResult: $sendFirebaseNotificationResult"
-                                                )
                                             }
                                         }
                                     }

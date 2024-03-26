@@ -17,21 +17,6 @@ import com.google.firebase.messaging.RemoteMessage
 import kotlinx.coroutines.launch
 import kotlinx.serialization.Serializable
 
-
-//for appointmentDoctorApprovalView.kt
-@Serializable
-data class FirebaseSendNotification(
-    val patientID: String,
-    val notificationMsg: String
-)
-
-//for appointmentDoctorApprovalView.kt
-@Serializable
-data class FirebaseNotification(
-    val title: String,
-    val message: String
-)
-
 class MyFirebaseMessagingService : FirebaseMessagingService() {
     /**
      * Called if the FCM registration token is updated. This may occur if the security of
