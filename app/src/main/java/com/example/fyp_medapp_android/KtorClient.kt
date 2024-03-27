@@ -55,8 +55,8 @@ data class putApplyApproveAppointmentRecordResult(  //for deleting health data f
     val matchedCount: Int
 )
 
-//var apiDomain = "https://medappserver.f0226942.hkbu.app"
-var apiDomain = "https://rnaiw-158-182-199-92.a.free.pinggy.link"
+var apiDomain = "https://medappserver.f0226942.hkbu.app"
+//var apiDomain = "https://rntop-158-182-8-76.a.free.pinggy.link"
 object KtorClient {
     var token: String = ""
 

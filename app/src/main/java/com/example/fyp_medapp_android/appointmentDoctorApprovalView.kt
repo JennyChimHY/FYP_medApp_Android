@@ -52,7 +52,12 @@ data class FirebaseNotificationResponse( //from backend server to review the FCM
     var success: Int,
     var failure: Int,
     var canonical_ids: Int,
-    var results: List<Map<String, String>>?
+    var results: List<FirebaseNotificationResponseMessage>?
+)
+
+@Serializable
+data class FirebaseNotificationResponseMessage( //from backend server to review the FCM service
+    var message_id: String
 )
 
 @SuppressLint("SuspiciousIndentation")
@@ -100,7 +105,7 @@ fun doctorApprovalScreen(navController: NavController) {
             var approveRejectRecord = ApproveRejectAppointRecord("", "", "", 0)
             var doctorApprove = false
 
-            var notiToPatientID = ""  //firebase noti response
+//            var notiToPatientID = ""  //firebase noti response
 
             Column(
                 modifier = Modifier
@@ -146,13 +151,13 @@ fun doctorApprovalScreen(navController: NavController) {
 
                                 var patientID = appointItem.patientID //for firebase notification
 
-                                Log.d(
-                                    "Appointment Doctor Simple Date Format",
-                                    SimpleDateFormat(
-                                        "yyyy MMMM dd, HH:mm:ss",
-                                        Locale.ENGLISH
-                                    ).format(appointItem.appointTimestamp)
-                                )
+//                                Log.d(
+//                                    "Appointment Doctor Simple Date Format",
+//                                    SimpleDateFormat(
+//                                        "yyyy MMMM dd, HH:mm:ss",
+//                                        Locale.ENGLISH
+//                                    ).format(appointItem.appointTimestamp)
+//                                )
 
 
                                 Card(
@@ -353,7 +358,64 @@ fun doctorApprovalScreen(navController: NavController) {
                                                     )
 
                                                     doctorApprove = true
-                                                    callKtor.value = true
+
+                                                    //callKtor.value = true
+
+                                                    //call Ktor Client to update the appointment record
+                                                    CoroutineScope(Dispatchers.IO).launch {
+
+                                                        val approveResult: putApplyApproveAppointmentRecordResult =
+                                                            KtorClient.putApproveRejectAppointment(
+                                                                appointItem.appointID!!,
+                                                                approveRejectRecord
+                                                            ) //not String message only, but User data class
+                                                        var message = ""
+                                                        Log.d(
+                                                            "putResult",
+                                                            "putResult approveResult: $approveResult"
+                                                        )
+
+                                                        MainScope().launch {
+                                                            if (approveResult.acknowledged) {           //success
+                                                                message =
+                                                                    "Approve Success! The record is updated just now."  //The reference code is: ${patchResult.referenceCode}"
+
+                                                                Log.d(
+                                                                    "Approved Success",
+                                                                    message
+                                                                )
+
+                                                                openDialog.value = true
+
+                                                            } else {     //error
+                                                                message =
+                                                                    "Approve Failed, please try again later."
+                                                                Log.d("Approve failed", message)
+                                                            }
+                                                        }
+                                                    }
+
+                                                    //Generate a Firebase Notification to the Patient
+                                                    //call api to send the notification to the backend server, and backend to patient
+                                                    CoroutineScope(Dispatchers.IO).launch {
+
+                                                        var doctorStatus = if (doctorApprove) "Approve" else "Reject"
+                                                        var doctorMsg = if (doctorApprove) "Doctor has approved the appointment change: ${appointItem.appointClass}, on ${updateAppointDate} ${updateAppointTime} at ${appointItem.appointPlace}."
+                                                        else "Doctor rejected the appointment change: ${appointItem.appointClass}, on ${originalAppointDate} ${originalAppointTime} at ${appointItem.appointPlace}."
+
+                                                        var toSend = FirebaseSendNotification(patientID!!, doctorStatus, doctorMsg)
+                                                        val sendFirebaseNotificationResult: FirebaseNotificationResponse =
+                                                            KtorClient.sendFirebaseNotification(toSend) //Approve or Reject
+
+                                                        Log.d(
+                                                            "sendFirebaseNotificationResult",
+                                                            "sendFirebaseNotificationResult: $sendFirebaseNotificationResult  \n${sendFirebaseNotificationResult.results?.get(0)}"
+                                                        )
+
+//                                                        if (sendFirebaseNotificationResult.success != 0)
+//                                                            notiToPatientID = sendFirebaseNotificationResult.results?.get(0)?.message_id!!
+
+                                                    }
                                                 },
                                                 modifier = Modifier
                                                     .fillMaxWidth()
@@ -388,7 +450,63 @@ fun doctorApprovalScreen(navController: NavController) {
                                                         )
 
                                                     doctorApprove = false
-                                                    callKtor.value = true
+//                                                    callKtor.value = true
+
+                                                    //call Ktor Client to update the appointment record
+                                                    CoroutineScope(Dispatchers.IO).launch {
+
+                                                        val approveResult: putApplyApproveAppointmentRecordResult =
+                                                            KtorClient.putApproveRejectAppointment(
+                                                                appointItem.appointID!!,
+                                                                approveRejectRecord
+                                                            ) //not String message only, but User data class
+                                                        var message = ""
+                                                        Log.d(
+                                                            "putResult",
+                                                            "putResult approveResult: $approveResult"
+                                                        )
+
+                                                        MainScope().launch {
+                                                            if (approveResult.acknowledged) {           //success
+                                                                message =
+                                                                    "Approve Success! The record is updated just now."  //The reference code is: ${patchResult.referenceCode}"
+
+                                                                Log.d(
+                                                                    "Approved Success",
+                                                                    message
+                                                                )
+
+                                                                openDialog.value = true
+
+                                                            } else {     //error
+                                                                message =
+                                                                    "Approve Failed, please try again later."
+                                                                Log.d("Approve failed", message)
+                                                            }
+                                                        }
+                                                    }
+
+                                                    //Generate a Firebase Notification to the Patient
+                                                    //call api to send the notification to the backend server, and backend to patient
+                                                    CoroutineScope(Dispatchers.IO).launch {
+
+                                                        var doctorStatus = if (doctorApprove) "Approve" else "Reject"
+                                                        var doctorMsg = if (doctorApprove) "Doctor has approved the appointment change: ${appointItem.appointClass}, on ${updateAppointDate} ${updateAppointTime} at ${appointItem.appointPlace}."
+                                                        else "Doctor rejected the appointment change: ${appointItem.appointClass}, on ${originalAppointDate} ${originalAppointTime} at ${appointItem.appointPlace}."
+
+                                                        var toSend = FirebaseSendNotification(patientID!!, doctorStatus, doctorMsg)
+                                                        val sendFirebaseNotificationResult: FirebaseNotificationResponse =
+                                                            KtorClient.sendFirebaseNotification(toSend) //Approve or Reject
+
+                                                        Log.d(
+                                                            "sendFirebaseNotificationResult",
+                                                            "sendFirebaseNotificationResult: $sendFirebaseNotificationResult"
+                                                        )
+
+//                                                        if (sendFirebaseNotificationResult.success != 0)
+//                                                            notiToPatientID = sendFirebaseNotificationResult.results?.get(0)?.message_id.toString()
+
+                                                    }
                                                 },
                                                 modifier = Modifier
                                                     .fillMaxWidth()
@@ -405,76 +523,13 @@ fun doctorApprovalScreen(navController: NavController) {
                                             }
                                         }
 
-                                        if (callKtor.value) {
-                                            //call Ktor Client to update the appointment record
-                                            CoroutineScope(Dispatchers.IO).launch {
-
-                                                val approveResult: putApplyApproveAppointmentRecordResult =
-                                                    KtorClient.putApproveRejectAppointment(
-                                                        appointItem.appointID!!,
-                                                        approveRejectRecord
-                                                    ) //not String message only, but User data class
-                                                var message = ""
-                                                Log.d(
-                                                    "putResult",
-                                                    "putResult approveResult: $approveResult"
-                                                )
-//                                                callKtor.value = false
-
-                                                MainScope().launch {
-                                                    if (approveResult.acknowledged) {           //success
-                                                        message =
-                                                            "Approve Success! The record is updated just now."  //The reference code is: ${patchResult.referenceCode}"
-
-                                                        Log.d(
-                                                            "Approved Success",
-                                                            message
-                                                        )
-
-                                                        openDialog.value = true
-
-                                                    } else {     //error
-                                                        message =
-                                                            "Approve Failed, please try again later."
-                                                        Log.d("Approve failed", message)
-                                                    }
-                                                }
-                                            }
-
-                                            //Generate a Firebase Notification to the Patient
-                                            //call api to send the notification to the backend server, and backend to patient
-                                            CoroutineScope(Dispatchers.IO).launch {
-
-                                                var doctorStatus = if (doctorApprove) "Approve" else "Reject"
-                                                var doctorMsg = if (doctorApprove) "Doctor has approved the appointment change: ${appointItem.appointClass}, on ${updateAppointDate} ${updateAppointTime} at ${appointItem.appointPlace}."
-                                                else "Doctor rejected the appointment change: ${appointItem.appointClass}, on ${originalAppointDate} ${originalAppointTime} at ${appointItem.appointPlace}."
-
-                                                var toSend = FirebaseSendNotification(patientID!!, doctorStatus, doctorMsg)
-                                                val sendFirebaseNotificationResult: FirebaseNotificationResponse =
-                                                    KtorClient.sendFirebaseNotification(toSend) //Approve or Reject
-
-                                                Log.d(
-                                                    "sendFirebaseNotificationResult",
-                                                    "sendFirebaseNotificationResult: $sendFirebaseNotificationResult"
-                                                )
-
-                                                if (sendFirebaseNotificationResult.success != 0)
-                                                notiToPatientID = sendFirebaseNotificationResult.results?.get(0)?.get(SENDER_ID).toString()
-
-                                            }
-
-                                            callKtor.value = false
-
-                                        }
-
-
                                         if (openDialog.value) {
 
                                             var dialogTitle =
                                                 if (doctorApprove) "Approve Success!" else "Reject Success!"
                                             var dialogContent =
-                                                if (doctorApprove) "Approve Success! The record is updated just now. The notification ID to patient: $notiToPatientID ." else "Reject Success! The record is updated just now."
-
+                                                if (doctorApprove) "Approve Success! The record is updated just now." else "Reject Success! The record is updated just now."
+                                                //The notification ID to patient: $notiToPatientID
                                             AlertDialog(
                                                 onDismissRequest = {
                                                     openDialog.value = false
