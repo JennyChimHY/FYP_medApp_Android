@@ -38,10 +38,6 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        //create empty local notification alarm channel
-        val alarmScheduler: NotiAlarmScheduler = NotiAlarmSchedulerImpl(this)
-        var alarmItem: NotiAlarmItem? = null
-
         val requestPermissionLauncher =
             registerForActivityResult( //call at Main Activity
                 ActivityResultContracts.RequestPermission()
@@ -63,7 +59,7 @@ class MainActivity : ComponentActivity() {
             ContextCompat.checkSelfPermission(
                 this.applicationContext,
                 ACCESS_COARSE_LOCATION
-            ) == PackageManager.PERMISSION_GRANTED -> {} // You can use the API that requires the permission.
+            ) == PackageManager.PERMISSION_GRANTED -> {}
 
             //permitted already, take no action.
             ActivityCompat.shouldShowRequestPermissionRationale(
@@ -116,15 +112,18 @@ class MainActivity : ComponentActivity() {
                     color = MaterialTheme.colorScheme.background
                 ) {
                     //Testing alarm scheduling
-                    alarmItem = NotiAlarmItem(  //empty list of time, type of reminder and photo?
-                        alarmTime = LocalDateTime.now().plusSeconds(
-                            "8".toLong()
-                        ),
-                        notiType = "Initial",
-                        message = "Testing Alarm Success, Reminder Success.",
-                        picture = "xarelto"
-                    )
-                    alarmItem?.let(alarmScheduler::schedule)
+                    //create empty local notification alarm channel
+//                    val alarmScheduler: NotiAlarmScheduler = NotiAlarmSchedulerImpl(this)
+//                    var alarmItem: NotiAlarmItem? = null
+//                    alarmItem = NotiAlarmItem(  //empty list of time, type of reminder and photo?
+//                        alarmTime = LocalDateTime.now().plusSeconds(
+//                            "8".toLong()
+//                        ),
+//                        notiType = "Initial",
+//                        message = "Testing Alarm Success, Reminder Success.",
+//                        picture = "xarelto"
+//                    )
+//                    alarmItem?.let(alarmScheduler::schedule)
 
                     //turn to home page
                     BasicSetting()

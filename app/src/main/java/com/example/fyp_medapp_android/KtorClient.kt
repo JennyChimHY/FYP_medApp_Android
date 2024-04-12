@@ -67,7 +67,6 @@ object KtorClient {
                 ignoreUnknownKeys = true
                 explicitNulls = false
             }
-
             ) // enable the client to perform JSON serialization
         }
         install(Logging)

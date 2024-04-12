@@ -10,8 +10,7 @@
 
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" /> <!-- Get location access -->
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />  <!-- Get precise location access -->
-    <!-- Required only when requesting background location access on
-       Android 10 (API level 29) and higher. -->
+    <!-- Required only when requesting background location access on Android 10 (API level 29) and higher. -->
     <uses-permission android:name="android.permission.ACCESS_BACKGROUND_LOCATION" />
 
     <application

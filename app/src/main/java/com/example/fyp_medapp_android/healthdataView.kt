@@ -747,7 +747,7 @@ fun addDataBlockDialog(
                 }
 
                 if (type == "temperature") {
-                    //radio options
+                    //radio options, dC and dF
                     val radioOptions_temperature = listOf("\u2103", "\u2109")
                     var selectedOption by remember { mutableStateOf(radioOptions_temperature[0]) }
 
@@ -864,8 +864,6 @@ fun addDataBlockDialog(
                                     Log.d("Added Success", message)
 
                                 } else {     //error
-//                                    println("add false")
-//                                    println(addResult)
                                     message = "Added Failed"
                                     Log.d("Added failed", message)
                                 }
@@ -939,7 +937,7 @@ fun validationCheckUpdate(
         }
         "bloodSugar" -> {
             minRange = 3.0
-            maxRange = 8.0
+            maxRange = 12.0
             status_risky = 5.6
             status_danger = 6.9
         }
@@ -961,13 +959,13 @@ fun validationCheckUpdate(
             status_risky = 92.0 //less than
             status_danger = 88.0 //less than
         }
-        "waistWidth" -> {
-            minRange = 20.0
-            maxRange = 110.0
-            status_risky = 100.0
-            status_danger = 100.0
-        }
-        else -> {  //TODO: self-defined type
+//        "waistWidth" -> {
+//            minRange = 20.0
+//            maxRange = 110.0
+//            status_risky = 100.0
+//            status_danger = 100.0
+//        }
+        else -> {
             minRange = 0.0
             maxRange = 100.0
             status_risky = 150.0
@@ -980,6 +978,14 @@ fun validationCheckUpdate(
         if (addhealthData.recordValue1_defaultUnit!! < minRange || addhealthData.recordValue1_defaultUnit!! > maxRange) {
             //msg: out of range
             return null
+        } else if (addhealthData.recordType == "bloodOxygenLevel") {
+            if (addhealthData.recordValue1_defaultUnit!! < status_danger) {
+                addhealthData.healthStatus = "danger"
+            } else if (addhealthData.recordValue1_defaultUnit!! < status_risky) {
+                addhealthData.healthStatus = "risk"
+            } else {
+                addhealthData.healthStatus = "healthy"
+            }
         } else if (addhealthData.recordValue1_defaultUnit!! > status_danger) {
             addhealthData.healthStatus = "danger"
         } else if (addhealthData.recordValue1_defaultUnit!! > status_risky) {

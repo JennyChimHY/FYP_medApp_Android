@@ -222,8 +222,7 @@ fun Login(navController: NavHostController, snackbarHostState: SnackbarHostState
                                                     )
 
                                                     val notiAlarmItem = NotiAlarmItem(
-                                                        alarmTime = newDateTime//LocalDateTime.now().plusSeconds("10".toLong())
-                                                        , //medicine.dailyIntake
+                                                        alarmTime = newDateTime,
                                                         notiType = "Medicine",
                                                         message = "${medicine.medicineInfo?.medicineName}:\n${medicine.dailyIntake} time(s) per day,\n${medicine.eachIntakeAmount} dose(s) each time.",
                                                         picture = medicine.medicineInfo?.medicineImageName
@@ -234,7 +233,26 @@ fun Login(navController: NavHostController, snackbarHostState: SnackbarHostState
                                             }
                                         }
 
-                                        //================ 2nd Alarm: Location Alarm ================
+
+                                        //================ 2nd Alarm: Health Data Alarm ================
+                                        val notiHealthAlarmScheduler: NotiAlarmScheduler =
+                                            NotiAlarmSchedulerImpl(context.applicationContext)
+
+                                        val alarmHealthItem =
+                                            NotiAlarmItem(
+                                                alarmTime = LocalDateTime.now()
+                                                    .withHour(21)
+                                                    .withMinute(0)
+                                                    .withSecond(0)
+                                                    .withNano(0),
+                                                notiType = "Health Data Input",
+                                                message = "Good night! Remember to input your health data.",
+                                                picture = "health"
+                                            )
+                                        alarmHealthItem?.let(notiHealthAlarmScheduler::schedule)
+
+
+                                        //================ 3rd Alarm: Location Alarm ================
                                         //create empty location alarm channel
                                         val locationScheduler: LocationAlarmScheduler =
                                             LocationAlarmSchedulerImpl(context.applicationContext)

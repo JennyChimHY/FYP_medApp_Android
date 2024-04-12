@@ -171,7 +171,7 @@ class NotiAlarmReceiver : BroadcastReceiver() { //AndoridManifest declared enabl
 
             val builder = NotificationCompat.Builder(ctx, channelId)
                 .setSmallIcon(R.drawable.icon) //mandatory
-                .setContentTitle("Reminder") //mandatory
+                .setContentTitle("$notiType Reminder") //mandatory
                 .setContentText(message)    //mandatory
                 .setPriority(NotificationCompat.PRIORITY_HIGH)
 
@@ -253,13 +253,13 @@ class LocationAlarmReceiver : BroadcastReceiver() {  //AndoridManifest declared 
                 locationResult?.lastLocation?.let {
                     currentLocation = it
                 } ?: {
-                    Log.d("abc", "Location information isn't available.")
+                    Log.d("Error", "Location information isn't available.")
                 }
                 var latitude = currentLocation!!.latitude
                 var longitude = currentLocation!!.longitude
 
                 Log.d(
-                    "abc",
+                    "Success",
                     "latitude: $latitude, longitude: $longitude at ${currentLocation!!.time} on ${LocalDateTime.now().year} ${LocalDateTime.now().month} ${LocalDateTime.now().dayOfMonth} ${LocalDateTime.now().hour}:${LocalDateTime.now().minute}:${LocalDateTime.now().second}"
                 )
 
@@ -327,21 +327,6 @@ class LocationAlarmReceiver : BroadcastReceiver() {  //AndoridManifest declared 
 //    }
 
 }
-
-//removed function, now ActivityCompat.checkSelfPermission(context!!.applicationContext, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTEDusing
-//fun isLocationPermissionGranted(applicationContext: Context): Boolean {
-//    //safety check for permission again, already requested at MainActivity(initial page) before
-//    return ActivityCompat.checkSelfPermission(
-//        applicationContext,
-//        android.Manifest.permission.ACCESS_COARSE_LOCATION
-//    ) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(
-//        applicationContext,
-//        android.Manifest.permission.ACCESS_FINE_LOCATION
-//    ) != PackageManager.PERMISSION_GRANTED
-//    //take no action if granted
-//}
-
-
 
 
 
