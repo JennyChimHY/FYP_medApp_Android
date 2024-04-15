@@ -875,6 +875,10 @@ fun addDataBlockDialog(
                             }
                         } else {
                             println("validation check failed")
+                            coroutineScope.launch {
+                                var errMessage = "Invalid or Empty Input. Please input the correct value."
+                                snackbarHostState.showSnackbar(errMessage)
+                            }
                         }
 
                     }) {//call function to pop up add record (overlay)

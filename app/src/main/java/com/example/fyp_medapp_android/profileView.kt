@@ -73,6 +73,14 @@ fun profileScreen(navController: NavHostController) {
                                 .padding(textPadding),
                             textAlign = TextAlign.Start,
                         )
+                        if (globalLoginInfo.userRole != "doctor" && globalLoginInfo.userRole != "doctorNavigatePatient") {
+                            Text(
+                                text = "HKID: ${globalLoginInfo.userID}",
+                                modifier = Modifier
+                                    .padding(textPadding),
+                                textAlign = TextAlign.Start,
+                            )
+                        }
                         Text(
                             text = "Gender: ${globalLoginInfo.gender}",
                             modifier = Modifier
@@ -123,6 +131,12 @@ fun profileScreen(navController: NavHostController) {
                         Column() {
                             Text(
                                 text = "Name: ${globalLoginPatientInfo.username}",
+                                modifier = Modifier
+                                    .padding(textPadding),
+                                textAlign = TextAlign.Start,
+                            )
+                            Text(
+                                text = "HKID: ${globalLoginPatientInfo.userID}",
                                 modifier = Modifier
                                     .padding(textPadding),
                                 textAlign = TextAlign.Start,
